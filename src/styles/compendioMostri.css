@@ -1,0 +1,27 @@
+.modale-compendio {
+  background: #1a1f2b;
+  color: #f2f2f0;
+  padding: 1rem;
+  border-radius: 10px;
+  width: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
+  border: 2px solid #6e4f9e;
+  z-index: 9999;
+}
+
+.lista-mostri {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+
+.lista-mostri li {
+  padding: 0.5rem;
+  border-bottom: 1px solid #3d3d3d;
+  cursor: pointer;
+}
+
+.lista-mostri li:hover {
+  background: #2d2d36;
+}

@@ -75,6 +75,18 @@ export default function ModalePng({ onClose }) {
     })),
     createdAt: serverTimestamp(),
   });
+  const [sceneDisponibili, setSceneDisponibili] = useState([]);
+  const [sceneCollegate, setSceneCollegate] = useState([]);
+
+  useEffect(() => {
+    if (!campagnaAttiva?.id) return;
+
+    const ref = collection(firestore, `campagne/${campagnaAttiva.id}/scenes`);
+    getDocs(ref).then((snapshot) => {
+      const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setSceneDisponibili(data);
+    });
+  }, [campagnaAttiva]);
 
   useEffect(() => {
     fetch("https://www.dnd5eapi.co/api/races")
@@ -320,6 +332,7 @@ export default function ModalePng({ onClose }) {
           components: s.components,
           desc: s.desc?.[0],
         })),
+        sceneCollegate,
         createdAt: serverTimestamp(),
       };
 
@@ -486,6 +499,8 @@ export default function ModalePng({ onClose }) {
     "Statistiche",
     "Combattimento",
     "Magia",
+    "Equipaggiamento",
+    "Collegamenti",
   ];
   const tabList =
     tipo === "Comune"
@@ -497,6 +512,7 @@ export default function ModalePng({ onClose }) {
           "Statistiche",
           "Combattimento",
           "Equipaggiamento",
+          "Collegamenti",
           ...(classeMagica ? ["Magia"] : []),
         ];
 
@@ -1095,6 +1111,30 @@ export default function ModalePng({ onClose }) {
                   }
                   placeholder="Es: Borsa con erbe, piccolo pugnale arrugginito, pergamena arrotolata..."
                 />
+              </div>
+            </div>
+          )}
+          {tab === "Collegamenti" && (
+            <div className="tab-collegamenti">
+              <div className="field-group">
+                <label>Collega a Scene esistenti:</label>
+                <select
+                  multiple
+                  value={sceneCollegate}
+                  onChange={(e) =>
+                    setSceneCollegate(
+                      Array.from(e.target.selectedOptions).map(
+                        (opt) => opt.value
+                      )
+                    )
+                  }
+                >
+                  {sceneDisponibili.map((scene) => (
+                    <option key={scene.id} value={scene.id}>
+                      {scene.titolo} ({scene.capitoloNome || "senza capitolo"})
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           )}

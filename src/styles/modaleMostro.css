@@ -1,0 +1,133 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modale-mostro {
+  background: #1A1F2B;
+  border: 2px solid #6E4F9E;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 800px;
+  padding: 1.5rem;
+  color: #F2F2F0;
+  z-index: 9999;
+  position: relative;
+}
+
+.modale-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.icone-header button {
+  margin-left: 0.5rem;
+  font-size: 1.2rem;
+  background: none;
+  border: none;
+  color: #F2F2F0;
+  cursor: pointer;
+}
+
+.tab-bar {
+  display: flex;
+  margin-top: 1rem;
+  border-bottom: 2px solid #6E4F9E;
+}
+
+.tab-bar button {
+  background: none;
+  border: none;
+  padding: 0.5rem 1rem;
+  color: #F2F2F0;
+  cursor: pointer;
+}
+
+.tab-bar .active {
+  font-weight: bold;
+  color: #D4AF37;
+  border-bottom: 2px solid #D4AF37;
+}
+
+.tab-content {
+  margin-top: 1rem;
+}
+
+.field-group {
+  margin-bottom: 1rem;
+}
+
+.field-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.4rem;
+}
+
+.field-group input,
+.field-group textarea {
+  width: 100%;
+  padding: 0.4rem;
+  background: #2d2d36;
+  border: 1px solid #6E4F9E;
+  border-radius: 6px;
+  color: #F2F2F0;
+}
+.stat-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.stat-box {
+  background-color: #2e2e3a;
+  border: 2px solid #6E4F9E;
+  border-radius: 10px;
+  padding: 1rem;
+  width: 110px;
+  text-align: center;
+  color: #F2F2F0;
+  box-shadow: 0 0 8px rgba(0,0,0,0.3);
+}
+
+.stat-title {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #D4AF37;
+  margin-bottom: 0.5rem;
+}
+
+.stat-score {
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.stat-mod {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.stat-abilita {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.8rem;
+  text-align: left;
+}
+.gruppo-attacco input {
+  flex: 1;
+}
+
+.gruppo-attacco textarea {
+  margin-top: 0.5rem;
+}

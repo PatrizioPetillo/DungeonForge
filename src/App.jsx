@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import 'react-tooltip/dist/react-tooltip.css';
 import AuthPage from './pages/authPage';
 import DashboardDM from './pages/dashboardDM';
@@ -13,6 +15,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<AuthPage />} />
+        <ToastContainer position="top-right" autoClose={3000} />
         <Route path="/dashboard" element={<DashboardDM />} />
         <Route path="/campagna/:id" element={<ModaleDettagliCampagna />} />
         <Route path="/crea-campagna" element={<ModaleCreaCampagna />} />

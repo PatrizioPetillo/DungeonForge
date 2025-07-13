@@ -122,3 +122,10 @@
   font-size: 0.85em;
   color: #b2b9c3;
 }
+.collegamenti-png {
+  background-color: #2d2d36;
+  padding: 0.5rem;
+  border-left: 3px solid #6E4F9E;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+}

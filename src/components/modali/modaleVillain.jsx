@@ -55,6 +55,9 @@ const ModaleVillain = ({ onClose }) => {
   const [listaIncantesimi, setListaIncantesimi] = useState([]);
   const [slotIncantesimi, setSlotIncantesimi] = useState([]);
   const [maxIncantesimi, setMaxIncantesimi] = useState(0);
+  const [sceneDisponibili, setSceneDisponibili] = useState([]);
+const [sceneCollegate, setSceneCollegate] = useState([]);
+
 
   // Restituisce un elemento casuale da un array
   const casuale = (array) => array[Math.floor(Math.random() * array.length)];
@@ -86,6 +89,17 @@ const ModaleVillain = ({ onClose }) => {
 
     setStats(nuoveStats);
   };
+
+  // Fetch campagne attive da Firestore
+  useEffect(() => {
+  if (!campagnaAttiva?.id) return;
+
+  const scenesRef = collection(firestore, `campagne/${campagnaAttiva.id}/scenes`);
+  getDocs(scenesRef).then(snapshot => {
+    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    setSceneDisponibili(data);
+  });
+}, [campagnaAttiva]);
 
   // Fetch razze, classi e sottoclassi da un'API o da un file locale
   useEffect(() => {
@@ -541,6 +555,7 @@ const ModaleVillain = ({ onClose }) => {
             components: s.components,
             desc: s.desc?.[0],
           })) || [],
+          sceneCollegate,
       };
 
       await addDoc(collection(firestore, "villain"), doc);
@@ -559,6 +574,7 @@ const ModaleVillain = ({ onClose }) => {
     "Magia",
     "Equipaggiamento",
     "Narrativa",
+    "Collegamenti",
   ];
 
   return (
@@ -1076,6 +1092,31 @@ const ModaleVillain = ({ onClose }) => {
                 <button onClick={generaLootPerVillain}>
                   🎁 Genera loot in base al livello
                 </button>
+              </div>
+            </div>
+          )}
+
+          {tab === "Collegamenti" && (
+            <div className="tab-collegamenti">
+              <div className="field-group">
+                <label>Collega a Scene esistenti:</label>
+                <select
+                  multiple
+                  value={sceneCollegate}
+                  onChange={(e) =>
+                    setSceneCollegate(
+                      Array.from(e.target.selectedOptions).map(
+                        (opt) => opt.value
+                      )
+                    )
+                  }
+                >
+                  {sceneDisponibili.map((scene) => (
+                    <option key={scene.id} value={scene.id}>
+                      {scene.titolo} ({scene.capitoloNome})
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           )}

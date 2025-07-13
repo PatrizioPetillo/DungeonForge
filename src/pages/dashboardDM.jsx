@@ -23,6 +23,7 @@ function DashboardDM() {
     const [campagnaSelezionata, setCampagnaSelezionata] = useState(null);
     const [showPngModal, setShowPngModal] = useState(false);
     const [showVillainModal, setShowVillainModal] = useState(false);
+    const [showMostroModal, setShowMostroModal] = useState(false);
     
   return (
     <div className="dashboard-container">
@@ -88,6 +89,12 @@ function DashboardDM() {
         <VillainWidget onClick={() => setShowVillainModal(true)} />
         {showVillainModal && <ModaleVillain onClose={() => setShowVillainModal(false)} />}
       </section>
+
+      {/* Widget Mostri */}
+      <section className="dashboard-section">
+        <MostroWidget onClick={() => setShowMostroModal(true)} />
+        {showMostroModal && <ModaleMostro onClose={() => setShowMostroModal(false)} />}
+          </section>
       </section>
 
       {/* Recap Sessione */}
