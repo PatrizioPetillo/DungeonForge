@@ -1,11 +1,19 @@
+.modale-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
 .modale-villain {
   background: #1A1F2B;
-  border: 2px solid #6E4F9E;
-  border-radius: 12px;
-  padding: 1rem;
-  width: 90%;
-  max-width: 700px;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 800px;
   color: #F2F2F0;
+  box-shadow: 0 0 15px rgba(0,0,0,0.6);
 }
 .modale-header {
   display: flex;
@@ -24,4 +32,65 @@
 }
 .field-group {
   margin-bottom: 1rem;
+}
+.stat-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.stat-box {
+  background-color: #2e2e3a;
+  border: 2px solid #6E4F9E;
+  border-radius: 10px;
+  padding: 1rem;
+  width: 110px;
+  text-align: center;
+  color: #F2F2F0;
+  box-shadow: 0 0 8px rgba(0,0,0,0.3);
+}
+
+.stat-title {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #D4AF37;
+  margin-bottom: 0.5rem;
+}
+
+.stat-score {
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.stat-mod {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.stat-abilita {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.8rem;
+  text-align: left;
+}
+.abilita-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+  background: #2b2e3a;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  color: #F2F2F0;
+  border: 1px solid #6E4F9E;
 }
