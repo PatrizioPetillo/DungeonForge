@@ -1,0 +1,27 @@
+.modale-villain {
+  background: #1A1F2B;
+  border: 2px solid #6E4F9E;
+  border-radius: 12px;
+  padding: 1rem;
+  width: 90%;
+  max-width: 700px;
+  color: #F2F2F0;
+}
+.modale-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.icone-header button {
+  margin-left: 0.5rem;
+  cursor: pointer;
+}
+.tab-selector button {
+  margin-right: 0.5rem;
+}
+.tab-selector .attiva {
+  color: #D4AF37;
+}
+.field-group {
+  margin-bottom: 1rem;
+}

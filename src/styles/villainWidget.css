@@ -1,0 +1,23 @@
+.villain-widget {
+  background-color: #1A1F2B;
+  color: #F2F2F0;
+  border: 2px solid #6E4F9E;
+  border-radius: 10px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+.villain-widget:hover {
+  background-color: #2b2f3f;
+  border-color: #D4AF37;
+}
+.villain-widget h3 {
+  margin: 0;
+  color: #D4AF37;
+}
+.villain-widget p {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: #B2B9C3;
+}

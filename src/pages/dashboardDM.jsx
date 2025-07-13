@@ -2,10 +2,13 @@ import React, {useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from "../firebase/firebaseConfig";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import PngWidget from "../components/widget/pngWidget";
+import VillainWidget from "../components/widget/villainWidget";
+import ModaleVillain from "../components/modali/modaleVillain";
+import ModalePng from "../components/modali/modalePNG";
 import ModaleCreaCampagna from '../components/modaleCreaCampagna';
 import ModaleDettagliCampagna from '../components/modaleDettagliCampagna';
-import CampagnaCard from '../components/CampagnaCard';
-import ModaleGeneraPNG from '../components/modali/modaleGeneraPNG';
+import CampagnaCard from '../components/campagnaCard';
 import SuggerimentoDelGiorno from '../components/suggerimentodelGiorno';
 import '../styles/dashboardDM.css';
 
@@ -18,25 +21,8 @@ function DashboardDM() {
       stato: 'bozza',
     });
     const [campagnaSelezionata, setCampagnaSelezionata] = useState(null);
-    const [mostraModaleGeneraPNG, setMostraModaleGeneraPNG] = useState(false);
-    const [tuttiPNG, setTuttiPNG] = useState([]);
-
-    useEffect(() => {
-  const fetchPNG = async () => {
-    try {
-      const querySnapshot = await getDocs(collection(db, "png"));
-      const pngList = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setTuttiPNG(pngList);
-    } catch (err) {
-      console.error("Errore nel recuperare i PNG:", err);
-    }
-  };
-
-  fetchPNG();
-}, []);
+    const [showPngModal, setShowPngModal] = useState(false);
+    const [showVillainModal, setShowVillainModal] = useState(false);
     
   return (
     <div className="dashboard-container">
@@ -73,6 +59,7 @@ function DashboardDM() {
 
         </div>
       </section>
+      
 
       {/* Archivio Narrativo */}
       <section className="dashboard-section">
@@ -87,32 +74,21 @@ function DashboardDM() {
         </div>
       </section>
 
-      {/* Generatori rapidi */}
+      {/* Generatori */}
       <section className="dashboard-section">
         <h2>Forgia delle Maschere</h2>
-        <p className="section-desc">Strumenti per creare al volo PNG, Villain, Enigmi o Avventure modulari.</p>
-        <div className="generator-buttons">
-          {mostraModaleGeneraPNG && (
-  <ModaleGeneraPNG onClose={() => setMostraModaleGeneraPNG(false)} />
-)}
-
-<button onClick={() => setMostraModaleGeneraPNG(true)}>🎲 PNG</button>
-          <button>💀 Villain</button>
-          <button>📦 Loot</button>
-          <button>🧩 Five Room Dungeon</button>
-        </div>
+        <p className="section-desc">Strumenti per creare PNG, Villain, Mostri, Enigmi o Avventure modulari.</p>
+        {/* Widget PNG */}
+      <section className="dashboard-section">
+        <PngWidget onClick={() => setShowPngModal(true)} />
+        {showPngModal && <ModalePng onClose={() => setShowPngModal(false)} />}
       </section>
-
-      <div className="sezione-png-preferiti">
-  <h3>🌟 PNG Preferiti</h3>
-  <div className="lista-png">
-    {tuttiPNG
-      .filter((p) => p.preferito)
-      .map((p) => (
-        <PNGCard key={p.id} png={p} mostraPreferito={true} />
-      ))}
-  </div>
-</div>
+      {/* Widget Villain */}
+      <section className="dashboard-section">
+        <VillainWidget onClick={() => setShowVillainModal(true)} />
+        {showVillainModal && <ModaleVillain onClose={() => setShowVillainModal(false)} />}
+      </section>
+      </section>
 
       {/* Recap Sessione */}
       <section className="dashboard-section">
