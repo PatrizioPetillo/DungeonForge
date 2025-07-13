@@ -1,0 +1,58 @@
+.dashboard-container {
+  padding: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.dashboard-title {
+  color: var(--color-accent);
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+}
+
+.dashboard-section {
+  margin-top: 2rem;
+}
+
+.section-desc {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  margin-bottom: 1rem;
+}
+
+.campagne-list,
+.archivio-buttons,
+.generator-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.campagna-add-btn {
+  padding: 1rem;
+  border: 2px dashed var(--color-accent);
+  color: var(--color-accent);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.recap-box {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  border-radius: var(--radius);
+  color: var(--color-text);
+}
+
+.placeholder-box {
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px dashed var(--color-muted);
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  color: var(--color-muted);
+  text-align: center;
+}

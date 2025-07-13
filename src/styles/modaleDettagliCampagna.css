@@ -1,0 +1,124 @@
+.modale-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(10, 10, 10, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modale-content {
+  background-color: #1a1f2b;
+  padding: 2rem;
+  border-radius: var(--radius);
+  width: 90%;
+  max-width: 700px;
+  box-shadow: 0 0 20px #000;
+  color: var(--color-text);
+}
+
+.modale-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.tab-selector {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.tab-selector button {
+  padding: 0.4rem 0.8rem;
+  background: transparent;
+  border: 1px solid var(--color-muted);
+  color: var(--color-muted);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.tab-selector .active {
+  background-color: var(--color-accent);
+  color: var(--color-bg);
+  border: none;
+}
+
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tab-content input,
+.tab-content textarea,
+.tab-content select {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-muted);
+  padding: 0.5rem;
+  border-radius: var(--radius);
+  color: var(--color-text);
+}
+
+.modale-footer {
+  margin-top: 1.5rem;
+  text-align: right;
+}
+
+.salva-btn {
+  background-color: var(--color-success);
+  color: var(--color-bg);
+  border: none;
+  padding: 0.8rem 1.2rem;
+  border-radius: var(--radius);
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.elimina-btn {
+  background-color: var(--color-error);
+  color: var(--color-text);
+  padding: 0.5rem 1rem;
+  margin-right: 1rem;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.lista-mostri {
+  list-style: none;
+  padding: 0;
+}
+
+.mostro-item {
+  background-color: #1a1f2b;
+  border: 1px solid #3d3d3d;
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 10px;
+  color: #f2f2f0;
+}
+
+.vai-scena-btn {
+  margin-left: 10px;
+  padding: 2px 6px;
+  background-color: #2d6b4f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.vai-scena-btn:hover {
+  background-color: #3c8966;
+}
+
+.mostro-fonte {
+  font-size: 0.85em;
+  color: #b2b9c3;
+}

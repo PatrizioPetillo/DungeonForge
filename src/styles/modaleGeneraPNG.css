@@ -1,0 +1,120 @@
+.modal-generatore {
+  position: fixed;
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #1a1f2b;
+  color: #f2f2f0;
+  border: 2px solid #6e4f9e;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  z-index: 9999;
+  padding: 1.5rem;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.4);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.modal-header h2 {
+  font-family: 'Cinzel', serif;
+  font-size: 1.6rem;
+  color: #d4af37;
+}
+
+.modal-header button {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: #f2f2f0;
+  cursor: pointer;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.toggle-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.toggle-btn {
+  background-color: #3d3d3d;
+  border: 2px solid #6e4f9e;
+  color: #f2f2f0;
+  padding: 0.4rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.toggle-btn.Comune {
+  background-color: #2d6b4f;
+}
+
+.toggle-btn.NonComune {
+  background-color: #8a3a24;
+}
+
+.genera-btn {
+  background-color: #6e4f9e;
+  color: #f2f2f0;
+  font-weight: bold;
+  padding: 0.6rem 1.4rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.generatore-wrapper {
+  background-color: #262b38;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #444;
+}
+
+.collegamenti-extra label {
+  display: block;
+  margin-top: 0.6rem;
+  font-weight: bold;
+  color: #d4af37;
+}
+
+.collegamenti-extra input,
+.collegamenti-extra select,
+.collegamenti-extra textarea {
+  width: 100%;
+  padding: 0.4rem;
+  background-color: #1a1f2b;
+  color: #f2f2f0;
+  border: 1px solid #6e4f9e;
+  border-radius: 4px;
+  margin-top: 0.2rem;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.modal-footer button {
+  background-color: #2d6b4f;
+  color: white;
+  font-weight: bold;
+  padding: 0.6rem 1.4rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}

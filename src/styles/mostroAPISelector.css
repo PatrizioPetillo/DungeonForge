@@ -1,0 +1,62 @@
+.api-mostro-selector {
+  padding: 1rem;
+  background-color: #1a1f2b;
+  color: #f2f2f0;
+  border-radius: 8px;
+}
+
+.api-mostro-selector input {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  background-color: #3d3d3d;
+  color: white;
+  border: 1px solid #6e4f9e;
+  border-radius: 4px;
+}
+
+.mostro-elenco {
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid #6e4f9e;
+  padding: 0.5rem;
+  background-color: #2d2d2d;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.mostro-elenco div {
+  padding: 0.4rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.mostro-elenco div:hover {
+  background-color: #3d3d3d;
+}
+
+.mostro-dettaglio {
+  background-color: #2d2d2d;
+  padding: 1rem;
+  border-left: 4px solid #d4af37;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.mostro-dettaglio h5 {
+  color: #d4af37;
+  margin-top: 0;
+}
+
+.mostro-dettaglio button {
+  background-color: #2d6b4f;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.mostro-dettaglio button:hover {
+  background-color: #238058;
+}

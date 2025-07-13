@@ -1,0 +1,25 @@
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url('/sfondo.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.auth-box {
+  background-color: rgba(26, 31, 43, 0.85);
+  padding: 3rem;
+  border-radius: var(--radius);
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+  max-width: 400px;
+  width: 100%;
+}
+
+.auth-title {
+  text-align: center;
+  color: var(--color-accent);
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+}

@@ -1,0 +1,11 @@
+:root {
+  --color-bg: #1A1F2B;
+  --color-text: #F2F2F0;
+  --color-muted: #B2B9C3;
+  --color-accent: #D4AF37;
+  --color-error: #8A3A24;
+  --color-success: #2D6B4F;
+  --color-magic: #6E4F9E;
+  --font-main: 'Inter', sans-serif;
+  --radius: 8px;
+}

@@ -1,0 +1,59 @@
+.campagna-card {
+  width: 220px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.campagna-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
+}
+
+.campagna-img {
+  height: 120px;
+  background-size: cover;
+  background-position: center;
+}
+
+.campagna-info {
+  padding: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.campagna-titolo {
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+}
+
+.campagna-stato {
+  font-size: 0.8rem;
+  font-weight: bold;
+  padding: 0.3rem 0.5rem;
+  border-radius: var(--radius);
+  text-align: center;
+  width: fit-content;
+}
+
+.campagna-stato.bozza {
+  background-color: var(--color-muted);
+  color: var(--color-bg);
+}
+
+.campagna-stato.attiva {
+  background-color: var(--color-success);
+  color: var(--color-bg);
+}
+
+.campagna-stato.archiviata {
+  background-color: var(--color-error);
+  color: var(--color-bg);
+}

@@ -1,0 +1,32 @@
+.capitolo-editor {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-muted);
+  padding: 1rem;
+  border-radius: var(--radius);
+  margin-bottom: 1.5rem;
+}
+
+.capitolo-intestazione input,
+.capitolo-intestazione textarea {
+  width: 100%;
+  margin-bottom: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-muted);
+  padding: 0.5rem;
+  color: var(--color-text);
+}
+
+.scene-box {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  border: 1px dashed var(--color-accent);
+  border-radius: var(--radius);
+}
+
+.scene-box input,
+.scene-box textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-text);
+  margin-top: 0.5rem;
+}
