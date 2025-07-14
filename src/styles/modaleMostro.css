@@ -19,7 +19,7 @@
   max-width: 800px;
   padding: 1.5rem;
   color: #F2F2F0;
-  z-index: 9999;
+  z-index: 1;
   position: relative;
 }
 
@@ -82,9 +82,11 @@
   color: #F2F2F0;
 }
 .stat-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.4rem;
+  align-items: center;
+  justify-items: center;
   justify-content: center;
   margin-top: 1rem;
 }
@@ -94,7 +96,7 @@
   border: 2px solid #6E4F9E;
   border-radius: 10px;
   padding: 1rem;
-  width: 110px;
+  width: 166px;
   text-align: center;
   color: #F2F2F0;
   box-shadow: 0 0 8px rgba(0,0,0,0.3);
@@ -102,7 +104,7 @@
 
 .stat-title {
   font-weight: bold;
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: #D4AF37;
   margin-bottom: 0.5rem;
 }
@@ -112,9 +114,13 @@
   font-weight: bold;
 }
 
+.stat-box input{
+  width: 55px;
+}
+
 .stat-mod {
   font-size: 1.2rem;
-  margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .stat-abilita {

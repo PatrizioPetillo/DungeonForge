@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../../styles/compendioMostri.css";
+import "../styles/compendioMostri.css";
 
 const CompendioMostri = ({ onClose, onSelezionaMostro }) => {
   const [listaMostri, setListaMostri] = useState([]);

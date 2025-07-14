@@ -1,14 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../../styles/modaleMostro.css";
 import { toast } from "react-toastify";
 import { serverTimestamp } from "firebase/firestore";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { firestore } from "../../firebase";
+import { addDoc, collection } from "firebase/firestore";
+import { firestore } from "../../firebase/firebaseConfig";
+import CompendioMostri from "../compendioMostri";
 
 const ModaleMostro = ({ onClose }) => {
   const [tab, setTab] = useState("Generale");
   const [sceneDisponibili, setSceneDisponibili] = useState([]);
   const [sceneCollegate, setSceneCollegate] = useState([]);
+  const [campagnaAttiva, setCampagnaAttiva] = useState(null);
 
   const [mostro, setMostro] = useState({
     nome: "",

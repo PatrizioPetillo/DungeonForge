@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { firestore } from "../firebase/firebaseConfig";
 import "../styles/modaleDettagliCampagna.css";
 
 function ModaleDettagliCampagna({ campagna, onClose }) {
@@ -12,6 +14,7 @@ function ModaleDettagliCampagna({ campagna, onClose }) {
   const [incontri, setIncontri] = useState(campagna.incontri || []);
   const [campagnaId, setCampagnaId] = useState(campagna.id || null);
 
+  
   const pngInScena = tuttiPNG.filter((p) =>
     p.sceneCollegate?.includes(scene.id)
   );
@@ -22,6 +25,29 @@ function ModaleDettagliCampagna({ campagna, onClose }) {
   const handleChange = (campo, valore) => {
     setDati((prev) => ({ ...prev, [campo]: valore }));
   };
+
+  useEffect(() => {
+  if (!campagna?.id) return;
+
+  const fetchIncontri = async () => {
+    const ref = collection(firestore, `campagne/${campagna.id}/incontri`);
+    const snap = await getDocs(ref);
+    const dati = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    setIncontri(dati);
+  };
+
+  fetchIncontri();
+}, [campagna]);
+
+useEffect(() => {
+  const fetchLuoghi = async () => {
+    const snap = await getDocs(collection(firestore, "luoghi"));
+    const data = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    setLuoghi(data);
+  };
+  fetchLuoghi();
+}, []);
+
 
   const renderTab = () => {
     switch (tab) {
@@ -104,31 +130,43 @@ function ModaleDettagliCampagna({ campagna, onClose }) {
                                 ))}
                               </ul>
                               {dati.png?.length > 0 && (
-  <div className="blocco-png">
-    <p><strong>🧑‍🌾 PNG collegati:</strong></p>
-    <ul>
-      {dati.png
-        .filter((p) => p.sceneCollegate?.includes(scene.id))
-        .map((p, idx) => (
-          <li key={idx}>
-            <strong>{p.nome}</strong> – {p.occupazione || 'senza ruolo'}
-            {p.sceneCollegate?.length > 0 && (
-  <div className="collegamenti-png">
-    <p><strong>📜 Collegato alle scene:</strong></p>
-    <ul>
-      {p.sceneCollegate.map((sceneId, i) => (
-        <li key={i}>🔗 Scene ID: <code>{sceneId}</code></li>
-      ))}
-    </ul>
-  </div>
-)}
-
-          </li>
-        ))}
-    </ul>
-  </div>
-)}
-
+                                <div className="blocco-png">
+                                  <p>
+                                    <strong>🧑‍🌾 PNG collegati:</strong>
+                                  </p>
+                                  <ul>
+                                    {dati.png
+                                      .filter((p) =>
+                                        p.sceneCollegate?.includes(scene.id)
+                                      )
+                                      .map((p, idx) => (
+                                        <li key={idx}>
+                                          <strong>{p.nome}</strong> –{" "}
+                                          {p.occupazione || "senza ruolo"}
+                                          {p.sceneCollegate?.length > 0 && (
+                                            <div className="collegamenti-png">
+                                              <p>
+                                                <strong>
+                                                  📜 Collegato alle scene:
+                                                </strong>
+                                              </p>
+                                              <ul>
+                                                {p.sceneCollegate.map(
+                                                  (sceneId, i) => (
+                                                    <li key={i}>
+                                                      🔗 Scene ID:{" "}
+                                                      <code>{sceneId}</code>
+                                                    </li>
+                                                  )
+                                                )}
+                                              </ul>
+                                            </div>
+                                          )}
+                                        </li>
+                                      ))}
+                                  </ul>
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>
@@ -257,18 +295,42 @@ function ModaleDettagliCampagna({ campagna, onClose }) {
 
       case "Luoghi":
         return (
-          <div className="tab-content">
-            <p>Luoghi chiave: {dati.luoghi?.length || 0}</p>
-            <button>🏰 Aggiungi luogo</button>
-          </div>
+          <div className="blocco-luoghi">
+  <h3>📍 Luoghi</h3>
+  {luoghi.length === 0 ? (
+    <p>Nessun luogo registrato.</p>
+  ) : (
+    <ul>
+      {luoghi.map((l) => (
+        <li key={l.id}>
+          <strong>{l.nome}</strong> – {l.tipo}<br />
+          <em>{l.descrizione?.slice(0, 80)}...</em>
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
+
         );
 
       case "Incontri":
         return (
-          <div className="tab-content">
-            <p>Incontri salvati: {dati.incontri?.length || 0}</p>
-            <button>⚔️ Aggiungi incontro</button>
-          </div>
+          <div className="blocco-incontri">
+  <h3>🗡️ Incontri & Combattimenti</h3>
+  {incontri.length === 0 ? (
+    <p>Nessun incontro registrato per questa campagna.</p>
+  ) : (
+    <ul>
+      {incontri.map((i) => (
+        <li key={i.id}>
+          <strong>{i.titolo}</strong> – {i.data || "Data non specificata"}<br />
+          <em>{i.descrizione?.slice(0, 100)}...</em>
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
+
         );
 
       default:

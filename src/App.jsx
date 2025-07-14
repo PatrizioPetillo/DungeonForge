@@ -15,7 +15,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<AuthPage />} />
-        <ToastContainer position="top-right" autoClose={3000} />
+        
         <Route path="/dashboard" element={<DashboardDM />} />
         <Route path="/campagna/:id" element={<ModaleDettagliCampagna />} />
         <Route path="/crea-campagna" element={<ModaleCreaCampagna />} />

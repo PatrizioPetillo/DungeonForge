@@ -1,11 +1,15 @@
 import React, {useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from "../firebase/firebaseConfig";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc } from "firebase/firestore";
 import PngWidget from "../components/widget/pngWidget";
 import VillainWidget from "../components/widget/villainWidget";
 import ModaleVillain from "../components/modali/modaleVillain";
 import ModalePng from "../components/modali/modalePNG";
+import MostroWidget from "../components/widget/mostroWidget";
+import ModaleMostro from "../components/modali/modaleMostro";
+import LuogoWidget from "../components/widget/luogoWidget";
+import ModaleLuogo from "../components/modali/modaleLuogo"; 
 import ModaleCreaCampagna from '../components/modaleCreaCampagna';
 import ModaleDettagliCampagna from '../components/modaleDettagliCampagna';
 import CampagnaCard from '../components/campagnaCard';
@@ -24,7 +28,9 @@ function DashboardDM() {
     const [showPngModal, setShowPngModal] = useState(false);
     const [showVillainModal, setShowVillainModal] = useState(false);
     const [showMostroModal, setShowMostroModal] = useState(false);
-    
+    const [showLuogoModal, setShowLuogoModal] = useState(false);
+    const [mostraModaleLuogo, setMostraModaleLuogo] = useState(false);
+
   return (
     <div className="dashboard-container">
         {showModal && <ModaleCreaCampagna onClose={() => setShowModal(false)} />}
@@ -61,7 +67,6 @@ function DashboardDM() {
         </div>
       </section>
       
-
       {/* Archivio Narrativo */}
       <section className="dashboard-section">
         <h2>📚 Archivio</h2>
@@ -95,6 +100,12 @@ function DashboardDM() {
         <MostroWidget onClick={() => setShowMostroModal(true)} />
         {showMostroModal && <ModaleMostro onClose={() => setShowMostroModal(false)} />}
           </section>
+      </section>
+
+      {/* Widget Luoghi */}
+      <section className="dashboard-section">
+        <LuogoWidget onClick={() => setShowLuogoModal(true)} />
+        {showLuogoModal && <ModaleLuogo onClose={() => setShowLuogoModal(false)} />}
       </section>
 
       {/* Recap Sessione */}

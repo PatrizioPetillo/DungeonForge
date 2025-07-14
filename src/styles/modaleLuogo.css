@@ -1,0 +1,45 @@
+.modale-luogo {
+  background: #1a1f2b;
+  border: 2px solid #6e4f9e;
+  color: #f2f2f0;
+  padding: 1.5rem;
+  border-radius: 8px;
+  width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modale-luogo .tab-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.modale-luogo .tab-bar button {
+  background: #3d3d3d;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.modale-luogo .tab-bar .active {
+  background: #6e4f9e;
+}
+
+.modale-luogo .field-group {
+  margin-bottom: 1rem;
+}
+
+.modale-luogo input,
+.modale-luogo textarea,
+.modale-luogo select {
+  width: 100%;
+  background: #2d2d2d;
+  border: 1px solid #6e4f9e;
+  color: #f2f2f0;
+  padding: 0.5rem;
+  border-radius: 4px;
+}

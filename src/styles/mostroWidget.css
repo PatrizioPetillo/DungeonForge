@@ -1,0 +1,36 @@
+.widget-mostro {
+  background-color: #1A1F2B;
+  color: #F2F2F0;
+  padding: 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  border: 2px solid #6E4F9E;
+  transition: 0.2s ease;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+}
+
+.widget-mostro:hover {
+  background-color: #2A2F3C;
+  transform: scale(1.02);
+}
+
+.widget-mostro h3 {
+  margin: 0;
+  color: #D4AF37;
+}
+
+.widget-mostro p {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: #B2B9C3;
+}
+
+.field-group textarea{
+    width: 100%;
+    height: 100px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 14px;
+}
