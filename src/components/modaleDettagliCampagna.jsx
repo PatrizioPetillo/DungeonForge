@@ -512,6 +512,12 @@ function ModaleDettagliCampagna({ campagna, onClose }) {
               ✏️ Modifica
             </button>
           )}
+          <button
+  className="btn-sessione"
+  onClick={() => navigate(`/live-session/${campagna.id}`)}
+>
+  🎲 Entra in sessione
+</button>
         </div>
       </div>
     </div>

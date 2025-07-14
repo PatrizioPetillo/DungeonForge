@@ -67,14 +67,26 @@ const ModaleFiveRoomDungeon = ({ onClose }) => {
 
   const [sceneDisponibili, setSceneDisponibili] = useState([]);
   const [pngDisponibili, setPngDisponibili] = useState([]);
+  const [villainDisponibili, setVillainDisponibili] = useState([]);
+  const [mostroDisponibili, setMostroDisponibili] = useState([]);
   const [enigmiDisponibili, setEnigmiDisponibili] = useState([]);
   const [tabAttiva, setTabAttiva] = useState(0);
 
   const generaAvventura = () => {
-    const idee = stanzeTemplate.map(
-      (s, i) => `${s}: ${generaContenutoCasuale(i)}`
-    );
+    const idee = stanzeTemplate.map((nome, i) => ({
+      titolo: nome,
+      scopo: stanze[i]?.scopo || "",
+      descrizione: generaContenutoCasuale(i),
+      scene: [],
+      png: [],
+      enigmi: [],
+      personaggi: [],
+      dialogo: "",
+      durata: "",
+      trappola: "",
+    }));
     setStanze(idee);
+
     toast.info("Five Room Dungeon generato!");
   };
 
@@ -107,6 +119,14 @@ const ModaleFiveRoomDungeon = ({ onClose }) => {
       ]);
       setSceneDisponibili(
         sceneSnap.docs.map((d) => ({ id: d.id, ...d.data() }))
+      );
+      const villainSnap = await getDocs(collection(firestore, "villain"));
+      setVillainDisponibili(
+        villainSnap.docs.map((d) => ({ id: d.id, ...d.data() }))
+      );
+      const mostroSnap = await getDocs(collection(firestore, "mostri"));
+      setMostroDisponibili(
+        mostroSnap.docs.map((d) => ({ id: d.id, ...d.data() }))
       );
       setPngDisponibili(pngSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
       setEnigmiDisponibili(

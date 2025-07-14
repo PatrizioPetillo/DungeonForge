@@ -8,6 +8,7 @@ import ModaleCreaCampagna from './components/modaleCreaCampagna';
 import CampagnaCard from './components/campagnaCard';
 import SuggerimentoDelGiorno from './components/suggerimentodelGiorno';
 import ModaleDettagliCampagna from './components/modaleDettagliCampagna';
+import LiveSessionDM from './pages/liveSessionDM';
 import './App.css';
 
 function App() {
@@ -15,7 +16,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<AuthPage />} />
-        
+        <Route path="/live-session/:id" element={<LiveSessionDM />} />
         <Route path="/dashboard" element={<DashboardDM />} />
         <Route path="/campagna/:id" element={<ModaleDettagliCampagna />} />
         <Route path="/crea-campagna" element={<ModaleCreaCampagna />} />

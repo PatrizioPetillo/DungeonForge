@@ -1,0 +1,28 @@
+/* src/pages/LiveSessionDM.css */
+
+.live-session {
+  display: flex;
+  height: 100vh;
+  background-color: #1a1f2b;
+  color: #f2f2f0;
+  font-family: 'Merriweather', serif;
+}
+
+.sidebar-session {
+  width: 280px;
+  background-color: #3d3d3d;
+  padding: 1rem;
+  border-right: 2px solid #6e4f9e;
+}
+
+.main-session {
+  flex-grow: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.widgets-row {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
