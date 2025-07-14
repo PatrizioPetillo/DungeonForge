@@ -11,13 +11,25 @@ import LogSessione from "../components/liveSession/logSession";
 import ProveRapide from "../components/liveSession/proveRapide";
 import Combattimento from "../components/liveSession/combattimento";
 import AttaccoRapido from "../components/liveSession/attaccoRapido";
+import EnigmiAttivi from "../components/liveSession/enigmiAttivi";
+import VillainAttivi from "../components/liveSession/villainAttivi";
 import "../styles/liveSessionDM.css";
+import { onLog } from "firebase/app";
 
 const LiveSessionDM = () => {
   const { id } = useParams();
   const campagna = mockCampagna;
   const [eventiLog, setEventiLog] = useState(campagna.eventi);
   const [scenaIndex, setScenaIndex] = useState(0);
+  const mostriInScena = campagna.mostri.filter(m => m.sceneId === scenaAttiva.id);
+const pngInScena = campagna.png.filter(p => p.sceneCollegate?.includes(scenaAttiva.id));
+const villainInScena = campagna.villain.filter(v => v.sceneCollegate?.includes(scenaAttiva.id));
+const enigmiInScena = campagna.enigmi.filter(e => e.sceneCollegate?.includes(scenaAttiva.id));
+const [mostraAttaccoLibero, setMostraAttaccoLibero] = useState(false);
+const [ignoraIniziativa, setIgnoraIniziativa] = useState(false);
+const [ignoraTurni, setIgnoraTurni] = useState(false);
+
+
 
   // Recupera la scena attiva dal primo capitolo (per ora)
   const scenaAttiva =
@@ -39,23 +51,29 @@ const LiveSessionDM = () => {
     <div className="live-session">
       <SidebarSessione campagna={campagna} />
       <div className="main-session">
+        <button onClick={() => setMostraAttaccoLibero(true)}>
+  ⚔️ Attacco Libero
+</button>
+
         <SceneViewer scena={scenaAttiva} />
         <div className="nav-scene">
           <button onClick={prevScene}>⬅️ Scena precedente</button>
           <button onClick={nextScene}>➡️ Prossima scena</button>
         </div>
         <div className="widgets-row">
-          <MostriAttivi mostri={campagna.mostri} />
-          <PNGAttivi png={campagna.png} />
+          <VillainAttivi villain={villainInScena} />
+<EnigmiAttivi enigmi={enigmiInScena} />
+          <MostriAttivi mostri={mostriInScena} />
+          <PNGAttivi png={pngInScena} />
           <ProveRapide
-            scena={campagna.scenaAttiva}
-            png={[...campagna.png, ...campagna.villain, ...campagna.mostri]} // merge PNG + Villain + Mostri
+            scena={scenaAttiva}
+            png={[...pngInScena, ...villainInScena, ...mostriInScena]} // merge PNG + Villain + Mostri
             onLog={aggiungiEventoLog}
           />
           <Combattimento
-            png={campagna.png.filter((p) => p.tipo === "non_comune")}
-            villain={campagna.villain}
-            mostri={campagna.mostri}
+            png={pngInScena.filter((p) => p.tipo === "non_comune")}
+            villain={villainInScena}
+            mostri={mostriInScena}
             onUpdate={(ordine) => {
               setEventiLog((prev) => [
                 ...prev,
@@ -63,12 +81,57 @@ const LiveSessionDM = () => {
               ]);
             }}
           />
-          <AttaccoRapido
-            entita={campagna.png.find((p) => p.nome === attore)}
-            onLog={aggiungiEventoLog}
-          />
+
         </div>
         <LogSessione eventi={eventiLog} />
+      </div>
+      {mostraAttaccoLibero && (
+  <div className="modale-attacco-libero">
+    <div className="modale-contenuto">
+      <h2>⚔️ Attacco Libero</h2>
+      <p className="descrizione-evocativa">
+        In un momento fuori dagli schemi, un personaggio decide di colpire...
+      </p>
+
+      <div className="opzioni-speciali">
+        <label>
+          <input
+            type="checkbox"
+            checked={ignoraIniziativa}
+            onChange={(e) => setIgnoraIniziativa(e.target.checked)}
+          />
+          Ignora l’iniziativa (attacco improvviso)
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={ignoraTurni}
+            onChange={(e) => setIgnoraTurni(e.target.checked)}
+          />
+          Attacco fuori dal proprio turno
+        </label>
+      </div>
+
+      <AttaccoRapido
+        png={pngInScena}
+        villain={villainInScena}
+        mostri={mostriInScena}
+        onLog={onLog}
+        opzioni={{
+          ignoraIniziativa,
+          ignoraTurni,
+        }}
+      />
+
+      <button onClick={() => setMostraAttaccoLibero(false)}>
+        ❌ Chiudi
+      </button>
+    </div>
+  </div>
+)}
+
+      <div className="footer-session">
+        <p>Sessione DM - Campagna: {campagna.nome}</p>
       </div>
     </div>
   );

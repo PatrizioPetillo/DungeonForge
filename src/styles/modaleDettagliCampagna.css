@@ -175,3 +175,24 @@ li {
   margin-top: 0.5rem;
   font-size: 0.85rem;
 }
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  margin-left: 0.5rem;
+  color: white;
+  font-weight: bold;
+}
+
+.tag-combat {
+  background-color: #8A3A24;
+}
+
+.tag-enigma {
+  background-color: #6E4F9E;
+}
+
+.tag-narrativa {
+  background-color: #2D6B4F;
+}

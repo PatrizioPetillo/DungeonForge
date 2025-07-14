@@ -8,33 +8,41 @@ const modelliEnigma = [
   {
     titolo: "Statue che parlano",
     tipo: "Indovinello",
-    descrizione: "Tre statue indicano tre porte: una conduce alla salvezza, le altre alla morte. Devono rispondere a un indovinello per scegliere la porta giusta.",
+    descrizione: "Tre statue indicano tre porte: una conduce alla salvezza, le altre alla morte. Rispondere correttamente all'indovinello rivelerà la via sicura.",
+    indovinello: "Qual è la cosa che cammina con quattro zampe al mattino, due a mezzogiorno e tre alla sera?",
+    soluzioni: "L'essere umano (quattro zampe da neonato, due da adulto, con il bastone da anziano).",
   },
   {
     titolo: "Piastre a pressione",
     tipo: "Trappola",
-    descrizione: "Pavimentazione con piastre. Solo alcune sono sicure. Un calcolo narrativo o prova Destrezza rivelerà il percorso sicuro.",
+    descrizione: "Pavimentazione con piastre, alcune bianche ed altre nere. Solo alcune sono sicure, le altre faranno cadere il gruppo nel vuoto....",
+    soluzioni: "Il gruppo deve posizionarsi sulla piastra più consumata, e poi muoversi come il cavallo degli scacchi: due passi avanti, uno a destra o sinistra.",
   },
   {
     titolo: "Le leve segrete",
     tipo: "Puzzle",
-    descrizione: "Una parete contiene cinque leve: solo una apre la porta. Indizi parlano di simboli antichi impressi sul terreno.",
+    descrizione: "Una parete contiene cinque leve: solo una apre la porta. Ogni leva ha un simbolo unico. Il gruppo deve fare attenzione: se si tira la leva sbagliata, scatta una trappola.",
+    soluzioni: "Non importa quale, ma quando si tira una leva, a metà del percorso, si sente un clic. Si deve tenere la leva in quella posizione, per 3 secondi, per aprire la porta.",
   },
   {
     titolo: "Il labirinto speculare",
     tipo: "Enigma",
-    descrizione: "I corridoi rimbalzano su specchi magici. Le parole riviste al contrario formano la sequenza da seguire.",
+    descrizione: "I corridoi rimbalzano su specchi magici. Per uscire, il gruppo deve trovare le parole che li guidano verso l'uscita: un enigma riflessivo.",
+    soluzioni: "Le parole riviste al contrario formano la sequenza da seguire.",
   },
 ];
 
 const ModaleEnigma = ({ onClose }) => {
+  
   const [enigma, setEnigma] = useState({
+    tab: "Dettagli",
     titolo: "",
     tipo: "",
     descrizione: "",
     soluzioni: "",
     creareTrappola: false,
   });
+  
 
   const generaEnigmaCasuale = () => {
     const random = modelliEnigma[Math.floor(Math.random() * modelliEnigma.length)];

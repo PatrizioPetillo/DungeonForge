@@ -41,16 +41,16 @@ function ModaleDettagliCampagna({ campagna, onClose }) {
   }, [campagna]);
 
   useEffect(() => {
-  const fetchEnigmi = async () => {
-    const q = collection(firestore, `campagne/${campagna.id}/enigmi`);
-    const snapshot = await getDocs(q);
-    setEnigmi(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-  };
+    const fetchEnigmi = async () => {
+      const q = collection(firestore, `campagne/${campagna.id}/enigmi`);
+      const snapshot = await getDocs(q);
+      setEnigmi(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+    };
 
-  if (campagna?.id) {
-    fetchEnigmi();
-  }
-}, [campagna]);
+    if (campagna?.id) {
+      fetchEnigmi();
+    }
+  }, [campagna]);
 
   useEffect(() => {
     const fetchLuoghi = async () => {
@@ -71,56 +71,69 @@ function ModaleDettagliCampagna({ campagna, onClose }) {
   }, []);
 
   const getNomeScena = (id) => {
-  const scena = campagna.capitoli?.flatMap(c => c.scene || []).find(s => s.id === id);
-  return scena?.titolo || id;
-};
+    const scena = campagna.capitoli
+      ?.flatMap((c) => c.scene || [])
+      .find((s) => s.id === id);
+    return scena?.titolo || id;
+  };
 
-const getNomeLuogo = (id) => {
-  const l = campagna.luoghi?.find(l => l.id === id);
-  return l?.nome || id;
-};
+  const getNomeLuogo = (id) => {
+    const l = campagna.luoghi?.find((l) => l.id === id);
+    return l?.nome || id;
+  };
 
-const generaRecapNarrativo = (campagna) => {
-  const {
-    nome,
-    ambientazione,
-    hookNarrativo,
-    obiettivo,
-    blurb,
-    villain = [],
-    luoghi = [],
-    capitoli = [],
-    temiRicorrenti,
-    twist,
-  } = campagna;
+  const generaRecapNarrativo = (campagna) => {
+    const {
+      nome,
+      ambientazione,
+      hookNarrativo,
+      obiettivo,
+      blurb,
+      villain = [],
+      luoghi = [],
+      capitoli = [],
+      temiRicorrenti,
+      twist,
+    } = campagna;
 
-  const villainMain = villain[0];
-  const villainFrase = villainMain
-    ? `Il principale antagonista è ${villainMain.nome}, spinto da ${villainMain.motivazione || "una motivazione oscura"}.`
-    : "";
+    const villainMain = villain[0];
+    const villainFrase = villainMain
+      ? `Il principale antagonista è ${villainMain.nome}, spinto da ${
+          villainMain.motivazione || "una motivazione oscura"
+        }.`
+      : "";
 
-  const luoghiFrase = luoghi.length
-    ? `I luoghi centrali includono ${luoghi.map(l => l.nome).join(", ")}.`
-    : "";
+    const luoghiFrase = luoghi.length
+      ? `I luoghi centrali includono ${luoghi.map((l) => l.nome).join(", ")}.`
+      : "";
 
-  const sceneTitoli = capitoli.flatMap(c => c.scene?.map(s => s.titolo)).filter(Boolean);
-  const sceneFrase = sceneTitoli.length
-    ? `Le scene principali si snodano attraverso: ${sceneTitoli.join(", ")}.`
-    : "";
+    const sceneTitoli = capitoli
+      .flatMap((c) => c.scene?.map((s) => s.titolo))
+      .filter(Boolean);
+    const sceneFrase = sceneTitoli.length
+      ? `Le scene principali si snodano attraverso: ${sceneTitoli.join(", ")}.`
+      : "";
 
-  return `
-La campagna "${nome}" è ambientata in ${ambientazione || "un mondo ancora indefinito"}. 
-${hookNarrativo ? `L'avventura si apre con questo gancio narrativo: ${hookNarrativo}` : ""}
+    return `
+La campagna "${nome}" è ambientata in ${
+      ambientazione || "un mondo ancora indefinito"
+    }. 
+${
+  hookNarrativo
+    ? `L'avventura si apre con questo gancio narrativo: ${hookNarrativo}`
+    : ""
+}
 ${blurb ? blurb + "." : ""}
 ${obiettivo ? `L'obiettivo dei personaggi è: ${obiettivo}.` : ""}
 ${villainFrase}
 ${luoghiFrase}
 ${sceneFrase}
 ${twist ? `Tra i colpi di scena figurano: ${twist}.` : ""}
-${temiRicorrenti ? `Tematicamente, la campagna esplora: ${temiRicorrenti}.` : ""}
+${
+  temiRicorrenti ? `Tematicamente, la campagna esplora: ${temiRicorrenti}.` : ""
+}
   `.trim();
-};
-
+  };
 
   const renderTab = () => {
     switch (tab) {
@@ -202,7 +215,16 @@ ${temiRicorrenti ? `Tematicamente, la campagna esplora: ${temiRicorrenti}.` : ""
                       <h6>Scene:</h6>
                       {capitolo.scene.map((scene, j) => (
                         <div key={j} className="blocco-scena">
-                          <strong>{scene.titolo}</strong>
+                          <strong>
+  {scene.titolo}
+  {scene.mostri?.length > 0 && <span className="badge tag-combat">Combat</span>}
+  {enigmi.some(e => e.sceneCollegate?.includes(scene.id)) && (
+    <span className="badge tag-enigma">Enigma</span>
+  )}
+  {!scene.mostri?.length && !enigmi.some(e => e.sceneCollegate?.includes(scene.id)) && (
+    <span className="badge tag-narrativa">Narrativa</span>
+  )}
+</strong>
                           <p>{scene.descrizione}</p>
 
                           {scene.mostri?.length > 0 && (
@@ -227,40 +249,25 @@ ${temiRicorrenti ? `Tematicamente, la campagna esplora: ${temiRicorrenti}.` : ""
                               </ul>
                               {dati.png?.length > 0 && (
                                 <div className="blocco-png">
-                                  <p>
-                                    <strong>🧑‍🌾 PNG collegati:</strong>
-                                  </p>
-                                  <ul>
-                                    {dati.png
-                                      .filter((p) =>
-                                        p.sceneCollegate?.includes(scene.id)
-                                      )
-                                      .map((p, idx) => (
-                                        <li key={idx}>
-                                          <strong>{p.nome}</strong> –{" "}
-                                          {p.occupazione || "senza ruolo"}
-                                          {p.sceneCollegate?.length > 0 && (
-                                            <div className="collegamenti-png">
-                                              <p>
-                                                <strong>
-                                                  📜 Collegato alle scene:
-                                                </strong>
-                                              </p>
-                                              <ul>
-                                                {p.sceneCollegate.map(
-                                                  (sceneId, i) => (
-                                                    <li key={i}>
-                                                      🔗 Scene ID:{" "}
-                                                      <code>{sceneId}</code>
-                                                    </li>
-                                                  )
-                                                )}
-                                              </ul>
-                                            </div>
-                                          )}
-                                        </li>
-                                      ))}
-                                  </ul>
+                                  {p.sceneCollegate?.map((sceneId, i) => (
+                                    <li key={i}>
+                                      🔗 Scena:{" "}
+                                      <code>{getNomeScena(sceneId)}</code>
+                                      <button
+                                        onClick={() => {
+                                          const el = document.getElementById(
+                                            `scene-${sceneId}`
+                                          );
+                                          if (el)
+                                            el.scrollIntoView({
+                                              behavior: "smooth",
+                                            });
+                                        }}
+                                      >
+                                        📜 Vai alla scena
+                                      </button>
+                                    </li>
+                                  ))}
                                 </div>
                               )}
                               <hr />
@@ -287,23 +294,25 @@ ${temiRicorrenti ? `Tematicamente, la campagna esplora: ${temiRicorrenti}.` : ""
                                 </div>
                               )}
                               <hr />
-                              {villain &&
-                                villain.sceneCollegate?.includes(scene.id) && (
-                                  <div className="blocco-villain">
-                                    <p>
-                                      <strong>😈 Villain presente:</strong>
-                                    </p>
-                                    <p>
-                                      <strong>{villain.nome}</strong> –{" "}
-                                      {villain.titolo}
-                                      <br />
-                                      <em style={{ color: "#B2B9C3" }}>
-                                        {villain.scopo ||
-                                          "Senza scopo dichiarato"}
-                                      </em>
-                                    </p>
-                                  </div>
-                                )}
+                              {villain.sceneCollegate?.map((sceneId) => (
+                                <div key={sceneId}>
+                                  📍 Presente in:{" "}
+                                  <code>{getNomeScena(sceneId)}</code>
+                                  <button
+                                    onClick={() => {
+                                      const el = document.getElementById(
+                                        `scene-${sceneId}`
+                                      );
+                                      if (el)
+                                        el.scrollIntoView({
+                                          behavior: "smooth",
+                                        });
+                                    }}
+                                  >
+                                    📜 Vai alla scena
+                                  </button>
+                                </div>
+                              ))}
                             </div>
                           )}
                         </div>
@@ -396,29 +405,36 @@ ${temiRicorrenti ? `Tematicamente, la campagna esplora: ${temiRicorrenti}.` : ""
           </div>
         );
 
-      case "PNG":
-        return (
-          <div className="tab-content">
-            {dati.png && dati.png.length > 0 ? (
-              <ul className="lista-png">
-                {dati.png.map((p) => (
-                  <li key={p.id}>
-                    <strong>{p.nome}</strong> – {p.occupazione || "senza ruolo"}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>Nessun PNG selezionato.</p>
-            )}
-            <hr />
+      {dati.png && dati.png.length > 0 ? (
+  <ul className="lista-png">
+    {dati.png.map((p) => (
+      <li key={p.id}>
+        <strong>{p.nome}</strong> – {p.occupazione || "senza ruolo"}
+        {p.sceneCollegate?.length > 0 && (
+          <ul>
+            {p.sceneCollegate.map((sceneId, i) => (
+              <li key={i}>
+                📍 <code>{getNomeScena(sceneId)}</code>
+                <button
+                  onClick={() => {
+                    const el = document.getElementById(`scene-${sceneId}`);
+                    if (el)
+                      el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                >
+                  📜 Vai alla scena
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </li>
+    ))}
+  </ul>
+) : (
+  <p>Nessun PNG selezionato.</p>
+)}
 
-            {modalitaModifica && (
-              <button onClick={() => console.log("Apertura Archivio PNG")}>
-                + Modifica PNG
-              </button>
-            )}
-          </div>
-        );
 
       case "Mostri":
         return (
@@ -514,20 +530,19 @@ ${temiRicorrenti ? `Tematicamente, la campagna esplora: ${temiRicorrenti}.` : ""
           <div className="blocco-enigmi">
             <h3>🧠 Enigmi e Trappole</h3>
 
-  {enigmi.length === 0 ? (
-    <p>Nessun enigma salvato per questa campagna.</p>
-  ) : (
-    enigmi.map((enigma) => (
-      <div key={enigma.id} className="enigma-box" style={{ border: "1px solid #ccc", padding: "0.8rem", marginBottom: "1rem" }}>
-        <h4>{enigma.titolo} <small>({enigma.tipo || "generico"})</small></h4>
-        {enigma.difficolta && <p><strong>Difficoltà:</strong> {enigma.difficolta}</p>}
-        <p>{enigma.descrizione?.slice(0, 150)}...</p>
-        {enigma.sceneCollegate?.length > 0 && (
-          <p><strong>Scene collegate:</strong> {enigma.sceneCollegate.join(", ")}</p>
-        )}
-      </div>
-    ))
-  )}
+            {enigma.sceneCollegate?.map((sceneId, i) => (
+              <span key={i}>
+                <code>{getNomeScena(sceneId)}</code>{" "}
+                <button
+                  onClick={() => {
+                    const el = document.getElementById(`scene-${sceneId}`);
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                  }}
+                >
+                  📜
+                </button>{" "}
+              </span>
+            ))}
           </div>
         );
 
@@ -608,53 +623,84 @@ ${temiRicorrenti ? `Tematicamente, la campagna esplora: ${temiRicorrenti}.` : ""
 
         <div className="modale-footer">
           <div className="section recap-campagna">
-  <h3>📜 Riassunto della Campagna</h3>
-  <p><strong>Titolo:</strong> {campagna.nome}</p>
-  <p><strong>Ambientazione:</strong> {campagna.ambientazione || "—"}</p>
-  <p><strong>Tag:</strong> {campagna.tag?.join(", ") || "—"}</p>
-  <p><strong>Durata stimata:</strong> {campagna.durataStimata || "—"}</p>
+            <h3>📜 Riassunto della Campagna</h3>
+            <p>
+              <strong>Titolo:</strong> {campagna.nome}
+            </p>
+            <p>
+              <strong>Ambientazione:</strong> {campagna.ambientazione || "—"}
+            </p>
+            <p>
+              <strong>Tag:</strong> {campagna.tag?.join(", ") || "—"}
+            </p>
+            <p>
+              <strong>Durata stimata:</strong> {campagna.durataStimata || "—"}
+            </p>
 
-  {campagna.blurb && (
-    <p><strong>Blurb:</strong> {campagna.blurb}</p>
-  )}
-  {campagna.hookNarrativo && (
-    <p><strong>Hook Narrativo:</strong> {campagna.hookNarrativo}</p>
-  )}
-  {campagna.obiettivo && (
-    <p><strong>Obiettivo dei PG:</strong> {campagna.obiettivo}</p>
-  )}
+            {campagna.blurb && (
+              <p>
+                <strong>Blurb:</strong> {campagna.blurb}
+              </p>
+            )}
+            {campagna.hookNarrativo && (
+              <p>
+                <strong>Hook Narrativo:</strong> {campagna.hookNarrativo}
+              </p>
+            )}
+            {campagna.obiettivo && (
+              <p>
+                <strong>Obiettivo dei PG:</strong> {campagna.obiettivo}
+              </p>
+            )}
 
-  {campagna.villain?.length > 0 && (
-    <p>
-      <strong>Villain principale:</strong> {campagna.villain[0].nome} – {campagna.villain[0].motivazione}
-    </p>
-  )}
+            {campagna.villain?.length > 0 && (
+              <p>
+                <strong>Villain principale:</strong> {campagna.villain[0].nome}{" "}
+                – {campagna.villain[0].motivazione}
+              </p>
+            )}
 
-  {campagna.twist && (
-    <p><strong>Twist Narrativi:</strong> {campagna.twist}</p>
-  )}
-  {campagna.sottotrame && (
-    <p><strong>Trame Parallele:</strong> {campagna.sottotrame}</p>
-  )}
-  {campagna.temiRicorrenti && (
-    <p><strong>Temi Ricorrenti:</strong> {campagna.temiRicorrenti}</p>
-  )}
+            {campagna.twist && (
+              <p>
+                <strong>Twist Narrativi:</strong> {campagna.twist}
+              </p>
+            )}
+            {campagna.sottotrame && (
+              <p>
+                <strong>Trame Parallele:</strong> {campagna.sottotrame}
+              </p>
+            )}
+            {campagna.temiRicorrenti && (
+              <p>
+                <strong>Temi Ricorrenti:</strong> {campagna.temiRicorrenti}
+              </p>
+            )}
 
-  {campagna.luoghi?.length > 0 && (
-    <p><strong>Luoghi chiave:</strong> {campagna.luoghi.map(l => l.nome).join(", ")}</p>
-  )}
+            {campagna.luoghi?.length > 0 && (
+              <p>
+                <strong>Luoghi chiave:</strong>{" "}
+                {campagna.luoghi.map((l) => l.nome).join(", ")}
+              </p>
+            )}
 
-  {campagna.capitoli?.length > 0 && (
-    <p><strong>Scene principali:</strong> {campagna.capitoli.flatMap(c => c.scene?.map(s => s.titolo)).join(", ")}</p>
-  )}
-</div>
-<hr />
-{campagna && (
-  <div className="recap-generato">
-    <h4>🧠 Riassunto Narrativo Generato</h4>
-    <p style={{ whiteSpace: "pre-wrap" }}>{generaRecapNarrativo(campagna)}</p>
-  </div>
-)}
+            {campagna.capitoli?.length > 0 && (
+              <p>
+                <strong>Scene principali:</strong>{" "}
+                {campagna.capitoli
+                  .flatMap((c) => c.scene?.map((s) => s.titolo))
+                  .join(", ")}
+              </p>
+            )}
+          </div>
+          <hr />
+          {campagna && (
+            <div className="recap-generato">
+              <h4>🧠 Riassunto Narrativo Generato</h4>
+              <p style={{ whiteSpace: "pre-wrap" }}>
+                {generaRecapNarrativo(campagna)}
+              </p>
+            </div>
+          )}
 
           {modalitaModifica ? (
             <>
