@@ -435,7 +435,6 @@ ${
   <p>Nessun PNG selezionato.</p>
 )}
 
-
       case "Mostri":
         return (
           <div className="tab-content">
@@ -530,19 +529,18 @@ ${
           <div className="blocco-enigmi">
             <h3>🧠 Enigmi e Trappole</h3>
 
-            {enigma.sceneCollegate?.map((sceneId, i) => (
-              <span key={i}>
-                <code>{getNomeScena(sceneId)}</code>{" "}
-                <button
-                  onClick={() => {
-                    const el = document.getElementById(`scene-${sceneId}`);
-                    if (el) el.scrollIntoView({ behavior: "smooth" });
-                  }}
-                >
-                  📜
-                </button>{" "}
-              </span>
-            ))}
+            {dati.enigmi?.map((e) => (
+  <div key={e.id} className="box-enigma">
+    <strong>{e.titolo}</strong> – <em>{e.tipo}</em>
+    <p>{e.descrizione}</p>
+    <p>🧠 Prova: {e.prova || "—"} | 🎯 CD: {e.cd || "—"}</p>
+    {e.effettoFallimento && (
+      <p>💥 Effetto al fallimento: {e.effettoFallimento}</p>
+    )}
+    {e.soluzioni && <p>✅ Soluzione: {e.soluzioni}</p>}
+  </div>
+))}
+
           </div>
         );
 

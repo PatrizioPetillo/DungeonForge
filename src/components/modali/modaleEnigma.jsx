@@ -40,15 +40,42 @@ const ModaleEnigma = ({ onClose }) => {
     tipo: "",
     descrizione: "",
     soluzioni: "",
+    prova: "",
+  cd: "",
+  effettoFallimento: "",
     creareTrappola: false,
   });
   
+  const prove = [
+  { abilita: "Intelligenza (Enigmi)", cd: 13 },
+  { abilita: "Saggezza (Percezione)", cd: 15 },
+  { abilita: "Destrezza (Rapidità di mano)", cd: 14 },
+  { abilita: "Carisma (Persuasione)", cd: 12 },
+];
+
+const effetti = [
+  "1d6 danni da fuoco",
+  "Perdita temporanea della vista per 1 minuto",
+  "Allarme attivato: mostri in arrivo",
+  "Trappola esplosiva (2d8 danni da forza)",
+  "Caduta in una fossa (CD 15 Destrezza per evitarla)",
+];
 
   const generaEnigmaCasuale = () => {
-    const random = modelliEnigma[Math.floor(Math.random() * modelliEnigma.length)];
-    setEnigma((prev) => ({ ...prev, ...random, soluzioni: "" }));
-    toast.info(`Enigma generato: ${random.titolo}`);
-  };
+  const random = modelliEnigma[Math.floor(Math.random() * modelliEnigma.length)];
+  const provaCasuale = prove[Math.floor(Math.random() * prove.length)];
+  const effetto = effetti[Math.floor(Math.random() * effetti.length)];
+
+  setEnigma((prev) => ({
+    ...prev,
+    ...random,
+    soluzioni: random.soluzioni,
+    prova: provaCasuale.abilita,
+    cd: provaCasuale.cd,
+    effettoFallimento: effetto,
+  }));
+  toast.info(`Enigma generato: ${random.titolo}`);
+};
 
   const salvaEnigma = async () => {
     try {
@@ -102,13 +129,40 @@ const ModaleEnigma = ({ onClose }) => {
                 />
               </div>
               <div className="field-group">
-                <label>Descrizione del challenge:</label>
+                <label>Descrizione:</label>
                 <textarea
                   rows={4}
                   value={enigma.descrizione}
                   onChange={(e) => setEnigma((prev) => ({ ...prev, descrizione: e.target.value }))}
                 />
               </div>
+              <hr />
+              <div className="field-group">
+  <label>Prova richiesta:</label>
+  <input
+    value={enigma.prova}
+    onChange={(e) => setEnigma((prev) => ({ ...prev, prova: e.target.value }))}
+    placeholder="Es: Intelligenza (Enigmi)"
+  />
+</div>
+<div className="field-group">
+  <label>CD (Classe Difficoltà):</label>
+  <input
+    type="number"
+    value={enigma.cd}
+    onChange={(e) => setEnigma((prev) => ({ ...prev, cd: e.target.value }))}
+  />
+</div>
+<div className="field-group">
+  <label>Effetto al fallimento:</label>
+  <textarea
+    rows={2}
+    value={enigma.effettoFallimento}
+    onChange={(e) => setEnigma((prev) => ({ ...prev, effettoFallimento: e.target.value }))}
+    placeholder="Es: Allarme attivato o 1d6 danni da fuoco"
+  />
+</div>
+
             </>
           )}
 

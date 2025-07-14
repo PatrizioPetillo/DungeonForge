@@ -13,7 +13,13 @@ const EnigmiAttivi = ({ enigmi }) => {
           <p><em>Tipo:</em> {e.tipo || "—"}</p>
           <p><em>Difficoltà:</em> {e.cd ? `CD ${e.cd}` : "—"}</p>
           <p>{e.descrizione?.slice(0, 120)}...</p>
-          <button>✅ Risolto</button>
+          <hr />
+          <p><strong>Prova:</strong> {e.prova || "—"} <strong>CD:</strong> {e.cd || "—"}</p>
+{e.effettoFallimento && (
+  <p className="pericolo">💥 Fallimento: {e.effettoFallimento}</p>
+)}
+{e.soluzioni && <details><summary>✅ Soluzione</summary><p>{e.soluzioni}</p></details>}
+
         </div>
       ))}
     </div>
