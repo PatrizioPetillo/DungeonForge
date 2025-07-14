@@ -1,0 +1,82 @@
+.modale-avventura {
+  background: #1a1f2b;
+  border: 2px solid #d4af37;
+  color: #f2f2f0;
+  padding: 1.5rem;
+  border-radius: 8px;
+  width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modale-avventura .modale-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modale-avventura .modale-header h2 {
+  margin: 0;
+}
+
+.modale-avventura .icone-header button {
+  margin-left: 0.5rem;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #d4af37;
+}
+
+.modale-avventura .field-group {
+  margin-bottom: 1rem;
+}
+
+.modale-avventura .field-group label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.modale-avventura input,
+.modale-avventura textarea {
+  width: 100%;
+  background: #2d2d2d;
+  color: #f2f2f0;
+  padding: 0.5rem;
+  border: 1px solid #d4af37;
+  border-radius: 4px;
+  resize: vertical;
+}
+.tabs-stanze {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.tab-stanza {
+  flex: 1;
+  background: #2d2d2d;
+  color: #f2f2f0;
+  border: 1px solid #6e4f9e;
+  padding: 0.5rem;
+  margin-right: 0.5rem;
+  cursor: pointer;
+  font-weight: bold;
+  border-radius: 5px;
+  transition: background 0.2s;
+}
+
+.tab-stanza.attiva {
+  background: #6e4f9e;
+  color: #fff;
+}
+.esempio-box {
+  background: #2d2d2d;
+  color: #b2b9c3;
+  font-style: italic;
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
+  border-left: 4px solid #6e4f9e;
+  border-radius: 6px;
+}

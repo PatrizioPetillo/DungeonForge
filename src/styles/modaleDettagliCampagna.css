@@ -28,6 +28,52 @@
   margin-bottom: 1rem;
 }
 
+.blocco-scena,
+.blocco-villain,
+.blocco-mostri,
+.blocco-png,
+.blocco-enigmi,
+.blocco-avventure {
+  background-color: #2d2d2d;
+  border-left: 4px solid #6e4f9e;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 6px;
+}
+
+.blocco-scena h4 {
+  color: #d4af37;
+  margin-bottom: 0.5rem;
+}
+
+.tab-button {
+  background-color: #3d3d3d;
+  color: #f2f2f0;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  margin-right: 0.5rem;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.tab-button.active {
+  background-color: #6e4f9e;
+}
+
+.scrollarea {
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+ul {
+  padding-left: 1.2rem;
+}
+
+li {
+  margin-bottom: 0.3rem;
+}
+
 .tab-selector {
   display: flex;
   gap: 0.5rem;

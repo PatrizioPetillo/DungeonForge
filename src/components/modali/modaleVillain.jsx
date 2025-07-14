@@ -57,7 +57,7 @@ const ModaleVillain = ({ onClose }) => {
   const [maxIncantesimi, setMaxIncantesimi] = useState(0);
   const [sceneDisponibili, setSceneDisponibili] = useState([]);
 const [sceneCollegate, setSceneCollegate] = useState([]);
-
+  const [campagnaAttiva, setCampagnaAttiva] = useState(null);
 
   // Restituisce un elemento casuale da un array
   const casuale = (array) => array[Math.floor(Math.random() * array.length)];

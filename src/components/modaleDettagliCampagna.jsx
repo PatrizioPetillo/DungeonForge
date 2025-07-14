@@ -13,8 +13,9 @@ function ModaleDettagliCampagna({ campagna, onClose }) {
   const [luoghi, setLuoghi] = useState(campagna.luoghi || []);
   const [incontri, setIncontri] = useState(campagna.incontri || []);
   const [campagnaId, setCampagnaId] = useState(campagna.id || null);
+  const [enigmi, setEnigmi] = useState([]);
+  const [avventure, setAvventure] = useState([]);
 
-  
   const pngInScena = tuttiPNG.filter((p) =>
     p.sceneCollegate?.includes(scene.id)
   );
@@ -27,27 +28,44 @@ function ModaleDettagliCampagna({ campagna, onClose }) {
   };
 
   useEffect(() => {
-  if (!campagna?.id) return;
+    if (!campagna?.id) return;
 
-  const fetchIncontri = async () => {
-    const ref = collection(firestore, `campagne/${campagna.id}/incontri`);
-    const snap = await getDocs(ref);
-    const dati = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-    setIncontri(dati);
-  };
+    const fetchIncontri = async () => {
+      const ref = collection(firestore, `campagne/${campagna.id}/incontri`);
+      const snap = await getDocs(ref);
+      const dati = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      setIncontri(dati);
+    };
 
-  fetchIncontri();
-}, [campagna]);
+    fetchIncontri();
+  }, [campagna]);
 
-useEffect(() => {
-  const fetchLuoghi = async () => {
-    const snap = await getDocs(collection(firestore, "luoghi"));
-    const data = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    setLuoghi(data);
-  };
-  fetchLuoghi();
-}, []);
+  useEffect(() => {
+    const fetchEnigmi = async () => {
+      const snap = await getDocs(collection(firestore, "enigmi"));
+      const data = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setEnigmi(data);
+    };
+    fetchEnigmi();
+  }, []);
 
+  useEffect(() => {
+    const fetchLuoghi = async () => {
+      const snap = await getDocs(collection(firestore, "luoghi"));
+      const data = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setLuoghi(data);
+    };
+    fetchLuoghi();
+  }, []);
+
+  useEffect(() => {
+    const fetchAvventure = async () => {
+      const snap = await getDocs(collection(firestore, "avventure"));
+      const data = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setAvventure(data);
+    };
+    fetchAvventure();
+  }, []);
 
   const renderTab = () => {
     switch (tab) {
@@ -167,6 +185,47 @@ useEffect(() => {
                                   </ul>
                                 </div>
                               )}
+                              <hr />
+                              {enigmi.length > 0 && (
+                                <div className="blocco-enigmi">
+                                  <p>
+                                    <strong>🧠 Enigmi collegati:</strong>
+                                  </p>
+                                  <ul>
+                                    {enigmi
+                                      .filter((e) =>
+                                        e.sceneCollegate?.includes(scene.id)
+                                      )
+                                      .map((e, idx) => (
+                                        <li key={idx}>
+                                          {e.titolo} – {e.tipo}
+                                          <br />
+                                          <em style={{ color: "#B2B9C3" }}>
+                                            {e.descrizione?.slice(0, 60)}...
+                                          </em>
+                                        </li>
+                                      ))}
+                                  </ul>
+                                </div>
+                              )}
+                              <hr />
+                              {villain &&
+                                villain.sceneCollegate?.includes(scene.id) && (
+                                  <div className="blocco-villain">
+                                    <p>
+                                      <strong>😈 Villain presente:</strong>
+                                    </p>
+                                    <p>
+                                      <strong>{villain.nome}</strong> –{" "}
+                                      {villain.titolo}
+                                      <br />
+                                      <em style={{ color: "#B2B9C3" }}>
+                                        {villain.scopo ||
+                                          "Senza scopo dichiarato"}
+                                      </em>
+                                    </p>
+                                  </div>
+                                )}
                             </div>
                           )}
                         </div>
@@ -296,41 +355,98 @@ useEffect(() => {
       case "Luoghi":
         return (
           <div className="blocco-luoghi">
-  <h3>📍 Luoghi</h3>
-  {luoghi.length === 0 ? (
-    <p>Nessun luogo registrato.</p>
-  ) : (
-    <ul>
-      {luoghi.map((l) => (
-        <li key={l.id}>
-          <strong>{l.nome}</strong> – {l.tipo}<br />
-          <em>{l.descrizione?.slice(0, 80)}...</em>
-        </li>
-      ))}
-    </ul>
-  )}
-</div>
-
+            <h3>📍 Luoghi</h3>
+            {luoghi.length === 0 ? (
+              <p>Nessun luogo registrato.</p>
+            ) : (
+              <ul>
+                {luoghi.map((l) => (
+                  <li key={l.id}>
+                    <strong>{l.nome}</strong> – {l.tipo}
+                    <br />
+                    <em>{l.descrizione?.slice(0, 80)}...</em>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         );
 
       case "Incontri":
         return (
           <div className="blocco-incontri">
-  <h3>🗡️ Incontri & Combattimenti</h3>
-  {incontri.length === 0 ? (
-    <p>Nessun incontro registrato per questa campagna.</p>
-  ) : (
-    <ul>
-      {incontri.map((i) => (
-        <li key={i.id}>
-          <strong>{i.titolo}</strong> – {i.data || "Data non specificata"}<br />
-          <em>{i.descrizione?.slice(0, 100)}...</em>
-        </li>
-      ))}
-    </ul>
-  )}
-</div>
+            <h3>🗡️ Incontri & Combattimenti</h3>
+            {incontri.length === 0 ? (
+              <p>Nessun incontro registrato per questa campagna.</p>
+            ) : (
+              <ul>
+                {incontri.map((i) => (
+                  <li key={i.id}>
+                    <strong>{i.titolo}</strong> –{" "}
+                    {i.data || "Data non specificata"}
+                    <br />
+                    <em>{i.descrizione?.slice(0, 100)}...</em>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        );
 
+      case "Enigmi":
+        return (
+          <div className="blocco-enigmi">
+            <h3>🧠 Enigmi della Campagna</h3>
+            {enigmi.length === 0 ? (
+              <p>Nessun enigma registrato.</p>
+            ) : (
+              <ul>
+                {enigmi.map((e) => (
+                  <li key={e.id}>
+                    <strong>{e.titolo}</strong> – {e.tipo}
+                    <br />
+                    <em>{e.descrizione?.slice(0, 80)}...</em>
+                    <br />
+                    {e.sceneCollegate?.length > 0 && (
+                      <button
+                        onClick={() => scrollToScene(e.sceneCollegate[0])}
+                      >
+                        📜 Vai alla Scena
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        );
+
+      case "Avventure":
+        return (
+          <div className="blocco-avventure">
+            <h3>🧭 Avventure Modulari</h3>
+            {avventure.length === 0 ? (
+              <p>Nessuna avventura registrata.</p>
+            ) : (
+              avventure.map((a) => (
+                <div key={a.id} className="avventura-box">
+                  <h4>{a.titolo}</h4>
+                  <ol>
+                    {a.stanze.map((s, i) => (
+                      <li key={i}>
+                        <strong>Stanza {i + 1}</strong>: {s.descrizione || s}
+                        {s.scene?.length > 0 && (
+                          <button onClick={() => scrollToScene(s.scene[0])}>
+                            📜 Vai alla Scena
+                          </button>
+                        )}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              ))
+            )}
+          </div>
         );
 
       default:
