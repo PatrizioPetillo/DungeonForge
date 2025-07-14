@@ -2,6 +2,11 @@ import React, { useState } from "react";
 import CapitoloEditor from "./capitoloEditor";
 import MostroAPISelector from "./mostroAPISelector";
 import MostroManualeForm from "./mostroManualeForm";
+import ModaleVillain from "../components/modali/modaleVillain";
+import ModalePNG from "../components/modali/modalePNG";
+import ModaleLuogo from "../components/modali/modaleLuogo";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { firestore } from "../firebase/firebaseConfig";
 
 import "../styles/modaleCreaCampagna.css";
 
@@ -29,11 +34,209 @@ function ModaleCreaCampagna({ onClose }) {
   });
   const [showAPISelector, setShowAPISelector] = useState(false);
   const [showManualForm, setShowManualForm] = useState(false);
-  const [showAPI, setShowAPI] = useState(false);
+  const [modaleVillainAperta, setModaleVillainAperta] = useState(false);
+  const [villainAttivo, setVillainAttivo] = useState(null);
+  const [modaleArchivioAperta, setModaleArchivioAperta] = useState(false);
+  const [villainArchivio, setVillainArchivio] = useState([]);
+  const [luoghi, setLuoghi] = useState([]);
+  const [modalePNGAperta, setModalePNGAperta] = useState(false);
+  const [pngAttivo, setPngAttivo] = useState(null);
+  const [modaleArchivioPNGAperta, setModaleArchivioPNGAperta] = useState(false);
+  const [archivioPNG, setArchivioPNG] = useState([]);
+  const [modaleLuogoAperta, setModaleLuogoAperta] = useState(false);
+  const [luogoAttivo, setLuogoAttivo] = useState(null);
+  const [campagna, setCampagna] = useState({
+    id: null,
+    titolo: "",
+    tipo: "Campagna lunga",
+    stato: "Bozza",
+    ambientazione: "",
+    obiettivo: "",
+    hookNarrativo: "",
+    tagNarrativi: [],
+    blurb: "",
+    durataStimata: "",
+    durataTipo: "sessioni",
+    prologo: "",
+    finale: "",
+    capitoli: [],
+    villain: [],
+    png: [],
+    luoghi: [],
+    incontri: [],
+    mostri: [],
+  });
+  const [modaleIncontroAperta, setModaleIncontroAperta] = useState(false);
+const [incontri, setIncontri] = useState([]);
+const [modaleEnigmaAperta, setModaleEnigmaAperta] = useState(false);
+const [enigmiCampagna, setEnigmiCampagna] = useState([]);
+
+const apriModaleEnigma = () => {
+  setModaleEnigmaAperta(true);
+};
+
+const rimuoviEnigma = (index) => {
+  const nuovaLista = [...enigmiCampagna];
+  nuovaLista.splice(index, 1);
+  setEnigmiCampagna(nuovaLista);
+};
+
+const apriModaleIncontro = () => {
+  setModaleIncontroAperta(true);
+};
+
+const rimuoviIncontro = (index) => {
+  const nuovaLista = [...incontri];
+  nuovaLista.splice(index, 1);
+  setIncontri(nuovaLista);
+};
+
+const fetchIncontri = async () => {
+  const snapshot = await getDocs(collection(firestore, `campagne/${campagna.id}/incontri`));
+  setIncontri(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+};
+
+useEffect(() => {
+  if (campagna.id) fetchIncontri();
+}, [campagna.id]);
+
 
   const handleChange = (campo, valore) => {
     setDati((prev) => ({ ...prev, [campo]: valore }));
   };
+
+  const aggiornaVillain = (index, campo, valore) => {
+    const updated = [...(campagna.villain || [])];
+    updated[index][campo] = valore;
+    setCampagna({ ...campagna, villain: updated });
+  };
+
+  const rimuoviVillain = (index) => {
+    const updated = [...(campagna.villain || [])];
+    updated.splice(index, 1);
+    setCampagna({ ...campagna, villain: updated });
+  };
+
+  const apriModaleVillain = (villain) => {
+    setModaleVillainAperta(true);
+    setVillainAttivo(villain);
+  };
+
+  const apriGeneratoreVillain = () => {
+    setVillainAttivo(null); // nessun villain attivo = modalità generazione
+    setModaleVillainAperta(true);
+  };
+
+  const apriArchivioVillain = async () => {
+    const snapshot = await getDocs(collection(firestore, "villain"));
+    const lista = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    setVillainArchivio(lista);
+    setModaleArchivioAperta(true);
+  };
+
+  const selezionaVillainDaArchivio = (v) => {
+    setCampagna({
+      ...campagna,
+      villain: [...(campagna.villain || []), v],
+    });
+    setModaleArchivioAperta(false);
+  };
+
+  const salvaVillainInCampagna = (nuovoVillain) => {
+    setCampagna({
+      ...campagna,
+      villain: [...(campagna.villain || []), nuovoVillain],
+    });
+    setModaleVillainAperta(false);
+  };
+
+  const aggiornaPNG = (index, campo, valore) => {
+    const lista = [...(campagna.png || [])];
+    lista[index][campo] = valore;
+    setCampagna({ ...campagna, png: lista });
+  };
+
+  const rimuoviPNG = (index) => {
+    const lista = [...(campagna.png || [])];
+    lista.splice(index, 1);
+    setCampagna({ ...campagna, png: lista });
+  };
+
+  const apriModalePNG = (png) => {
+    setPngAttivo(png);
+    setModalePNGAperta(true);
+  };
+
+  const apriGeneratorePNG = () => {
+    setPngAttivo(null); // modalità generazione
+    setModalePNGAperta(true);
+  };
+
+  const apriArchivioPNG = async () => {
+    const snapshot = await getDocs(collection(firestore, "png"));
+    const lista = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    setArchivioPNG(lista);
+    setModaleArchivioPNGAperta(true);
+  };
+
+  const selezionaPNGDaArchivio = (png) => {
+    setCampagna({
+      ...campagna,
+      png: [...(campagna.png || []), png],
+    });
+    setModaleArchivioPNGAperta(false);
+  };
+
+  const apriModaleLuogo = () => {
+    setLuogoAttivo(null);
+    setModaleLuogoAperta(true);
+  };
+
+  const modificaLuogo = (index) => {
+    setLuogoAttivo({ ...campagna.luoghi[index], index });
+    setModaleLuogoAperta(true);
+  };
+
+  const rimuoviLuogo = (index) => {
+    const luoghi = [...campagna.luoghi];
+    luoghi.splice(index, 1);
+    setCampagna({ ...campagna, luoghi });
+  };
+
+  const nomeScenaDaID = (id) => {
+  const scena = campagna.scene?.find(s => s.id === id);
+  return scena ? scena.titolo : id;
+};
+
+  const salvaCampagna = async () => {
+  try {
+    const docRef = doc(firestore, "campagne", campagna.id || uuid());
+    
+    const nuovaCampagna = {
+      ...campagna,
+      id: docRef.id,
+      updatedAt: serverTimestamp(),
+      createdAt: campagna.createdAt || serverTimestamp(),
+    };
+
+    await setDoc(docRef, nuovaCampagna);
+
+    for (const enigma of enigmiCampagna) {
+      await addDoc(collection(firestore, `campagne/${docRef.id}/enigmi`), {
+        ...enigma,
+        createdAt: serverTimestamp(),
+      });
+    }
+
+    toast.success("Campagna salvata con successo!");
+    onClose?.(); // chiusura modale, se necessario
+
+  } catch (err) {
+    console.error(err);
+    toast.error("Errore durante il salvataggio");
+  }
+};
+
 
   const renderTab = () => {
     switch (tab) {
@@ -215,6 +418,88 @@ function ModaleCreaCampagna({ onClose }) {
               />
             ))}
             <button onClick={aggiungiCapitolo}>➕ Aggiungi Capitolo</button>
+            <h4>⚠️ Twist Narrativi</h4>
+            {(campagna.twistNarrativi || []).map((twist, i) => (
+              <textarea
+                key={i}
+                value={twist}
+                onChange={(e) => {
+                  const updated = [...campagna.twistNarrativi];
+                  updated[i] = e.target.value;
+                  setCampagna({ ...campagna, twistNarrativi: updated });
+                }}
+                placeholder={`Twist #${i + 1}`}
+                rows={2}
+                style={{ marginBottom: "0.5rem", width: "100%" }}
+              />
+            ))}
+            <button
+              onClick={() =>
+                setCampagna({
+                  ...campagna,
+                  twistNarrativi: [...(campagna.twistNarrativi || []), ""],
+                })
+              }
+            >
+              ➕ Aggiungi Twist
+            </button>
+
+            <h4>🔄 Trame Parallele</h4>
+            {(campagna.trameParallele || []).map((trama, i) => (
+              <textarea
+                key={i}
+                value={trama}
+                onChange={(e) => {
+                  const updated = [...campagna.trameParallele];
+                  updated[i] = e.target.value;
+                  setCampagna({ ...campagna, trameParallele: updated });
+                }}
+                placeholder={`Trama parallela #${i + 1}`}
+                rows={2}
+                style={{ marginBottom: "0.5rem", width: "100%" }}
+              />
+            ))}
+            <button
+              onClick={() =>
+                setCampagna({
+                  ...campagna,
+                  trameParallele: [...(campagna.trameParallele || []), ""],
+                })
+              }
+            >
+              ➕ Aggiungi Trama
+            </button>
+
+            <h4>🧶 Collegamenti Tematici</h4>
+            {(campagna.collegamentiTematici || []).map((collegamento, i) => (
+              <textarea
+                key={i}
+                value={collegamento}
+                onChange={(e) => {
+                  const updated = [...campagna.collegamentiTematici];
+                  updated[i] = e.target.value;
+                  setCampagna({ ...campagna, collegamentiTematici: updated });
+                }}
+                placeholder={`Collegamento tematico #${i + 1}`}
+                rows={2}
+                style={{ marginBottom: "0.5rem", width: "100%" }}
+              />
+            ))}
+            <button
+              onClick={() =>
+                setCampagna({
+                  ...campagna,
+                  collegamentiTematici: [
+                    ...(campagna.collegamentiTematici || []),
+                    "",
+                  ],
+                })
+              }
+            >
+              ➕ Aggiungi Collegamento
+            </button>
+
+            <hr />
 
             <label>Finale</label>
             <textarea
@@ -224,29 +509,302 @@ function ModaleCreaCampagna({ onClose }) {
             />
           </div>
         );
-
       case "Villain":
         return (
           <div className="tab-content">
-            <p>🧙‍♂️ Aggiungi un Villain o generane uno</p>
-            <button>+ Genera Villain</button>
-            <button>+ Scegli dall’Archivio</button>
+            <h3>👿 Villain della Campagna</h3>
+
+            {/* Pulsanti azione */}
+            <div style={{ marginBottom: "1rem", display: "flex", gap: "1rem" }}>
+              <button onClick={apriGeneratoreVillain}>+ Genera Villain</button>
+              <button onClick={apriArchivioVillain}>
+                + Scegli dall’Archivio
+              </button>
+            </div>
+
+            {/* Lista Villain collegati */}
+            {(campagna.villain || []).map((v, i) => (
+              <div
+                key={i}
+                className="villain-box"
+                style={{
+                  border: "1px solid #ccc",
+                  padding: "1rem",
+                  marginBottom: "1rem",
+                }}
+              >
+                <h4>
+                  {v.nome} ({v.classe} Lv.{v.livello})
+                </h4>
+                <p>
+                  <strong>Razza:</strong> {v.razza}
+                </p>
+                <p>
+                  <strong>Frase:</strong> <em>{v.frase}</em>
+                </p>
+
+                {/* Campi Narrativi */}
+                <label>🎯 Obiettivo Finale</label>
+                <textarea
+                  value={v.obiettivo || ""}
+                  onChange={(e) =>
+                    aggiornaVillain(i, "obiettivo", e.target.value)
+                  }
+                  placeholder="Conquista, resurrezione, distruzione..."
+                />
+
+                <label>🕰️ Piano a Lungo Termine</label>
+                <textarea
+                  value={v.piano || ""}
+                  onChange={(e) => aggiornaVillain(i, "piano", e.target.value)}
+                  placeholder="Fasi, manipolazioni, tappe"
+                />
+
+                <label>🌘 Motivazione o Trauma</label>
+                <textarea
+                  value={v.motivazione || ""}
+                  onChange={(e) =>
+                    aggiornaVillain(i, "motivazione", e.target.value)
+                  }
+                  placeholder="Ossessione, vendetta, tradimento..."
+                />
+
+                <label>🐍 Seguaci / Organizzazioni</label>
+                <textarea
+                  value={v.seguaci || ""}
+                  onChange={(e) =>
+                    aggiornaVillain(i, "seguaci", e.target.value)
+                  }
+                  placeholder="Culto della Cenere, mercenari del Velo..."
+                />
+
+                <label>🪄 Oggetti o Poteri Speciali</label>
+                <textarea
+                  value={v.oggetti || ""}
+                  onChange={(e) =>
+                    aggiornaVillain(i, "oggetti", e.target.value)
+                  }
+                  placeholder="Corona degli Echi, Pietra del Vuoto..."
+                />
+
+                <label>📍 Luogo Chiave Collegato</label>
+                <select
+                  value={v.luogo || ""}
+                  onChange={(e) => aggiornaVillain(i, "luogo", e.target.value)}
+                >
+                  <option value="">-- Seleziona luogo --</option>
+                  {luoghi?.map((l) => (
+                    <option key={l.id} value={l.id}>
+                      {l.nome}
+                    </option>
+                  ))}
+                </select>
+
+                <label>📅 Scena di Apparizione</label>
+                <select
+                  value={v.sceneApparizione || ""}
+                  onChange={(e) =>
+                    aggiornaVillain(i, "sceneApparizione", e.target.value)
+                  }
+                >
+                  <option value="">-- Seleziona scena --</option>
+                  {campagna.scene?.map((s, idx) => (
+                    <option key={idx} value={s.id}>
+                      {s.titolo}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Azioni */}
+                <div style={{ marginTop: "0.5rem" }}>
+                  <button onClick={() => apriModaleVillain(v)}>
+                    ✏️ Modifica completa
+                  </button>
+                  <button
+                    onClick={() => rimuoviVillain(i)}
+                    style={{ color: "red" }}
+                  >
+                    🗑️ Rimuovi
+                  </button>
+                </div>
+              </div>
+            ))}
+            {modaleArchivioAperta && (
+              <div className="modaleArchivio">
+                <h3>📚 Villain salvati</h3>
+                <ul>
+                  {villainArchivio.map((v) => (
+                    <li key={v.id}>
+                      <strong>{v.nome}</strong> (Lv.{v.livello} {v.classe})
+                      <button onClick={() => selezionaVillainDaArchivio(v)}>
+                        ➕ Aggiungi
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                <button onClick={() => setModaleArchivioAperta(false)}>
+                  Chiudi
+                </button>
+              </div>
+            )}
+            <button onClick={() => setModaleVillainAperta(true)}>
+              + Aggiungi Villain
+            </button>
+            <ModaleVillain
+              isOpen={modaleVillainAperta}
+              onClose={() => setModaleVillainAperta(false)}
+              villain={villainAttivo}
+              onSave={salvaVillainInCampagna}
+            />
           </div>
         );
+
       case "PNG":
         return (
           <div className="tab-content">
-            <p>👤 Seleziona PNG salvati o aggiungi nuovi</p>
-            <button>+ Genera PNG</button>
-            <button>+ Scegli dall’Archivio</button>
+            <h3>👤 Personaggi Non Giocanti</h3>
+
+            <div style={{ marginBottom: "1rem", display: "flex", gap: "1rem" }}>
+              <button onClick={apriGeneratorePNG}>+ Genera PNG</button>
+              <button onClick={apriArchivioPNG}>+ Scegli dall’Archivio</button>
+            </div>
+
+            {(campagna.png || []).map((p, i) => (
+              <div
+                key={i}
+                className="png-box"
+                style={{
+                  border: "1px solid #ccc",
+                  padding: "1rem",
+                  marginBottom: "1rem",
+                }}
+              >
+                <h4>
+                  {p.nome} {p.cognome && <>({p.cognome})</>} — {p.tipo}
+                </h4>
+
+                <p>
+                  <strong>Razza:</strong> {p.razza}
+                </p>
+                {p.tipo === "Comune" && (
+                  <p>
+                    <strong>Mestiere:</strong> {p.mestiere || "—"}
+                  </p>
+                )}
+                {p.tipo === "Non Comune" && (
+                  <>
+                    <p>
+                      <strong>Classe:</strong> {p.classe} (Lv.{p.livello})
+                    </p>
+                    <p>
+                      <strong>PF / CA:</strong> {p.pf} / {p.ca}
+                    </p>
+                  </>
+                )}
+
+                {/* Campi narrativi rapidi */}
+                <label>🤝 Relazione con i PG</label>
+                <select
+                  value={p.relazionePg || ""}
+                  onChange={(e) =>
+                    aggiornaPNG(i, "relazionePg", e.target.value)
+                  }
+                >
+                  <option value="">-- Seleziona --</option>
+                  <option>Alleato</option>
+                  <option>Mentore</option>
+                  <option>Traditore</option>
+                  <option>Guida</option>
+                  <option>Contatto della Gilda</option>
+                  <option>Nemico</option>
+                </select>
+
+                <label>📍 Collegamento narrativo</label>
+                <input
+                  type="text"
+                  value={p.collegamento || ""}
+                  onChange={(e) =>
+                    aggiornaPNG(i, "collegamento", e.target.value)
+                  }
+                  placeholder="Es: Scena 1, Capitolo 2..."
+                />
+
+                {/* Azioni */}
+                <div style={{ marginTop: "0.5rem" }}>
+                  <button onClick={() => apriModalePNG(p)}>✏️ Modifica</button>
+                  <button
+                    onClick={() => rimuoviPNG(i)}
+                    style={{ color: "red" }}
+                  >
+                    🗑️ Rimuovi
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         );
+
       case "Luoghi":
         return (
           <div className="tab-content">
-            <p>🏰 Inserisci luoghi chiave della campagna</p>
-            <button>+ Aggiungi luogo</button>
-            <button>+ Scegli dall’Archivio</button>
+            <h3>🏰 Luoghi Chiave della Campagna</h3>
+
+            <div style={{ marginBottom: "1rem", display: "flex", gap: "1rem" }}>
+              <button onClick={apriModaleLuogo}>+ Aggiungi luogo</button>
+              <button onClick={apriArchivioLuogo}>
+                + Scegli dall’Archivio
+              </button>
+            </div>
+
+            {(campagna.luoghi || []).map((l, i) => (
+              <div
+                key={i}
+                className="luogo-box"
+                style={{
+                  border: "1px solid #ccc",
+                  padding: "1rem",
+                  marginBottom: "1rem",
+                }}
+              >
+                <h4>
+                  {l.nome} ({l.tipo})
+                </h4>
+                {l.immagine && (
+                  <img
+                    src={l.immagine}
+                    alt={l.nome}
+                    style={{
+                      maxWidth: "100%",
+                      borderRadius: "4px",
+                      marginBottom: "0.5rem",
+                    }}
+                  />
+                )}
+                <p>
+                  <strong>Descrizione:</strong> {l.descrizione?.slice(0, 200)}
+                  ...
+                </p>
+                {l.pngPresenti?.length > 0 && (
+  <p><strong>PNG:</strong> {l.pngPresenti.join(", ")}</p>
+)}
+
+{l.villainAssociati?.length > 0 && (
+  <p><strong>Villain:</strong> {l.villainAssociati.join(", ")}</p>
+)}
+
+{l.sceneCollegate?.length > 0 && (
+  <p><strong>Scene:</strong> {l.sceneCollegate.map(id => nomeScenaDaID(id)).join(", ")}</p>
+)}
+
+                <button onClick={() => modificaLuogo(i)}>✏️ Modifica</button>
+                <button
+                  onClick={() => rimuoviLuogo(i)}
+                  style={{ color: "red" }}
+                >
+                  🗑️ Rimuovi
+                </button>
+              </div>
+            ))}
           </div>
         );
 
@@ -331,13 +889,53 @@ function ModaleCreaCampagna({ onClose }) {
         );
 
       case "Incontri":
-        return (
-          <div className="tab-content">
-            <p>⚔️ Inserisci mostri, nemici o eventi scriptati</p>
-            <button>+ Genera Incontro</button>
-            <button>+ Scegli Mostro dall’Archivio</button>
-          </div>
-        );
+  return (
+    <div className="tab-content">
+      <h3>⚔️ Incontri Narrativi e di Combattimento</h3>
+
+      <div style={{ marginBottom: "1rem" }}>
+        <button onClick={apriModaleIncontro}>+ Genera Incontro</button>
+      </div>
+
+      {(incontri || []).map((incontro, i) => (
+        <div key={i} className="incontro-box" style={{ border: "1px solid #ccc", padding: "1rem", marginBottom: "1rem" }}>
+          <h4>{incontro.titolo || "Senza titolo"} ({incontro.data || "Data non specificata"})</h4>
+          <p><strong>Descrizione:</strong> {incontro.descrizione?.slice(0, 150)}...</p>
+          {incontro.sceneCollegate?.length > 0 && (
+            <p><strong>Scene collegate:</strong> {incontro.sceneCollegate.join(", ")}</p>
+          )}
+          {incontro.esito && (
+            <p><strong>Esito:</strong> {incontro.esito}</p>
+          )}
+          <button onClick={() => rimuoviIncontro(i)} style={{ color: "red" }}>🗑️ Rimuovi</button>
+        </div>
+      ))}
+    </div>
+  );
+
+  case "Enigmi":
+  return (
+    <div className="tab-content">
+      <h3>🧠 Enigmi, Trappole e Ostacoli</h3>
+
+      <div style={{ marginBottom: "1rem" }}>
+        <button onClick={apriModaleEnigma}>+ Genera Enigma</button>
+      </div>
+
+      {(enigmiCampagna || []).map((enigma, i) => (
+        <div key={i} className="enigma-box" style={{ border: "1px solid #ccc", padding: "1rem", marginBottom: "1rem" }}>
+          <h4>{enigma.titolo || "Senza titolo"}</h4>
+          <p><strong>Tipo:</strong> {enigma.tipo}</p>
+          <p><strong>Descrizione:</strong> {enigma.descrizione?.slice(0, 120)}...</p>
+          {enigma.sceneCollegate?.length > 0 && (
+            <p><strong>Scene:</strong> {enigma.sceneCollegate.map(id => nomeScenaDaID(id)).join(", ")}</p>
+          )}
+          <button onClick={() => rimuoviEnigma(i)} style={{ color: "red" }}>🗑️ Rimuovi</button>
+        </div>
+      ))}
+    </div>
+  );
+
       default:
         return null;
     }
@@ -371,9 +969,89 @@ function ModaleCreaCampagna({ onClose }) {
         </div>
         <div className="modale-body">{renderTab()}</div>
         <div className="modale-footer">
-          <button className="salva-btn">💾 Salva Campagna</button>
+          <button
+            onClick={salvaCampagna}
+            style={{
+              padding: "0.6rem 1.2rem",
+              backgroundColor: "#D4AF37",
+              border: "none",
+              color: "#1A1F2B",
+              fontWeight: "bold",
+              borderRadius: "6px",
+              cursor: "pointer",
+            }}
+          >
+            💾 Salva Campagna
+          </button>
         </div>
       </div>
+      {modalePNGAperta && (
+        <ModalePNG
+          isOpen={modalePNGAperta}
+          onClose={() => setModalePNGAperta(false)}
+          png={pngAttivo}
+          onSave={(nuovoPNG) => {
+            if (!pngAttivo) {
+              // PNG nuovo
+              setCampagna({
+                ...campagna,
+                png: [...(campagna.png || []), nuovoPNG],
+              });
+            } else {
+              // PNG esistente → aggiorna
+              const aggiornata = [...campagna.png];
+              const idx = aggiornata.findIndex((p) => p.id === pngAttivo.id);
+              if (idx !== -1) aggiornata[idx] = nuovoPNG;
+              setCampagna({ ...campagna, png: aggiornata });
+            }
+            setModalePNGAperta(false);
+          }}
+        />
+      )}
+
+      {modaleLuogoAperta && (
+  <ModaleLuogo
+    onClose={() => setModaleLuogoAperta(false)}
+    campagnaId={campagna.id || null}
+    onSave={(luogoSalvato) => {
+      if (luogoAttivo && luogoAttivo.index >= 0) {
+        // Modifica
+        const aggiornata = [...campagna.luoghi];
+        aggiornata[luogoAttivo.index] = luogoSalvato;
+        setCampagna({ ...campagna, luoghi: aggiornata });
+      } else {
+        // Nuovo
+        setCampagna({
+          ...campagna,
+          luoghi: [...(campagna.luoghi || []), luogoSalvato],
+        });
+      }
+      setModaleLuogoAperta(false);
+    }}
+  />
+)}
+
+{modaleIncontroAperta && (
+  <ModaleIncontro
+    campagnaId={campagna.id}
+    onClose={() => {
+      setModaleIncontroAperta(false);
+      fetchIncontri(); // oppure aggiorna la lista manualmente
+    }}
+  />
+)}
+{modaleEnigmaAperta && (
+  <ModaleEnigma
+    onClose={() => setModaleEnigmaAperta(false)}
+    onSave={(nuovoEnigma) => {
+      setEnigmiCampagna([...enigmiCampagna, nuovoEnigma]);
+      setModaleEnigmaAperta(false);
+    }}
+    campagnaId={campagna.id}
+  />
+)}
+
+
     </div>
   );
 }

@@ -4,6 +4,7 @@ import "../../styles/modalePng.css";
 
 export default function ModalePng({ onClose }) {
   const [tipo, setTipo] = useState("Comune");
+  const [campagnaAttiva, setCampagnaAttiva] = useState(null); // da passare come prop o contesto
   const [tab, setTab] = useState("Generali");
   const [listaRazze, setListaRazze] = useState([]);
   const [listaClassi, setListaClassi] = useState([]);

@@ -161,7 +161,7 @@ const ModaleFiveRoomDungeon = ({ onClose }) => {
   };
 
   return (
-    <div className="modal-overlay">
+    <div className="modale-overlay">
       <div className="modale-avventura">
         <div className="modale-header">
           <h2>🧭 Five Room Dungeon</h2>

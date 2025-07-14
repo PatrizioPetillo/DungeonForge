@@ -41,13 +41,16 @@ function ModaleDettagliCampagna({ campagna, onClose }) {
   }, [campagna]);
 
   useEffect(() => {
-    const fetchEnigmi = async () => {
-      const snap = await getDocs(collection(firestore, "enigmi"));
-      const data = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setEnigmi(data);
-    };
+  const fetchEnigmi = async () => {
+    const q = collection(firestore, `campagne/${campagna.id}/enigmi`);
+    const snapshot = await getDocs(q);
+    setEnigmi(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+  };
+
+  if (campagna?.id) {
     fetchEnigmi();
-  }, []);
+  }
+}, [campagna]);
 
   useEffect(() => {
     const fetchLuoghi = async () => {
@@ -66,6 +69,58 @@ function ModaleDettagliCampagna({ campagna, onClose }) {
     };
     fetchAvventure();
   }, []);
+
+  const getNomeScena = (id) => {
+  const scena = campagna.capitoli?.flatMap(c => c.scene || []).find(s => s.id === id);
+  return scena?.titolo || id;
+};
+
+const getNomeLuogo = (id) => {
+  const l = campagna.luoghi?.find(l => l.id === id);
+  return l?.nome || id;
+};
+
+const generaRecapNarrativo = (campagna) => {
+  const {
+    nome,
+    ambientazione,
+    hookNarrativo,
+    obiettivo,
+    blurb,
+    villain = [],
+    luoghi = [],
+    capitoli = [],
+    temiRicorrenti,
+    twist,
+  } = campagna;
+
+  const villainMain = villain[0];
+  const villainFrase = villainMain
+    ? `Il principale antagonista è ${villainMain.nome}, spinto da ${villainMain.motivazione || "una motivazione oscura"}.`
+    : "";
+
+  const luoghiFrase = luoghi.length
+    ? `I luoghi centrali includono ${luoghi.map(l => l.nome).join(", ")}.`
+    : "";
+
+  const sceneTitoli = capitoli.flatMap(c => c.scene?.map(s => s.titolo)).filter(Boolean);
+  const sceneFrase = sceneTitoli.length
+    ? `Le scene principali si snodano attraverso: ${sceneTitoli.join(", ")}.`
+    : "";
+
+  return `
+La campagna "${nome}" è ambientata in ${ambientazione || "un mondo ancora indefinito"}. 
+${hookNarrativo ? `L'avventura si apre con questo gancio narrativo: ${hookNarrativo}` : ""}
+${blurb ? blurb + "." : ""}
+${obiettivo ? `L'obiettivo dei personaggi è: ${obiettivo}.` : ""}
+${villainFrase}
+${luoghiFrase}
+${sceneFrase}
+${twist ? `Tra i colpi di scena figurano: ${twist}.` : ""}
+${temiRicorrenti ? `Tematicamente, la campagna esplora: ${temiRicorrenti}.` : ""}
+  `.trim();
+};
+
 
   const renderTab = () => {
     switch (tab) {
@@ -92,21 +147,27 @@ function ModaleDettagliCampagna({ campagna, onClose }) {
               onChange={(e) => handleChange("ambientazione", e.target.value)}
             />
             <h4>🎯 Obiettivo</h4>
-<p>{campagna.obiettivo}</p>
+            <p>{campagna.obiettivo}</p>
 
-<h4>📣 Hook Narrativo</h4>
-<p>{campagna.hookNarrativo}</p>
+            <h4>📣 Hook Narrativo</h4>
+            <p>{campagna.hookNarrativo}</p>
 
-<h4>🏷️ Tag Narrativi</h4>
-<ul>
-  {campagna.tagNarrativi?.map((tag, i) => <li key={i}>{tag}</li>)}
-</ul>
+            <h4>🏷️ Tag Narrativi</h4>
+            <ul>
+              {campagna.tagNarrativi?.map((tag, i) => (
+                <li key={i}>{tag}</li>
+              ))}
+            </ul>
 
-<h4>🧾 Blurb</h4>
-<p><em>{campagna.blurb}</em></p>
+            <h4>🧾 Blurb</h4>
+            <p>
+              <em>{campagna.blurb}</em>
+            </p>
 
-<h4>⌛ Durata Stimata</h4>
-<p>{campagna.durataStimata} {campagna.durataTipo}</p>
+            <h4>⌛ Durata Stimata</h4>
+            <p>
+              {campagna.durataStimata} {campagna.durataTipo}
+            </p>
 
             <label>Stato</label>
             <select
@@ -247,6 +308,44 @@ function ModaleDettagliCampagna({ campagna, onClose }) {
                           )}
                         </div>
                       ))}
+                      {campagna.twistNarrativi?.length > 0 && (
+                        <>
+                          <h4>⚠️ Twist Narrativi</h4>
+                          <ul>
+                            {campagna.twistNarrativi.map((twist, i) => (
+                              <li key={i} style={{ marginBottom: "0.5rem" }}>
+                                {twist}
+                              </li>
+                            ))}
+                          </ul>
+                        </>
+                      )}
+                      <hr />
+                      {campagna.trameParallele?.length > 0 && (
+                        <>
+                          <h4>🔄 Trame Parallele</h4>
+                          <ul>
+                            {campagna.trameParallele.map((trama, i) => (
+                              <li key={i} style={{ marginBottom: "0.5rem" }}>
+                                {trama}
+                              </li>
+                            ))}
+                          </ul>
+                        </>
+                      )}
+                      <hr />
+                      {campagna.collegamentiTematici?.length > 0 && (
+                        <>
+                          <h4>🧶 Collegamenti Tematici</h4>
+                          <ul>
+                            {campagna.collegamentiTematici.map((link, i) => (
+                              <li key={i} style={{ marginBottom: "0.5rem" }}>
+                                {link}
+                              </li>
+                            ))}
+                          </ul>
+                        </>
+                      )}
                     </>
                   )}
                 </div>
@@ -413,28 +512,22 @@ function ModaleDettagliCampagna({ campagna, onClose }) {
       case "Enigmi":
         return (
           <div className="blocco-enigmi">
-            <h3>🧠 Enigmi della Campagna</h3>
-            {enigmi.length === 0 ? (
-              <p>Nessun enigma registrato.</p>
-            ) : (
-              <ul>
-                {enigmi.map((e) => (
-                  <li key={e.id}>
-                    <strong>{e.titolo}</strong> – {e.tipo}
-                    <br />
-                    <em>{e.descrizione?.slice(0, 80)}...</em>
-                    <br />
-                    {e.sceneCollegate?.length > 0 && (
-                      <button
-                        onClick={() => scrollToScene(e.sceneCollegate[0])}
-                      >
-                        📜 Vai alla Scena
-                      </button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
+            <h3>🧠 Enigmi e Trappole</h3>
+
+  {enigmi.length === 0 ? (
+    <p>Nessun enigma salvato per questa campagna.</p>
+  ) : (
+    enigmi.map((enigma) => (
+      <div key={enigma.id} className="enigma-box" style={{ border: "1px solid #ccc", padding: "0.8rem", marginBottom: "1rem" }}>
+        <h4>{enigma.titolo} <small>({enigma.tipo || "generico"})</small></h4>
+        {enigma.difficolta && <p><strong>Difficoltà:</strong> {enigma.difficolta}</p>}
+        <p>{enigma.descrizione?.slice(0, 150)}...</p>
+        {enigma.sceneCollegate?.length > 0 && (
+          <p><strong>Scene collegate:</strong> {enigma.sceneCollegate.join(", ")}</p>
+        )}
+      </div>
+    ))
+  )}
           </div>
         );
 
@@ -498,6 +591,8 @@ function ModaleDettagliCampagna({ campagna, onClose }) {
             "Luoghi",
             "Incontri",
             "Mostri",
+            "Enigmi",
+            "Avventure",
           ].map((t) => (
             <button
               key={t}
@@ -512,6 +607,55 @@ function ModaleDettagliCampagna({ campagna, onClose }) {
         <div className="modale-body">{renderTab()}</div>
 
         <div className="modale-footer">
+          <div className="section recap-campagna">
+  <h3>📜 Riassunto della Campagna</h3>
+  <p><strong>Titolo:</strong> {campagna.nome}</p>
+  <p><strong>Ambientazione:</strong> {campagna.ambientazione || "—"}</p>
+  <p><strong>Tag:</strong> {campagna.tag?.join(", ") || "—"}</p>
+  <p><strong>Durata stimata:</strong> {campagna.durataStimata || "—"}</p>
+
+  {campagna.blurb && (
+    <p><strong>Blurb:</strong> {campagna.blurb}</p>
+  )}
+  {campagna.hookNarrativo && (
+    <p><strong>Hook Narrativo:</strong> {campagna.hookNarrativo}</p>
+  )}
+  {campagna.obiettivo && (
+    <p><strong>Obiettivo dei PG:</strong> {campagna.obiettivo}</p>
+  )}
+
+  {campagna.villain?.length > 0 && (
+    <p>
+      <strong>Villain principale:</strong> {campagna.villain[0].nome} – {campagna.villain[0].motivazione}
+    </p>
+  )}
+
+  {campagna.twist && (
+    <p><strong>Twist Narrativi:</strong> {campagna.twist}</p>
+  )}
+  {campagna.sottotrame && (
+    <p><strong>Trame Parallele:</strong> {campagna.sottotrame}</p>
+  )}
+  {campagna.temiRicorrenti && (
+    <p><strong>Temi Ricorrenti:</strong> {campagna.temiRicorrenti}</p>
+  )}
+
+  {campagna.luoghi?.length > 0 && (
+    <p><strong>Luoghi chiave:</strong> {campagna.luoghi.map(l => l.nome).join(", ")}</p>
+  )}
+
+  {campagna.capitoli?.length > 0 && (
+    <p><strong>Scene principali:</strong> {campagna.capitoli.flatMap(c => c.scene?.map(s => s.titolo)).join(", ")}</p>
+  )}
+</div>
+<hr />
+{campagna && (
+  <div className="recap-generato">
+    <h4>🧠 Riassunto Narrativo Generato</h4>
+    <p style={{ whiteSpace: "pre-wrap" }}>{generaRecapNarrativo(campagna)}</p>
+  </div>
+)}
+
           {modalitaModifica ? (
             <>
               <button className="elimina-btn" onClick={eliminaCampagna}>
@@ -530,11 +674,11 @@ function ModaleDettagliCampagna({ campagna, onClose }) {
             </button>
           )}
           <button
-  className="btn-sessione"
-  onClick={() => navigate(`/live-session/${campagna.id}`)}
->
-  🎲 Entra in sessione
-</button>
+            className="btn-sessione"
+            onClick={() => navigate(`/live-session/${campagna.id}`)}
+          >
+            🎲 Entra in sessione
+          </button>
         </div>
       </div>
     </div>

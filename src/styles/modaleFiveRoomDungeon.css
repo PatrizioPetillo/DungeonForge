@@ -1,12 +1,21 @@
 .modale-avventura {
-  background: #1a1f2b;
-  border: 2px solid #d4af37;
-  color: #f2f2f0;
-  padding: 1.5rem;
-  border-radius: 8px;
-  width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
+    background: #1A1F2B;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 800px;
+  color: #F2F2F0;
+  box-shadow: 0 0 15px rgba(0,0,0,0.6);
+}
+.modale-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .modale-avventura .modale-header {
@@ -44,7 +53,7 @@
   background: #2d2d2d;
   color: #f2f2f0;
   padding: 0.5rem;
-  border: 1px solid #d4af37;
+  border: 1px solid;
   border-radius: 4px;
   resize: vertical;
 }
@@ -58,7 +67,7 @@
   flex: 1;
   background: #2d2d2d;
   color: #f2f2f0;
-  border: 1px solid #6e4f9e;
+  border: 1px solid none;
   padding: 0.5rem;
   margin-right: 0.5rem;
   cursor: pointer;

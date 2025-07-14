@@ -11,7 +11,7 @@ import "../../styles/modaleLuogo.css";
 const ModaleLuogo = ({ onClose, campagnaId }) => {
   const [tab, setTab] = useState("Generale");
   const [sceneDisponibili, setSceneDisponibili] = useState([]);
-
+  const [sceneNarrative, setSceneNarrative] = useState([]);
   const [luogo, setLuogo] = useState({
     nome: "",
     tipo: "",
@@ -218,6 +218,24 @@ const ModaleLuogo = ({ onClose, campagnaId }) => {
                   }
                 />
               </div>
+              <h4>🎭 Scene ambientate qui</h4>
+              <select
+                multiple
+                value={luogo.sceneCollegate || []}
+                onChange={(e) => {
+                  const selected = Array.from(
+                    e.target.selectedOptions,
+                    (opt) => opt.value
+                  );
+                  setLuogo({ ...luogo, sceneCollegate: selected });
+                }}
+              >
+                {sceneNarrative.map((scene) => (
+                  <option key={scene.id} value={scene.id}>
+                    {scene.titolo}
+                  </option>
+                ))}
+              </select>
             </>
           )}
 
@@ -255,6 +273,40 @@ const ModaleLuogo = ({ onClose, campagnaId }) => {
                   </option>
                 ))}
               </select>
+              <hr />
+              <h4>👤 PNG presenti</h4>
+              <select
+                multiple
+                value={luogo.pngPresenti || []}
+                onChange={(e) => {
+                  const selected = Array.from(
+                    e.target.selectedOptions,
+                    (opt) => opt.value
+                  );
+                  setLuogo({ ...luogo, pngPresenti: selected });
+                }}
+              >
+                {campagna.png?.map((p) => (
+                  <option key={p.id} value={p.nome}>
+                    {p.nome}
+                  </option>
+                ))}
+              </select>
+              <hr />
+              <h4>👿 Villain collegati</h4>
+<select
+  multiple
+  value={luogo.villainAssociati || []}
+  onChange={(e) => {
+    const selected = Array.from(e.target.selectedOptions, opt => opt.value);
+    setLuogo({ ...luogo, villainAssociati: selected });
+  }}
+>
+  {campagna.villain?.map(v => (
+    <option key={v.id} value={v.nome}>{v.nome}</option>
+  ))}
+</select>
+
             </div>
           )}
         </div>

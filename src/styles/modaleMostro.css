@@ -35,15 +35,24 @@
 .tab-bar {
   display: flex;
   margin-top: 1rem;
-  border-bottom: 2px solid #6E4F9E;
+  gap: 0.5rem;
+}
+
+.tab-selector button {
+  margin-right: 0.5rem;  
+}
+.tab-selector .attiva {
+  color: #D4AF37;
 }
 
 .tab-bar button {
-  background: none;
-  border: none;
-  padding: 0.5rem 1rem;
-  color: #F2F2F0;
+  background: transparent;
+  border: 1px solid var(--color-muted);
+  color: var(--color-muted);
+  border-radius: var(--radius);
   cursor: pointer;
+  padding: 0.4rem 0.8rem;
+
 }
 
 .tab-bar .active {
