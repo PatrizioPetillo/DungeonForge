@@ -9,6 +9,24 @@
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
 }
 
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+.modale-enigma {
+  background: #1A1F2B;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 800px;
+  color: #F2F2F0;
+  box-shadow: 0 0 15px rgba(0,0,0,0.6);
+}
+
 .widget-enigma:hover {
   background-color: #2A2F3C;
   transform: scale(1.02);

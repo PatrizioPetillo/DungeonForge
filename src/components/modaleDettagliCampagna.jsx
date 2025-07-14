@@ -91,6 +91,23 @@ function ModaleDettagliCampagna({ campagna, onClose }) {
               value={dati.ambientazione}
               onChange={(e) => handleChange("ambientazione", e.target.value)}
             />
+            <h4>🎯 Obiettivo</h4>
+<p>{campagna.obiettivo}</p>
+
+<h4>📣 Hook Narrativo</h4>
+<p>{campagna.hookNarrativo}</p>
+
+<h4>🏷️ Tag Narrativi</h4>
+<ul>
+  {campagna.tagNarrativi?.map((tag, i) => <li key={i}>{tag}</li>)}
+</ul>
+
+<h4>🧾 Blurb</h4>
+<p><em>{campagna.blurb}</em></p>
+
+<h4>⌛ Durata Stimata</h4>
+<p>{campagna.durataStimata} {campagna.durataTipo}</p>
+
             <label>Stato</label>
             <select
               value={dati.stato}
