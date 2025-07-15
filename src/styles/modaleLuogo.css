@@ -50,3 +50,15 @@
   padding: 0.5rem;
   border-radius: 4px;
 }
+@media (max-width: 768px) {
+  .modale-luogo {
+    width: 95%;
+    max-height: 80vh;
+    padding: 1rem;
+    overflow-y: auto;
+  }
+
+  .modale-luogo .tab-bar {
+    flex-direction: column;
+  }
+}

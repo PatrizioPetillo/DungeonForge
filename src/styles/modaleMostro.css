@@ -140,3 +140,19 @@
 .gruppo-attacco textarea {
   margin-top: 0.5rem;
 }
+@media (max-width: 768px) {
+  .modale-mostro {
+    width: 95%;
+    max-height: 80vh;
+    padding: 1rem;
+    overflow-y: auto;
+  }
+
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-box {
+    width: 100%;
+  }
+}

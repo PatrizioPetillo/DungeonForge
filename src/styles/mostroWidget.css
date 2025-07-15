@@ -34,3 +34,10 @@
     padding: 8px;
     font-size: 14px;
 }
+@media (max-width: 768px) {
+  .widget-mostro {
+    width: 95%;
+    margin: 0 auto;
+    font-size: 0.85rem;
+  }
+}

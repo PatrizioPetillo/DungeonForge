@@ -91,3 +91,17 @@
   border-left: 4px solid #6e4f9e;
   border-radius: 6px;
 }
+@media (max-width: 768px) {
+  .modale-five-room {
+    width: 95%;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .room-box {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+}

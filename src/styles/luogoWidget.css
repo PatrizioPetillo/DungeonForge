@@ -34,3 +34,15 @@
     padding: 8px;
     font-size: 14px;
 }
+@media (max-width: 768px) {
+  .widget-luogo {
+    width: 95%;
+    margin: 0 auto;
+    font-size: 0.85rem;
+  }
+
+  .field-group textarea {
+    height: 80px;
+    font-size: 0.85rem;
+  }
+}

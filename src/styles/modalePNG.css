@@ -132,3 +132,15 @@
 .tab-magia button:hover {
   color: #D4AF37;
 }
+@media (max-width: 768px) {
+  .modale-png {
+    width: 95%;
+    max-height: 80vh;
+    padding: 1rem;
+    overflow-y: auto;
+  }
+
+  .tab-selector {
+    flex-direction: column;
+  }
+}

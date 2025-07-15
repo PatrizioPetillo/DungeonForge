@@ -92,3 +92,20 @@
   gap: 1rem;
   margin-top: 1rem;
 }
+@media (max-width: 768px) {
+  .modale-campagna {
+    width: 95%;
+    max-height: 80vh;
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .tabs-campagna {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .tab-content {
+    padding: 1rem;
+  }
+}

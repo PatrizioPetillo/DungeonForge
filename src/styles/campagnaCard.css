@@ -57,3 +57,15 @@
   background-color: var(--color-error);
   color: var(--color-bg);
 }
+@media (max-width: 768px) {
+  .campagna-card {
+    width: 95%;
+    max-width: 500px;
+    font-size: 0.9rem;
+  }
+
+  .campagna-card img {
+    width: 100%;
+    height: auto;
+  }
+}

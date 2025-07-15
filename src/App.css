@@ -40,3 +40,33 @@
 .read-the-docs {
   color: #888;
 }
+/* Mobile responsive fix */
+@media (max-width: 768px) {
+  .modale-content,
+  .modale-avventura,
+  .modale-compendio {
+    width: 95%;
+    max-height: 80vh;
+    padding: 1rem;
+    font-size: 0.9rem;
+    overflow-y: auto;
+  }
+
+  .header-app {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  button {
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
+  }
+  
+  .widget-enigma,
+  .widget-luogo,
+  .widget-mostro,
+  .widget-png,
+  .villain-widget {
+    margin-bottom: 1rem;
+  }
+}

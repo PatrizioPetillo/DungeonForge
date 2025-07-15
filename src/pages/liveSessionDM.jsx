@@ -28,8 +28,7 @@ const enigmiInScena = campagna.enigmi.filter(e => e.sceneCollegate?.includes(sce
 const [mostraAttaccoLibero, setMostraAttaccoLibero] = useState(false);
 const [ignoraIniziativa, setIgnoraIniziativa] = useState(false);
 const [ignoraTurni, setIgnoraTurni] = useState(false);
-
-
+const [sidebarVisibile, setSidebarVisibile] = useState(false);
 
   // Recupera la scena attiva dal primo capitolo (per ora)
   const scenaAttiva =
@@ -49,7 +48,16 @@ const [ignoraTurni, setIgnoraTurni] = useState(false);
 
   return (
     <div className="live-session">
+      <button
+  className="hamburger"
+  onClick={() => setSidebarVisibile(!sidebarVisibile)}
+>
+  ☰
+</button>
+      <div className={`sidebar-session ${sidebarVisibile ? "visibile" : ""}`}>
       <SidebarSessione campagna={campagna} />
+      {sidebarVisibile && <div className="overlay" onClick={() => setSidebarVisibile(false)} />}
+</div>
       <div className="main-session">
         <button onClick={() => setMostraAttaccoLibero(true)}>
   ⚔️ Attacco Libero
@@ -66,7 +74,7 @@ const [ignoraTurni, setIgnoraTurni] = useState(false);
           <MostriAttivi mostri={mostriInScena} />
           <PNGAttivi png={pngInScena} />
           <ProveRapide
-            scena={scenaAttiva}
+            scena={{ ...scenaAttiva, enigmi: enigmiInScena }}
             png={[...pngInScena, ...villainInScena, ...mostriInScena]} // merge PNG + Villain + Mostri
             onLog={aggiungiEventoLog}
           />

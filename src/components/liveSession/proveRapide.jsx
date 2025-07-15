@@ -10,11 +10,14 @@ const ProveRapide = ({ scena, png, onLog }) => {
   const [modalita, setModalita] = useState("normale");
   const [tipoProva, setTipoProva] = useState("abilita"); // o "caratteristica"
 const [caratteristica, setCaratteristica] = useState("Forza");
+const [entita, setEntita] = useState(null);
+  const [enigmaSelezionato, setEnigmaSelezionato] = useState(null);
+
+  const enigmiInScena = scena?.enigmi || [];
+  const bonusExtra = 0;
 
 const entitaSelezionata = png.find(p => p.nome === attore);
 const { valore: bonus, spiegazione } = getBonusProva(entitaSelezionata, tipoProva, abilita, bonusExtra);
-const { bonusAttacco, dannoFormula, tiroDanno } =
-  getBonusAttacco(mostro, armaSelezionata, 0, true);
 
   const caratteristicheBase = [
   "Forza", "Destrezza", "Costituzione",
@@ -27,7 +30,6 @@ const abilitaDisponibili = [
   "Sopravvivenza", "Percezione", "Intuizione",
   "Persuasione", "Raggirare", "Intimidire"
 ];
-
 
   useEffect(() => {
     if (scena?.proveConsigliate?.length) {
@@ -70,6 +72,14 @@ const abilitaDisponibili = [
   }
 };
 
+  const handleSelectEnigma = (id) => {
+    const e = enigmiInScena.find((en) => en.id === id);
+    if (e) {
+      setEnigmaSelezionato(e);
+      setTipoProva(e.prova || "");
+      setCd(e.cd || "");
+    }
+  };
 
   return (
     <div className="widget">
@@ -95,6 +105,20 @@ const abilitaDisponibili = [
     </option>
   ))}
 </select>
+{enigmiInScena.length > 0 && (
+  <div className="field-group">
+    <label>🧩 Enigma attivo:</label>
+    <select onChange={(e) => handleSelectEnigma(e.target.value)}>
+      <option value="">— Nessuno —</option>
+      {enigmiInScena.map((en) => (
+        <option key={en.id} value={en.id}>
+          {en.titolo} (Prova: {en.prova}, CD {en.cd})
+        </option>
+      ))}
+    </select>
+  </div>
+)}
+
 
 <hr style={{ margin: '1rem 0' }} />
 

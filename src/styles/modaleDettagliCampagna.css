@@ -196,3 +196,16 @@ li {
 .tag-narrativa {
   background-color: #2D6B4F;
 }
+@media (max-width: 768px) {
+  .modale-dettagli {
+    width: 95%;
+    max-height: 80vh;
+    padding: 1rem;
+    overflow-y: auto;
+    font-size: 0.9rem;
+  }
+
+  .section {
+    margin-bottom: 1rem;
+  }
+}

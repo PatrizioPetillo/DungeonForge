@@ -76,3 +76,72 @@
   font-size: 0.9rem;
   color: #f2f2f0;
 }
+.sidebar-session {
+  width: 280px;
+  background: #1a1f2b;
+  color: #fff;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  transition: transform 0.3s ease;
+}
+
+@media (max-width: 1024px) {
+  .widgets-row {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar-session {
+    transform: translateX(-100%);
+    position: fixed;
+    z-index: 1000;
+  }
+
+  .sidebar-session.visibile {
+    transform: translateX(0);
+  }
+
+  .hamburger {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    background: #D4AF37; /* Mystic Gold */
+    color: #1A1F2B;
+    border: none;
+    padding: 0.6rem 1rem;
+    font-size: 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    z-index: 1100;
+  }
+
+  .widgets-row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .widget {
+    width: 95%;
+    margin-bottom: 1rem;
+  }
+
+  .scene-box {
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+  .overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  z-index: 999;
+}
+
+}

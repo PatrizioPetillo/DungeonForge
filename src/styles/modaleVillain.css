@@ -94,3 +94,20 @@
   color: #F2F2F0;
   border: 1px solid #6E4F9E;
 }
+@media (max-width: 768px) {
+  .modale-villain {
+    width: 95%;
+    max-height: 80vh;
+    padding: 1rem;
+    overflow-y: auto;
+  }
+
+  .stat-grid {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .stat-box {
+    width: 100%;
+  }
+}
