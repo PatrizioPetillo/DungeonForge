@@ -662,11 +662,11 @@ export default function ModalePng({ onClose }) {
               </div>
 
               <div className="field-group">
-                <label>Relazione con i PG:</label>
-                <select
-                  value={png.relazionePg}
-                  onChange={(e) => aggiornaCampo("relazionePg", e.target.value)}
-                >
+                <label>🎭 Ruolo Narrativo</label>
+<select
+  value={png.ruoloNarrativo || ""}
+  onChange={(e) => aggiorna("ruoloNarrativo", e.target.value)}
+>
                   <option value="">-- Seleziona --</option>
                   <option>Alleato</option>
                   <option>Amico</option>
@@ -675,7 +675,8 @@ export default function ModalePng({ onClose }) {
                   <option>Guida</option>
                   <option>Nemico</option>
                   <option>Mercante</option>
-                  <option>Contatto della Gilda</option>
+                  <option>Contatto</option>
+                  <option>Informatore</option>
                 </select>
               </div>
 

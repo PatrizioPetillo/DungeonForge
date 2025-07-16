@@ -249,6 +249,30 @@ const ModaleLuogo = ({ onClose, campagnaId }) => {
                   setLuogo((l) => ({ ...l, descrizione: e.target.value }))
                 }
               />
+              <label>📸 Immagine Luogo</label>
+<input
+  type="file"
+  accept="image/*"
+  onChange={(e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onloadend = () => aggiornaLuogo(index, "immagine", reader.result);
+    reader.readAsDataURL(file);
+  }}
+/>
+{l.immagine && <img src={l.immagine} alt={l.nome} style={{ width: "120px", borderRadius: "8px" }} />}
+
+              <label>⚠️ Pericolo Associato</label>
+<select
+  value={luogo.pericolo || ""}
+  onChange={(e) => aggiorna("pericolo", e.target.value)}
+>
+  <option value="">-- Nessuno --</option>
+  <option>Trappola</option>
+  <option>Mostro</option>
+  <option>Ostacolo Ambientale</option>
+</select>
+
             </div>
           )}
 

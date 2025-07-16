@@ -11,7 +11,6 @@ const ModaleMostro = ({ onClose }) => {
   const [sceneDisponibili, setSceneDisponibili] = useState([]);
   const [sceneCollegate, setSceneCollegate] = useState([]);
   const [campagnaAttiva, setCampagnaAttiva] = useState(null);
-
   const [mostro, setMostro] = useState({
     nome: "",
     tipo: "",
@@ -225,6 +224,16 @@ const ModaleMostro = ({ onClose }) => {
                   }
                 />
               </div>
+              <label>🔥 Grado di Difficoltà</label>
+<select
+  value={incontro.difficolta || ""}
+  onChange={(e) => aggiorna("difficolta", e.target.value)}
+>
+  <option value="Facile">Facile</option>
+  <option value="Medio">Medio</option>
+  <option value="Difficile">Difficile</option>
+</select>
+
               <div className="field-group">
                 <label>Quantità:</label>
                 <input
@@ -356,7 +365,7 @@ const ModaleMostro = ({ onClose }) => {
               </button>
             </div>
           )}
-          {tab === "Azioni Leggendarie" && (
+          {tab === "Azioni" && (
             <div>
               {mostro.azioniLeggendarie?.map((a, i) => (
                 <div key={i} className="field-group gruppo-attacco">
@@ -470,6 +479,32 @@ const ModaleMostro = ({ onClose }) => {
         ))}
       </select>
     </div>
+    {/* BLOCCO LOOT PER MOSTRO */}
+<div className="field-group">
+  <label>🎁 Loot del Mostro:</label>
+  {mostro.loot && mostro.loot.length > 0 ? (
+    <ul>
+      {mostro.loot.map((item, idx) => (
+        <li key={idx} className="tooltip" data-tip={`Rarità: ${item.rarita}`}>
+          {item.nome} ({item.rarita})
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p>Nessun loot assegnato.</p>
+  )}
+
+  <button
+    onClick={() => {
+      const nuovoLoot = generaLootCasuale(2); // funzione globale usata anche in villain
+      setMostro((prev) => ({ ...prev, loot: nuovoLoot }));
+    }}
+    style={{ marginTop: "0.5rem" }}
+  >
+    🔄 Rigenera Loot
+  </button>
+</div>
+
   </div>
 )}
 

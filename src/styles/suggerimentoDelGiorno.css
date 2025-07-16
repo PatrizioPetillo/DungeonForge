@@ -2,7 +2,7 @@
   font-style: italic;
   color: var(--color-muted);
   text-align: center;
-  margin-top: -1rem;
-  margin-bottom: 2rem;
+  align-items: center;
   font-size: 0.95rem;
+  margin: 1rem 0;
 }

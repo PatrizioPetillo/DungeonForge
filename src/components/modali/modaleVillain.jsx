@@ -578,8 +578,8 @@ const [sceneCollegate, setSceneCollegate] = useState([]);
   ];
 
   return (
-    <div className="modale-overlay">
-      <div className="modale-villain">
+    <div className="modale-overlay" onClick={onClose}>
+      <div className="modale-villain" onClick={(e) => e.stopPropagation()}>
         <div className="modale-header">
           <h2>🎭 Crea Villain</h2>
           <div className="icone-header">
@@ -619,6 +619,27 @@ const [sceneCollegate, setSceneCollegate] = useState([]);
                     setVillain((prev) => ({ ...prev, nome: e.target.value }))
                   }
                 />
+                <label>📸 Immagine Villain</label>
+<input
+  type="file"
+  accept="image/*"
+  onChange={(e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setVillain((prev) => ({ ...prev, immagine: reader.result }));
+    };
+    reader.readAsDataURL(file);
+  }}
+/>
+{villain.immagine && (
+  <img
+    src={villain.immagine}
+    alt={villain.nome}
+    style={{ width: "120px", borderRadius: "8px" }}
+  />
+)}
+
               </div>
 
               <div className="field-group">
@@ -660,6 +681,22 @@ const [sceneCollegate, setSceneCollegate] = useState([]);
                     </option>
                   ))}
                 </select>
+                <label>📖 Dominio / Giuramento / Patto</label>
+<input
+  type="text"
+  value={villain.dominio || ""}
+  onChange={(e) => aggiorna("dominio", e.target.value)}
+  placeholder="Es: Dominio della Morte, Giuramento di Vendetta..."
+/>
+
+<label>🧩 Sottoclasse</label>
+<input
+  type="text"
+  value={villain.sottoclasse || ""}
+  onChange={(e) => aggiorna("sottoclasse", e.target.value)}
+  placeholder="Es: Necromante, Ombra, Evocatore..."
+/>
+
               </div>
 
               <div className="field-group">

@@ -1,4 +1,4 @@
-const CACHE_NAME = "dungeonforge-cache-v2";
+const CACHE_NAME = "dungeonforge-cache-v3";
 const STATIC_ASSETS = [
   "/",
   "/index.html",
@@ -7,39 +7,38 @@ const STATIC_ASSETS = [
   "/icons/icon-512x512.png"
 ];
 
-// Install
+// ✅ Install: cache static assets e attiva subito
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log("✅ Caching static assets");
+      console.log("✅ Caching static assets...");
       return cache.addAll(STATIC_ASSETS);
     })
   );
+  self.skipWaiting(); // Attiva subito la nuova versione
 });
 
-// Activate (clear old caches)
+// ✅ Activate: elimina vecchie cache e prendi il controllo
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))
+      Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
     )
   );
+  self.clients.claim(); // Controlla subito le schede aperte
 });
 
-// Fetch
+// ✅ Fetch: network first, fallback cache, aggiorna in background
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      if (response) return response;
-      return fetch(event.request)
-        .then((res) => {
-          // Cache dinamica
-          return caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, res.clone());
-            return res;
-          });
-        })
-        .catch(() => caches.match("/index.html")); // fallback offline
-    })
+    fetch(event.request)
+      .then((response) => {
+        const resClone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, resClone);
+        });
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });

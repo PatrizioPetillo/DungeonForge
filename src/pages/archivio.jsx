@@ -36,10 +36,15 @@ const Archivio = () => {
       <button className="btn-back" onClick={() => window.history.back()}>⬅ Torna nell'Antro</button>
       <h1>Archivio Globale</h1>
       <ArchivioSezione titolo="PNG Comuni" dati={png.filter(p => p.tipo === "comune")} categoria="png" />
+        <hr className="archivio" />
       <ArchivioSezione titolo="PNG Non Comuni" dati={png.filter(p => p.tipo === "non_comune")} categoria="png" />
+      <hr className="archivio" />
       <ArchivioSezione titolo="Villain" dati={villain} categoria="villain" />
+      <hr className="archivio" />
       <ArchivioSezione titolo="Mostri" dati={mostri} categoria="mostri" />
+      <hr className="archivio" />
       <ArchivioSezione titolo="Luoghi" dati={luoghi} categoria="luoghi" />
+      <hr className="archivio" />
       <ArchivioSezione titolo="Enigmi" dati={enigmi} categoria="enigmi" />
     </div>
   );

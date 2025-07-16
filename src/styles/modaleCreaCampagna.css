@@ -28,6 +28,26 @@
   margin-bottom: 1rem;
 }
 
+.tooltip {
+  position: relative;
+  cursor: help;
+}
+.tooltip:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  top: 120%;
+  left: 0;
+  background: #1A1F2B;
+  color: #F2F2F0;
+  border: 1px solid #D4AF37;
+  padding: 0.5rem;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  width: 250px;
+  white-space: pre-line;
+  z-index: 100;
+}
+
 .tab-selector {
   display: flex;
   gap: 0.5rem;

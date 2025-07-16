@@ -48,9 +48,16 @@ function DashboardDM() {
 
       {/* Titolo e Frase Ispiratrice */}
       <header className="dashboard-header">
-        <h1 className="dashboard-title">🧙‍♂️ Antro del Narratore</h1>
-        <SuggerimentoDelGiorno />
+        <div className="dashboard-header-left">
+          <img
+            src="/img/avatar-default.png"
+            alt="Profilo DM"
+            className="dashboard-avatar"
+          />
+          <h1 className="dashboard-title">• Antro del Narratore •</h1>
+        </div>
       </header>
+        <SuggerimentoDelGiorno />
 
       {/* Campagne gestite */}
       <section className="dashboard-section">
@@ -90,7 +97,7 @@ function DashboardDM() {
   <EnigmaWidget onClick={() => setMostraModaleEnigma(true)} />
   <AvventuraWidget onClick={() => setMostraModaleAvventura(true)} />
 </div>
-
+<hr />
 {showPngModal && <ModalePng onClose={() => setShowPngModal(false)} />}
 {showVillainModal && <ModaleVillain onClose={() => setShowVillainModal(false)} />}
 {showMostroModal && <ModaleMostro onClose={() => setShowMostroModal(false)} />}
@@ -112,6 +119,8 @@ function DashboardDM() {
           <button>✏️ Modifica Recap</button>
         </div>
       </section>
+
+      <hr />
 
       {/* Archivio Narrativo */}
       <section className="dashboard-section">

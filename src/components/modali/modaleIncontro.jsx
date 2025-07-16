@@ -5,7 +5,7 @@ import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { firestore } from "../../firebase/firebaseConfig";
 import "../../styles/modaleMostro.css"; // Assicurati di avere gli stili corretti
 
-const ModaleIncontro = ({ campagnaId, onClose }) => {
+export const ModaleIncontro = ({ campagnaId, onClose }) => {
   const [tab, setTab] = useState("Generale");
   const [incontro, setIncontro] = useState({
     titolo: "",
@@ -92,6 +92,32 @@ const ModaleIncontro = ({ campagnaId, onClose }) => {
               <label>Data evento:</label>
               <input type="date" value={incontro.data} onChange={(e) => setIncontro((i) => ({ ...i, data: e.target.value }))} />
             </div>
+            {/* BLOCCO LOOT PER INCONTRO */}
+<div className="field-group">
+  <label>🎁 Loot dell'Incontro:</label>
+  {incontro.loot && incontro.loot.length > 0 ? (
+    <ul>
+      {incontro.loot.map((item, idx) => (
+        <li key={idx} className="tooltip" data-tip={`Rarità: ${item.rarita}`}>
+          {item.nome} ({item.rarita})
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p>Nessun loot assegnato.</p>
+  )}
+
+  <button
+    onClick={() => {
+      const nuovoLoot = generaLootCasuale(3); // incontri ricevono più loot
+      setIncontro((prev) => ({ ...prev, loot: nuovoLoot }));
+    }}
+    style={{ marginTop: "0.5rem" }}
+  >
+    🔄 Rigenera Loot
+  </button>
+</div>
+
           </>
         )}
 
@@ -198,3 +224,5 @@ const ModaleIncontro = ({ campagnaId, onClose }) => {
   </div>
 );
 }
+
+export default ModaleIncontro;

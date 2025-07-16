@@ -37,6 +37,23 @@ function CapitoloEditor({ capitolo, onUpdate, onRemove }) {
           value={capitolo.descrizione}
           onChange={(e) => aggiornaCampo('descrizione', e.target.value)}
         />
+        <label>🎯 Obiettivo della Scena</label>
+<input
+  type="text"
+  value={scena.obiettivo || ""}
+  onChange={(e) => aggiorna("obiettivo", e.target.value)}
+  placeholder="Es: Scoprire l'assassino, negoziare la tregua..."
+/>
+
+<label>⏳ Durata Stimata (minuti)</label>
+<input
+  type="number"
+  min={5}
+  value={scena.durata || ""}
+  onChange={(e) => aggiorna("durata", e.target.value)}
+  placeholder="Es: 30"
+/>
+
         <button onClick={onRemove}>🗑️ Elimina Capitolo</button>
       </div>
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { logEvento } from "../../utils/logUtils";
-import { getBonusProva } from "../../utils/getBonusProva";
+import { getBonusProva } from "../../utils/helpers";
 
 const ProveRapide = ({ scena, png }) => {
   const [entitaSelezionata, setEntitaSelezionata] = useState(null);
@@ -50,7 +50,6 @@ const ProveRapide = ({ scena, png }) => {
         descrizione += ` ⚠ Effetto: ${enigmaSelezionato.effettoFallimento}`;
       }
     }
-
 
     logEvento(descrizione);
 
