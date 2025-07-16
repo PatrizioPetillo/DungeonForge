@@ -1,0 +1,61 @@
+.card-elemento {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  height: 260px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.card-elemento:hover {
+  transform: scale(1.05);
+}
+
+.badge-status {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #D4AF37;
+  color: #1A1F2B;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.8rem;
+  font-weight: bold;
+  border-radius: 4px;
+}
+
+.card-footer {
+  background: rgba(0,0,0,0.6);
+  padding: 0.5rem;
+  color: white;
+  text-align: center;
+  font-size: 0.9rem;
+}
+@media (max-width: 768px) {
+  .card-elemento {
+    height: 180px;
+    font-size: 0.85rem;
+  }
+
+  .modale-dettaglio {
+    width: 95%;
+    max-height: 80vh;
+    padding: 1rem;
+  }
+
+  .pulsanti-modale {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .aggiungi-blocco select,
+  .aggiungi-blocco input {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}

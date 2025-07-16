@@ -1,0 +1,77 @@
+.archivio-section {
+  margin-bottom: 3rem;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.card-elemento {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 260px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  color: white;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
+}
+
+.card-footer {
+  background: rgba(0,0,0,0.6);
+  padding: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.btn-back {
+  background: none;
+  color: #D4AF37;
+  border: 1px solid #D4AF37;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+@media (max-width: 1024px) {
+  .card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .pagina-archivio {
+    padding: 1rem;
+  }
+
+  .archivio-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .btn-back {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-elemento {
+    height: 200px;
+  }
+}

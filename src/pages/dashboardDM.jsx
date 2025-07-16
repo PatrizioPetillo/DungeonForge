@@ -120,13 +120,9 @@ function DashboardDM() {
           Villain, PNG, Mostri, Oggetti, Luoghi salvati e riutilizzabili nelle
           campagne.
         </p>
-        <div className="archivio-buttons">
-          <button>📖 PNG</button>
-          <button>😈 Villain</button>
-          <button>👾 Mostri</button>
-          <button>🎁 Loot</button>
-          <button>🏰 Luoghi</button>
-        </div>
+        <button className="btn-primary" onClick={() => navigate("/archivio")}>
+          Apri Archivio
+        </button>
       </section>
 
       {/* FUTURE: Mappa delle Connessioni */}

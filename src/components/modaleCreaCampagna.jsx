@@ -5,8 +5,9 @@ import MostroManualeForm from "./mostroManualeForm";
 import ModaleVillain from "../components/modali/modaleVillain";
 import ModalePNG from "../components/modali/modalePNG";
 import ModaleLuogo from "../components/modali/modaleLuogo";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { collection, doc, setDoc, addDoc, serverTimestamp } from "firebase/firestore";
 import { firestore } from "../firebase/firebaseConfig";
+import { v4 as uuid } from "uuid";
 
 import "../styles/modaleCreaCampagna.css";
 
@@ -208,35 +209,70 @@ useEffect(() => {
   return scena ? scena.titolo : id;
 };
 
-  const salvaCampagna = async () => {
+const salvaCampagna = async () => {
   try {
-    const docRef = doc(firestore, "campagne", campagna.id || uuid());
-    
-    const nuovaCampagna = {
-      ...campagna,
-      id: docRef.id,
-      updatedAt: serverTimestamp(),
+    const campagnaId = campagna.id || uuid();
+    const docRef = doc(firestore, "campagne", campagnaId);
+
+    // 1. Salva info principali
+    const datiBase = {
+      titolo: campagna.titolo,
+      tipo: campagna.tipo,
+      stato: campagna.stato,
+      ambientazione: campagna.ambientazione,
+      obiettivo: campagna.obiettivo,
+      hookNarrativo: campagna.hookNarrativo,
+      tagNarrativi: campagna.tagNarrativi,
+      blurb: campagna.blurb,
+      durataStimata: campagna.durataStimata,
+      durataTipo: campagna.durataTipo,
+      prologo: campagna.prologo,
+      finale: campagna.finale,
+      capitoli: campagna.capitoli || [],
       createdAt: campagna.createdAt || serverTimestamp(),
+      updatedAt: serverTimestamp(),
     };
 
-    await setDoc(docRef, nuovaCampagna);
+    await setDoc(docRef, datiBase);
 
+    // 2. Salva Villain
+    const villainColl = collection(docRef, "villain");
+    for (const v of campagna.villain || []) {
+      await addDoc(villainColl, { ...v, createdAt: serverTimestamp() });
+    }
+
+    // 3. Salva PNG
+    const pngColl = collection(docRef, "png");
+    for (const p of campagna.png || []) {
+      await addDoc(pngColl, { ...p, createdAt: serverTimestamp() });
+    }
+
+    // 4. Salva Mostri
+    const mostriColl = collection(docRef, "mostri");
+    for (const m of campagna.mostri || []) {
+      await addDoc(mostriColl, { ...m, createdAt: serverTimestamp() });
+    }
+
+    // 5. Salva Luoghi
+    const luoghiColl = collection(docRef, "luoghi");
+    for (const l of campagna.luoghi || []) {
+      await addDoc(luoghiColl, { ...l, createdAt: serverTimestamp() });
+    }
+
+    // 6. Salva Enigmi
+    const enigmiColl = collection(docRef, "enigmi");
     for (const enigma of enigmiCampagna) {
-      await addDoc(collection(firestore, `campagne/${docRef.id}/enigmi`), {
-        ...enigma,
-        createdAt: serverTimestamp(),
-      });
+      await addDoc(enigmiColl, { ...enigma, createdAt: serverTimestamp() });
     }
 
     toast.success("Campagna salvata con successo!");
-    onClose?.(); // chiusura modale, se necessario
+    onClose?.();
 
   } catch (err) {
-    console.error(err);
+    console.error("Errore durante il salvataggio:", err);
     toast.error("Errore durante il salvataggio");
   }
 };
-
 
   const renderTab = () => {
     switch (tab) {

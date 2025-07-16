@@ -1,0 +1,86 @@
+.modale-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modale-dettaglio {
+  background: #1A1F2B;
+  color: white;
+  padding: 2rem;
+  width: 90%;
+  max-width: 700px;
+  border-radius: 10px;
+  overflow-y: auto;
+  max-height: 85vh;
+  position: relative;
+}
+
+.btn-close {
+  position: absolute;
+  top: 10px; right: 10px;
+  background: none;
+  color: #fff;
+  font-size: 1.5rem;
+  border: none;
+  cursor: pointer;
+}
+
+.modale-img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.info-blocco, .aggiungi-blocco, .pulsanti-modale {
+  margin-top: 1rem;
+}
+
+.btn-primary {
+  background: #D4AF37;
+  color: #1A1F2B;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-danger {
+  background: #8A3A24;
+  color: white;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+@media (max-width: 768px) {
+  .card-elemento {
+    height: 180px;
+    font-size: 0.85rem;
+  }
+
+  .modale-dettaglio {
+    width: 95%;
+    max-height: 80vh;
+    padding: 1rem;
+  }
+
+  .pulsanti-modale {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .aggiungi-blocco select,
+  .aggiungi-blocco input {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}

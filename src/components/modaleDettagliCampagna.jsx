@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import React, { useState, useEffect } from "react";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { firestore } from "../firebase/firebaseConfig";
 import "../styles/modaleDettagliCampagna.css";
 
@@ -16,13 +16,6 @@ function ModaleDettagliCampagna({ campagna, onClose }) {
   const [enigmi, setEnigmi] = useState([]);
   const [avventure, setAvventure] = useState([]);
 
-  const pngInScena = tuttiPNG.filter((p) =>
-    p.sceneCollegate?.includes(scene.id)
-  );
-  const villainInScena = villain.sceneCollegate?.includes(scene.id)
-    ? villain
-    : null;
-
   const handleChange = (campo, valore) => {
     setDati((prev) => ({ ...prev, [campo]: valore }));
   };
@@ -30,45 +23,42 @@ function ModaleDettagliCampagna({ campagna, onClose }) {
   useEffect(() => {
     if (!campagna?.id) return;
 
-    const fetchIncontri = async () => {
-      const ref = collection(firestore, `campagne/${campagna.id}/incontri`);
-      const snap = await getDocs(ref);
-      const dati = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-      setIncontri(dati);
+    const fetchDatiCampagna = async () => {
+      try {
+        const campagnaRef = doc(firestore, "campagne", campagna.id);
+        const campagnaSnap = await getDoc(campagnaRef);
+        const meta = campagnaSnap.data();
+
+        const [
+          villainSnap,
+          pngSnap,
+          mostriSnap,
+          luoghiSnap,
+          enigmiSnap,
+          incontriSnap,
+        ] = await Promise.all([
+          getDocs(collection(campagnaRef, "villain")),
+          getDocs(collection(campagnaRef, "png")),
+          getDocs(collection(campagnaRef, "mostri")),
+          getDocs(collection(campagnaRef, "luoghi")),
+          getDocs(collection(campagnaRef, "enigmi")),
+          getDocs(collection(campagnaRef, "incontri")),
+        ]);
+
+        setDati(meta);
+        setVillain(villainSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        setPng(pngSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        setMostri(mostriSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        setLuoghi(luoghiSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        setEnigmi(enigmiSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        setIncontri(incontriSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      } catch (err) {
+        console.error("Errore nel fetch:", err);
+      }
     };
 
-    fetchIncontri();
-  }, [campagna]);
-
-  useEffect(() => {
-    const fetchEnigmi = async () => {
-      const q = collection(firestore, `campagne/${campagna.id}/enigmi`);
-      const snapshot = await getDocs(q);
-      setEnigmi(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-    };
-
-    if (campagna?.id) {
-      fetchEnigmi();
-    }
-  }, [campagna]);
-
-  useEffect(() => {
-    const fetchLuoghi = async () => {
-      const snap = await getDocs(collection(firestore, "luoghi"));
-      const data = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setLuoghi(data);
-    };
-    fetchLuoghi();
-  }, []);
-
-  useEffect(() => {
-    const fetchAvventure = async () => {
-      const snap = await getDocs(collection(firestore, "avventure"));
-      const data = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setAvventure(data);
-    };
-    fetchAvventure();
-  }, []);
+    fetchDatiCampagna();
+  }, [campagna?.id]);
 
   const getNomeScena = (id) => {
     const scena = campagna.capitoli
@@ -216,15 +206,24 @@ ${
                       {capitolo.scene.map((scene, j) => (
                         <div key={j} className="blocco-scena">
                           <strong>
-  {scene.titolo}
-  {scene.mostri?.length > 0 && <span className="badge tag-combat">Combat</span>}
-  {enigmi.some(e => e.sceneCollegate?.includes(scene.id)) && (
-    <span className="badge tag-enigma">Enigma</span>
-  )}
-  {!scene.mostri?.length && !enigmi.some(e => e.sceneCollegate?.includes(scene.id)) && (
-    <span className="badge tag-narrativa">Narrativa</span>
-  )}
-</strong>
+                            {scene.titolo}
+                            {scene.mostri?.length > 0 && (
+                              <span className="badge tag-combat">Combat</span>
+                            )}
+                            {enigmi.some((e) =>
+                              e.sceneCollegate?.includes(scene.id)
+                            ) && (
+                              <span className="badge tag-enigma">Enigma</span>
+                            )}
+                            {!scene.mostri?.length &&
+                              !enigmi.some((e) =>
+                                e.sceneCollegate?.includes(scene.id)
+                              ) && (
+                                <span className="badge tag-narrativa">
+                                  Narrativa
+                                </span>
+                              )}
+                          </strong>
                           <p>{scene.descrizione}</p>
 
                           {scene.mostri?.length > 0 && (
@@ -294,34 +293,27 @@ ${
                                 </div>
                               )}
                               <hr />
-                              {villain.sceneCollegate?.map((sceneId) => (
-                                <div key={sceneId}>
-                                  📍 Presente in:{" "}
-                                  <code>{getNomeScena(sceneId)}</code>
-                                  <button
-                                    onClick={() => {
-                                      const el = document.getElementById(
-                                        `scene-${sceneId}`
-                                      );
-                                      if (el)
-                                        el.scrollIntoView({
-                                          behavior: "smooth",
-                                        });
-                                    }}
-                                  >
-                                    📜 Vai alla scena
-                                  </button>
-                                </div>
-                              ))}
+                              {villain.length > 0 ? (
+                                villain.map((v) => (
+                                  <div key={v.id}>
+                                    <p><strong>{v.nome}</strong></p>
+                                    <p>{v.titolo}</p>
+                                    <p><em>{v.descrizione}</em></p>
+                                  </div>
+                                ))
+                              ) : (
+                                <p>Nessun villain assegnato.</p>
+                              )}
+
                             </div>
                           )}
                         </div>
                       ))}
-                      {campagna.twistNarrativi?.length > 0 && (
+                      {dati.twistNarrativi?.length > 0 && (
                         <>
                           <h4>⚠️ Twist Narrativi</h4>
                           <ul>
-                            {campagna.twistNarrativi.map((twist, i) => (
+                            {dati.twistNarrativi.map((twist, i) => (
                               <li key={i} style={{ marginBottom: "0.5rem" }}>
                                 {twist}
                               </li>
@@ -330,11 +322,11 @@ ${
                         </>
                       )}
                       <hr />
-                      {campagna.trameParallele?.length > 0 && (
+                      {dati.trameParallele?.length > 0 && (
                         <>
                           <h4>🔄 Trame Parallele</h4>
                           <ul>
-                            {campagna.trameParallele.map((trama, i) => (
+                            {dati.trameParallele.map((trama, i) => (
                               <li key={i} style={{ marginBottom: "0.5rem" }}>
                                 {trama}
                               </li>
@@ -343,11 +335,11 @@ ${
                         </>
                       )}
                       <hr />
-                      {campagna.collegamentiTematici?.length > 0 && (
+                      {dati.collegamentiTematici?.length > 0 && (
                         <>
                           <h4>🧶 Collegamenti Tematici</h4>
                           <ul>
-                            {campagna.collegamentiTematici.map((link, i) => (
+                            {dati.collegamentiTematici.map((link, i) => (
                               <li key={i} style={{ marginBottom: "0.5rem" }}>
                                 {link}
                               </li>
@@ -371,10 +363,50 @@ ${
           </div>
         );
 
+      case "PNG":
+        return (
+          <div className="tab-content">
+            <h3>👤 PNG </h3>
+            {dati.png && dati.png.length > 0 ? (
+              <ul className="lista-png">
+                {dati.png.map((p) => (
+                  <li key={p.id}>
+                    <strong>{p.nome}</strong> – {p.occupazione || "senza ruolo"}
+                    {p.sceneCollegate?.length > 0 && (
+                      <ul>
+                        {p.sceneCollegate.map((sceneId, i) => (
+                          <li key={i}>
+                            📍 <code>{getNomeScena(sceneId)}</code>
+                            <button
+                              onClick={() => {
+                                const el = document.getElementById(
+                                  `scene-${sceneId}`
+                                );
+                                if (el)
+                                  el.scrollIntoView({
+                                    behavior: "smooth",
+                                    block: "start",
+                                  });
+                              }}
+                            >
+                              📜 Vai alla scena
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>Nessun PNG selezionato.</p>
+            )}
+          </div>
+        );
       case "Villain":
         return (
           <div className="tab-content">
-            {dati.villain ? (
+            {villain.map((v) => <div key={v.id}>
               <div className="villain-preview">
                 <p>
                   <strong>{dati.villain.nome}</strong>
@@ -393,6 +425,7 @@ ${
               </div>
             ) : (
               <p>Nessun villain assegnato.</p>
+            </div>
             )}
             <hr />
             {villain.sceneCollegate?.map((sceneId) => (
@@ -404,36 +437,6 @@ ${
             ))}
           </div>
         );
-
-      {dati.png && dati.png.length > 0 ? (
-  <ul className="lista-png">
-    {dati.png.map((p) => (
-      <li key={p.id}>
-        <strong>{p.nome}</strong> – {p.occupazione || "senza ruolo"}
-        {p.sceneCollegate?.length > 0 && (
-          <ul>
-            {p.sceneCollegate.map((sceneId, i) => (
-              <li key={i}>
-                📍 <code>{getNomeScena(sceneId)}</code>
-                <button
-                  onClick={() => {
-                    const el = document.getElementById(`scene-${sceneId}`);
-                    if (el)
-                      el.scrollIntoView({ behavior: "smooth", block: "start" });
-                  }}
-                >
-                  📜 Vai alla scena
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </li>
-    ))}
-  </ul>
-) : (
-  <p>Nessun PNG selezionato.</p>
-)}
 
       case "Mostri":
         return (
@@ -530,17 +533,18 @@ ${
             <h3>🧠 Enigmi e Trappole</h3>
 
             {dati.enigmi?.map((e) => (
-  <div key={e.id} className="box-enigma">
-    <strong>{e.titolo}</strong> – <em>{e.tipo}</em>
-    <p>{e.descrizione}</p>
-    <p>🧠 Prova: {e.prova || "—"} | 🎯 CD: {e.cd || "—"}</p>
-    {e.effettoFallimento && (
-      <p>💥 Effetto al fallimento: {e.effettoFallimento}</p>
-    )}
-    {e.soluzioni && <p>✅ Soluzione: {e.soluzioni}</p>}
-  </div>
-))}
-
+              <div key={e.id} className="box-enigma">
+                <strong>{e.titolo}</strong> – <em>{e.tipo}</em>
+                <p>{e.descrizione}</p>
+                <p>
+                  🧠 Prova: {e.prova || "—"} | 🎯 CD: {e.cd || "—"}
+                </p>
+                {e.effettoFallimento && (
+                  <p>💥 Effetto al fallimento: {e.effettoFallimento}</p>
+                )}
+                {e.soluzioni && <p>✅ Soluzione: {e.soluzioni}</p>}
+              </div>
+            ))}
           </div>
         );
 
@@ -623,79 +627,79 @@ ${
           <div className="section recap-campagna">
             <h3>📜 Riassunto della Campagna</h3>
             <p>
-              <strong>Titolo:</strong> {campagna.nome}
+              <strong>Titolo:</strong> {dati.nome}
             </p>
             <p>
-              <strong>Ambientazione:</strong> {campagna.ambientazione || "—"}
+              <strong>Ambientazione:</strong> {dati.ambientazione || "—"}
             </p>
             <p>
-              <strong>Tag:</strong> {campagna.tag?.join(", ") || "—"}
+              <strong>Tag:</strong> {dati.tag?.join(", ") || "—"}
             </p>
             <p>
-              <strong>Durata stimata:</strong> {campagna.durataStimata || "—"}
+              <strong>Durata stimata:</strong> {dati.durataStimata || "—"}
             </p>
 
-            {campagna.blurb && (
+            {dati.blurb && (
               <p>
-                <strong>Blurb:</strong> {campagna.blurb}
+                <strong>Blurb:</strong> {dati.blurb}
               </p>
             )}
-            {campagna.hookNarrativo && (
+            {dati.hookNarrativo && (
               <p>
-                <strong>Hook Narrativo:</strong> {campagna.hookNarrativo}
+                <strong>Hook Narrativo:</strong> {dati.hookNarrativo}
               </p>
             )}
-            {campagna.obiettivo && (
+            {dati.obiettivo && (
               <p>
-                <strong>Obiettivo dei PG:</strong> {campagna.obiettivo}
-              </p>
-            )}
-
-            {campagna.villain?.length > 0 && (
-              <p>
-                <strong>Villain principale:</strong> {campagna.villain[0].nome}{" "}
-                – {campagna.villain[0].motivazione}
+                <strong>Obiettivo dei PG:</strong> {dati.obiettivo}
               </p>
             )}
 
-            {campagna.twist && (
+            {dati.villain?.length > 0 && (
               <p>
-                <strong>Twist Narrativi:</strong> {campagna.twist}
-              </p>
-            )}
-            {campagna.sottotrame && (
-              <p>
-                <strong>Trame Parallele:</strong> {campagna.sottotrame}
-              </p>
-            )}
-            {campagna.temiRicorrenti && (
-              <p>
-                <strong>Temi Ricorrenti:</strong> {campagna.temiRicorrenti}
+                <strong>Villain principale:</strong> {dati.villain[0].nome}{" "}
+                – {dati.villain[0].motivazione}
               </p>
             )}
 
-            {campagna.luoghi?.length > 0 && (
+            {dati.twist && (
+              <p>
+                <strong>Twist Narrativi:</strong> {dati.twist}
+              </p>
+            )}
+            {dati.sottotrame && (
+              <p>
+                <strong>Trame Parallele:</strong> {dati.sottotrame}
+              </p>
+            )}
+            {dati.temiRicorrenti && (
+              <p>
+                <strong>Temi Ricorrenti:</strong> {dati.temiRicorrenti}
+              </p>
+            )}
+
+            {dati.luoghi?.length > 0 && (
               <p>
                 <strong>Luoghi chiave:</strong>{" "}
-                {campagna.luoghi.map((l) => l.nome).join(", ")}
+                {dati.luoghi.map((l) => l.nome).join(", ")}
               </p>
             )}
 
-            {campagna.capitoli?.length > 0 && (
+            {dati.capitoli?.length > 0 && (
               <p>
                 <strong>Scene principali:</strong>{" "}
-                {campagna.capitoli
+                {dati.capitoli
                   .flatMap((c) => c.scene?.map((s) => s.titolo))
                   .join(", ")}
               </p>
             )}
           </div>
           <hr />
-          {campagna && (
+          {dati && (
             <div className="recap-generato">
               <h4>🧠 Riassunto Narrativo Generato</h4>
               <p style={{ whiteSpace: "pre-wrap" }}>
-                {generaRecapNarrativo(campagna)}
+                {generaRecapNarrativo(dati)}
               </p>
             </div>
           )}

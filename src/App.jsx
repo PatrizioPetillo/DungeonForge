@@ -8,7 +8,12 @@ import ModaleCreaCampagna from './components/modaleCreaCampagna';
 import CampagnaCard from './components/campagnaCard';
 import SuggerimentoDelGiorno from './components/suggerimentodelGiorno';
 import ModaleDettagliCampagna from './components/modaleDettagliCampagna';
+import ModaleDettaglioArchivio from './components/modali/modaleDettaglioArchivio';
+import Archivio from './pages/archivio';
+import CardElemento from './components/cardElemento';
+import ArchivioSezione from './components/archivioSezione';
 import LiveSessionDM from './pages/liveSessionDM';
+
 import './App.css';
 
 function App() {
@@ -21,6 +26,10 @@ function App() {
         <Route path="/campagna/:id" element={<ModaleDettagliCampagna />} />
         <Route path="/crea-campagna" element={<ModaleCreaCampagna />} />
         <Route path="/campagna-card" element={<CampagnaCard />} />
+        <Route path="/archivio" element={<Archivio />} />
+        <Route path="/modale-dettaglio-archivio" element={<ModaleDettaglioArchivio />} />
+        <Route path="/card-elemento" element={<CardElemento />} />
+        <Route path="/archivio-sezione" element={<ArchivioSezione />} />
         <Route path="/suggerimento-del-giorno" element={<SuggerimentoDelGiorno />} />
       </Routes>
     </BrowserRouter>
