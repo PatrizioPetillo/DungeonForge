@@ -57,7 +57,6 @@ export default function ModalePng({ onClose }) {
     abilitaClasse: [],
     arma: "",
     armaDettagli: null,
-    ca: "",
     azioni: [""],
     tipo: "Non Comune",
     magia: classeMagica,

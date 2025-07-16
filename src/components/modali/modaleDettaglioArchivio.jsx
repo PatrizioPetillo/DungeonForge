@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from "firebase/firestore";
-import { firestore } from "../firebase/firebaseConfig";
-import "../../styles/ModaleDettaglioArchivio.css";
+import { firestore } from "../../firebase/firebaseConfig";
+import "../../styles/modaleDettaglioArchivio.css";
 
 const ModaleDettaglioArchivio = ({ item, onClose }) => {
   const [campagne, setCampagne] = useState([]);
