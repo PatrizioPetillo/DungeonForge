@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import CardElemento from "./cardElemento";
-import "../styles/ArchivioSezione.css";
+import "../styles/archivioSezione.css";
 
 const ArchivioSezione = ({ titolo, dati, categoria }) => {
   const [espanso, setEspanso] = useState(false);

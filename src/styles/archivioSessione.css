@@ -3,16 +3,17 @@
   position: relative;
 }
 
+.archivio-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 1rem;
-  max-height: 500px;
-  overflow: hidden;
-}
-
-.archivio-section.expanded .card-grid {
-  max-height: none;
 }
 
 .fade-overlay {
