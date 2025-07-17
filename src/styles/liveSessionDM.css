@@ -85,7 +85,43 @@
   left: 0;
   top: 0;
   transition: transform 0.3s ease;
+}.widgets-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
 }
+
+.stato-entita {
+  background: #1A1F2B;
+  color: #F2F2F0;
+  border: 1px solid #D4AF37;
+  padding: 0.8rem;
+  border-radius: 8px;
+  width: 200px;
+}
+
+.stato-entita input {
+  width: 60px;
+  text-align: center;
+  margin-left: 0.5rem;
+}
+
+.condizione {
+  display: inline-block;
+  font-size: 0.8rem;
+  padding: 0.2rem 0.4rem;
+  background: #3D3D3D;
+  color: #F2F2F0;
+  border-radius: 4px;
+}
+
+.condizione.attiva {
+  background: #6E4F9E;
+  color: #fff;
+}
+
+
 
 @media (max-width: 1024px) {
   .widgets-row {

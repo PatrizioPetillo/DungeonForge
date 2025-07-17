@@ -13,7 +13,27 @@ const VillainAttivi = ({ villain }) => {
           <p>{v.motivazione || "Motivazione sconosciuta"}</p>
           <p><em>Classe:</em> {v.classe?.nome || "—"} | <em>Razza:</em> {v.razza?.nome || "—"}</p>
         </div>
+
       ))}
+      {v.loot && v.loot.length > 0 && (
+  <div>
+    <strong>🎁 Loot:</strong>
+    <ul>
+      {v.loot.map((item, idx) => (
+        <li key={idx}>
+          {item.nome} ({item.rarita})
+          <button
+            onClick={() => assegnaLoot(item, v)}
+            style={{ marginLeft: "0.5rem" }}
+          >
+            ➕ Assegna
+          </button>
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
+
     </div>
   );
 };

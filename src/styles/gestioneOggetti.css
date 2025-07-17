@@ -1,0 +1,27 @@
+.modale {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 1000;
+}
+.modale-contenuto {
+  background: #1a1f2b;
+  color: #f2f2f0;
+  border: 2px solid #d4af37;
+  padding: 1rem;
+  border-radius: 10px;
+  width: 80%; max-height: 90%;
+  overflow-y: auto;
+}
+.lista-oggetti {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.5rem;
+}
+.oggetto-card {
+  background: #2d2d40;
+  padding: 0.5rem;
+  border-radius: 6px;
+  text-align: center;
+}

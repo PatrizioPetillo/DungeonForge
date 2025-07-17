@@ -15,7 +15,6 @@ import AttaccoRapido from "../components/liveSession/attaccoRapido";
 import EnigmiAttivi from "../components/liveSession/enigmiAttivi";
 import VillainAttivi from "../components/liveSession/villainAttivi";
 import "../styles/liveSessionDM.css";
-import { onLog } from "firebase/app";
 
 const LiveSessionDM = () => {
   const { id } = useParams();
@@ -32,6 +31,14 @@ const LiveSessionDM = () => {
   // Recupera la scena attiva dal primo capitolo (per ora)
   const scenaAttiva = campagna?.capitoli?.[0]?.scene?.[scenaIndex] || null;
 if (loading || !campagna) return <p>Caricamento sessione...</p>;
+
+const onLog = (descrizione) => {
+  setEventiLog((prev) => [
+    ...prev,
+    { descrizione, timestamp: new Date().toLocaleTimeString() }
+  ]);
+};
+
 
   const nextScene = () => {
     const scene = campagna.capitoli[0].scene;
@@ -83,6 +90,13 @@ if (loading || !campagna) return <p>Caricamento sessione...</p>;
   const villainInScena = campagna.villain?.filter(v => v.sceneCollegate?.includes(scenaAttiva.id));
   const enigmiInScena = campagna.enigmi?.filter(e => e.sceneCollegate?.includes(scenaAttiva.id));
 
+  const assegnaLoot = (item, entitaOrigine) => {
+  const target = prompt("Inserisci nome PNG destinatario:");
+  if (!target) return;
+  onLog(` Assegnato "${item.nome}" (${item.rarita}) da ${entitaOrigine.nome} a ${target}`);
+};
+
+
   return (
     <div className="live-session">
       <button
@@ -121,6 +135,7 @@ if (loading || !campagna) return <p>Caricamento sessione...</p>;
             png={pngInScena.filter((p) => p.tipo === "non_comune")}
             villain={villainInScena}
             mostri={mostriInScena}
+            onLog={onLog}
             onUpdate={(ordine) => {
               setEventiLog((prev) => [
                 ...prev,

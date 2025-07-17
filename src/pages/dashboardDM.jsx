@@ -17,6 +17,7 @@ import AvventuraWidget from "../components/widget/avventuraWidget";
 import ModaleCreaCampagna from "../components/modaleCreaCampagna";
 import ModaleDettagliCampagna from "../components/modaleDettagliCampagna";
 import CampagnaCard from "../components/campagnaCard";
+import ModaleOggetti from "../components/gestioneOggetti";
 import SuggerimentoDelGiorno from "../components/suggerimentodelGiorno";
 import "../styles/dashboardDM.css";
 
@@ -35,6 +36,13 @@ function DashboardDM() {
   const [showLuogoModal, setShowLuogoModal] = useState(false);
   const [mostraModaleEnigma, setMostraModaleEnigma] = useState(false);
   const [mostraModaleAvventura, setMostraModaleAvventura] = useState(false);
+  const [mostraModaleOggetti, setMostraModaleOggetti] = useState(false);
+
+  const salvaOggettoInCampagna = async (oggetto) => {
+  await addDoc(collection(firestore, `campagne/${campagnaId}/oggetti`), oggetto);
+  alert(`Oggetto "${oggetto.name}" aggiunto alla campagna`);
+};
+
 
   return (
     <div className="dashboard-container">
@@ -154,6 +162,22 @@ function DashboardDM() {
         <p className="section-desc">Appunti sparsi, idee, bozze di trame o colpi di scena.</p>
         <button>Aggiungi nota</button>
       </section> */}
+<section className="dashboard-section">
+  <h2>Gestione Oggetti</h2>
+  <p className="section-desc">
+    Gestisci gli oggetti della tua campagna, come armi, armature e altri
+    equipaggiamenti.
+  </p>
+      <button onClick={() => setMostraModaleOggetti(true)}>📜 Gestisci Oggetti</button>
+</section>
+{mostraModaleOggetti && (
+  <ModaleOggetti
+    onClose={() => setMostraModaleOggetti(false)}
+    campagnaId={campagnaId}
+    onAggiungi={(oggetto) => salvaOggettoInCampagna(oggetto)}
+  />
+)}
+
     </div>
   );
 }
