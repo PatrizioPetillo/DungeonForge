@@ -1,4 +1,5 @@
 // src/utils/generators.js
+import { backgrounds } from "./backgrounds";
 
 // ==============================
 // UTILS
@@ -6,6 +7,36 @@
 export const casuale = (array) => array[Math.floor(Math.random() * array.length)];
 export const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 export const shuffle = (array) => array.sort(() => Math.random() - 0.5);
+
+function calcolaPF(classe, livello, modCostituzione) {
+  const dadiVita = { fighter: 10, wizard: 6, rogue: 8, cleric: 8, barbarian: 12 }; // ecc.
+  const dado = dadiVita[classe] || 8;
+  return dado + ((dado / 2 + 1) + modCostituzione) * (livello - 1);
+}
+
+function calcolaCA(armatura, modDestrezza) {
+  if (armatura.toLowerCase().includes("piastre")) return 18;
+  if (armatura.toLowerCase().includes("maglia")) return 16;
+  if (armatura.toLowerCase().includes("cuoio")) return 11 + modDestrezza;
+  return 10 + modDestrezza;
+}
+
+  export function generaDescrizioneEvocativa(png) {
+  const razza = razzeItaliane[png.razza] || "individuo";
+  const template = [
+    `Un ${razza} dal portamento fiero, occhi attenti e armatura che racconta mille battaglie. `,
+    `Una ${razza} avvolta da mistero, con uno sguardo carico di segreti e incantesimi pronti.`,
+    `Un ${razza} agile e silenzioso, perfetto per tendere imboscate o sfuggire al pericolo. `,
+    `Un ${razza} saggio e compassionevole, con una presenza che infonde calma e sicurezza.`,
+    `Un ${razza} robusto e determinato, con una forza che sembra inarrestabile.`,
+    `Un ${razza} astuto e scaltro, sempre pronto a cogliere l'occasione al volo.`,
+    `Un ${razza} elegante e raffinato, con un talento naturale per la musica e le arti.`,
+    `Un ${razza} devoto e leale, pronto a difendere i suoi compagni a costo della vita.`,
+    `Un ${razza} curioso e intraprendente, sempre alla ricerca di nuove avventure e scoperte.`,
+    `Un ${razza} misterioso e affascinante, con un'aura che attira l'attenzione e suscita ammirazione.`,
+  ];
+  return casuale(template);
+}
 
 // Roll stats 4d6 drop lowest
 export const tiraStats = () => {
@@ -117,8 +148,10 @@ export function generaNomePerRazza(razza) {
   }
   return generaNomeCasuale(); // fallback
 }
-
+export const listaMestieri = ["Locandiere", "Erborista", "Mercante", "Cacciatore", "Studioso", "Ladro", "Guida", "Artigiano", "Guardia cittadina", "Contadino", "Cultista", "Guardiano", "Cacciatore di taglie", "Artista", "Bardo", "Saggio", "Guaritore", "Cavaliere errante", "Esploratore", "Guardaboschi", "Cacciatore di reliquie", "Guardiano del tempio", "Custode della biblioteca", "Maestro di spada", "Alchimista", "Cartografo", "Costruttore di armi", "Mercenario", "Cavaliere errante"];
+export const listaRuoli = ["Alleato", "Traditore", "Guida", "Mentore", "Mercante", "Contatto", "Nemico", "Sfidante", "Sostenitore", "Testimone", "Vittima", "Spia", "Informatore"];
 export function completaPNGComune(png) {
+   const razza = png.razza || casuale(Object.keys(razzeItaliane));
   const razzaDescr = razzeItaliane[png.razza] || "individuo";
 
   const mestieri = ["Locandiere", "Erborista", "Mercante", "Cacciatore", "Studioso", "Ladro", "Guida", "Artigiano", "Guardia cittadina", "Contadino", "Cultista", "Guardiano", "Cacciatore di taglie", "Artista", "Bardo", "Saggio", "Guaritore", "Cavaliere errante", "Esploratore", "Guardaboschi", "Cacciatore di reliquie", "Guardiano del tempio", "Custode della biblioteca", "Maestro di spada", "Alchimista", "Cartografo", "Costruttore di armi", "Mercenario", "Cavaliere errante"];
@@ -196,15 +229,16 @@ const collegamenti = [
   };
   
   const mestiere = casuale(mestieri);
-  const equip = equipPerMestiere[mestiere];
+  const equip = equipPerMestiere[mestiere] || { indossa: "Abiti semplici", porta: "Niente di particolare" };
 
   return {
      ...png,
     nome: `${generaNomePerRazza(png.razza)} ${generaCognomeCasuale()}`,
+    razza,
     mestiere,
     descrizione: casuale(descrizioni),
     segni: casuale(segni),
-    ruolo: casuale(ruoli),
+    ruolo: casuale(listaRuoli),
     origine: casuale(origini),
     collegamento: casuale(collegamenti),
     equipIndossato: equip?.indossa || "",
@@ -212,6 +246,10 @@ const collegamenti = [
   armatura: png.armatura || "",
   arma: png.arma || "",
   };
+}
+export function aggiornaDescrizioneConRazza(descrizioneVecchia, nuovaRazza) {
+  const razzaDescr = razzeItaliane[nuovaRazza] || "individuo";
+  return descrizioneVecchia.replace(/(umano|elfo|nano|individuo)/gi, razzaDescr.toLowerCase());
 }
 
 
@@ -261,6 +299,7 @@ export function generaNomeLuogo() {
   ];
   return casuale(nomi);
 }
+
 
 // ==============================
 // EQUIP BASE
@@ -323,6 +362,16 @@ export async function generaClasse(png) {
   };
 }
 
+async function generaBackground(png) {
+  const scelta = casuale(backgrounds);
+  return {
+    ...png,
+    background: scelta.name,
+    abilitaBackground: scelta.starting_proficiencies.join(", "),
+    talentiBackground: `${scelta.feature.name}: ${scelta.feature.desc[0]}`
+  };
+}
+
 export async function generaStats(png) {
   const rolls = tiraStats().sort((a, b) => b - a);
   const priorita = {
@@ -354,18 +403,26 @@ export async function generaStats(png) {
 export async function generaCompetenze(png) {
   const { classeDettaglio } = png;
 
+  // Competenze fisse
+  const competenzeFisse = classeDettaglio.proficiencies.map((p) => p.name);
+
+  // Opzioni abilità
+  const abilitaOpzioni = classeDettaglio.proficiency_choices.map((choice) => ({
+    numeroScelte: choice.choose,
+    opzioni: (choice.from?.options || []).map(opt => opt.item?.name || "")
+  }));
+
+  // Selezione casuale di default
   const abilitaScelte = [];
-  for (const choice of classeDettaglio.proficiency_choices || []) {
-    if (choice.choose > 0) {
-      const opzioni = (choice.from?.options || []).map((opt) => opt.item?.name).filter(Boolean);
-      abilitaScelte.push(...shuffle(opzioni).slice(0, choice.choose));
-    }
+  for (const choice of abilitaOpzioni) {
+    abilitaScelte.push(...shuffle(choice.opzioni).slice(0, choice.numeroScelte));
   }
 
   return {
     ...png,
-    abilitaClasse: abilitaScelte,
-    competenzeClasse: classeDettaglio.proficiencies.map((p) => p.name),
+    abilitaClasse: abilitaScelte, // default
+    abilitaOpzioni, // per UI interattiva
+    competenzeClasse: competenzeFisse
   };
 }
 
@@ -397,11 +454,14 @@ export async function generaMagia(png) {
 
 export async function generaEquipaggiamento(png) {
   const equipBase = generaEquipBase(png.classe);
+  const arma = equipBase.find((e) => e.toLowerCase().includes("spada") || e.toLowerCase().includes("pugnale")) || "Pugnale";
+  const armatura = equipBase.find((e) => e.toLowerCase().includes("armatura") || e.toLowerCase().includes("cuoio")) || "Abiti comuni";
   return {
     ...png,
-    arma: equipBase.find((e) => e.toLowerCase().includes("spada") || e.toLowerCase().includes("pugnale")) || "Pugnale",
-    armatura: equipBase.find((e) => e.toLowerCase().includes("armatura") || e.toLowerCase().includes("cuoio")) || "Abiti comuni",
-    equipIndossato: equipBase.join(", "),
+    arma,
+    armatura,
+    equipIndossato: `${armatura}, ${arma}`,
+    equipPortato: equipBase.filter(e => e !== armatura && e !== arma).join(", "),
   };
 }
 
@@ -459,6 +519,8 @@ export function generaTesoroCampagna() {
     { nome: "Libro di incantesimi", rarita: "Raro" },
   ];
 }
+
+
 
 // ==============================
 // GENERA LOOT CASUALE PER PNG
@@ -540,6 +602,22 @@ export async function generaPNGStepByStep(setPng, tipo = "Non Comune", setStepCo
   return png; // chiudi qui, niente stats, magie, loot extra
 }
 
+const segni = [
+  "Cicatrice sull'occhio destro", "Orecchio tagliato", "Tatuaggio sul braccio",
+  "Ride nervosamente", "Zoppia evidente", "Si gratta spesso la testa",
+  "Parla in modo confuso", "Si morde le labbra", "Tamburella con le dita",
+  "Si tocca il mento quando riflette", "Dente mancante", "Braccio destro amputato", "Si gratta spesso la testa quando è in pensiero"
+];
+png.segni = casuale(segni);
+png.origine = casuale([
+  "Cresciuto in un villaggio remoto", "Addestrato in un'accademia segreta",
+  "Ex ladro redento", "Ex soldato in cerca di redenzione",
+  "Orfano cresciuto per le strade", "Viaggiatore in cerca di avventure",
+  "Mercante in cerca di fortuna", "Cacciatore di taglie",
+]);
+png.ruolo = casuale(listaRuoli);
+png.collegamento = "Capitolo 1: Introduzione";
+
 
   const steps = [
     generaLivelloETipo,
@@ -547,6 +625,7 @@ export async function generaPNGStepByStep(setPng, tipo = "Non Comune", setStepCo
     generaClasse,
     generaStats,
     generaCompetenze,
+    generaBackground,
     generaEquipaggiamento,
   ];
 
@@ -583,6 +662,14 @@ export async function generaPNGStepByStep(setPng, tipo = "Non Comune", setStepCo
     }
     setPng(png);
   }
+const modCos = Math.floor((png.stats.costituzione - 10) / 2);
+const modDes = Math.floor((png.stats.destrezza - 10) / 2);
+png.pf = calcolaPF(png.classe, png.livello, modCos);
+png.ca = calcolaCA(png.armatura, modDes);
+png.descrizione = generaDescrizioneEvocativa(png);
+
+return png;
+
 
 }
 

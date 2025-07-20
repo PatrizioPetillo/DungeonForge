@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { generaPNGStepByStep, razzeItaliane, classiItaliane } from "../../utils/generators";
+import {
+  generaPNGStepByStep,
+  razzeItaliane,
+  classiItaliane,
+  listaMestieri,
+  calcolaModCaratteristica,
+  listaRuoli,
+  generaNomePerRazza,
+  aggiornaDescrizioneConRazza,
+} from "../../utils/generators";
 import Lottie from "lottie-react";
 import calderoneAnim from "../../assets/lottie/Animation-Calderone.json";
 import { caricaImmagine } from "../../utils/helpers";
@@ -16,7 +25,7 @@ export default function ModalePng({ onClose }) {
   const [listaBackgrounds, setListaBackgrounds] = useState([]);
   const [dettagliBackground, setDettagliBackground] = useState(null);
   const [stepCorrente, setStepCorrente] = useState(0);
-const [totaleStep, setTotaleStep] = useState(8);
+  const [totaleStep, setTotaleStep] = useState(8);
   const [bonusRazziali, setBonusRazziali] = useState({});
   const [classeMagica, setClasseMagica] = useState(false);
   const [datiMagia, setDatiMagia] = useState({
@@ -84,7 +93,21 @@ const [totaleStep, setTotaleStep] = useState(8);
   });
   const [sceneDisponibili, setSceneDisponibili] = useState([]);
   const [sceneCollegate, setSceneCollegate] = useState([]);
-  
+
+  const abilitaPerStat = {
+    forza: ["Atletica"],
+    destrezza: ["Acrobazia", "Furtività", "Rapidità di mano"],
+    costituzione: [],
+    intelligenza: ["Arcano", "Storia", "Indagare", "Natura", "Religione"],
+    saggezza: [
+      "Percezione",
+      "Medicina",
+      "Sopravvivenza",
+      "Intuizione",
+      "Addestrare animali",
+    ],
+    carisma: ["Persuasione", "Inganno", "Intimidire", "Intrattenere"],
+  };
 
   useEffect(() => {
     if (!campagnaAttiva?.id) return;
@@ -110,7 +133,8 @@ const [totaleStep, setTotaleStep] = useState(8);
       .then((data) => setListaBackgrounds(data.results));
   }, []);
 
-  {/*useEffect(() => {
+  {
+    /*useEffect(() => {
     if (!png.classe) return;
 
     const loadSpellcasting = async () => {
@@ -181,7 +205,17 @@ const [totaleStep, setTotaleStep] = useState(8);
     };
 
     loadSpellcasting();
-  }, [png.classe, png.livello, png.stats]); */}
+  }, [png.classe, png.livello, png.stats]); */
+  }
+
+  const toggleAbilita = (abilita) => {
+    setPng((prev) => {
+      const abilitaClasse = prev.abilitaClasse.includes(abilita)
+        ? prev.abilitaClasse.filter((a) => a !== abilita)
+        : [...prev.abilitaClasse, abilita];
+      return { ...prev, abilitaClasse };
+    });
+  };
 
   useEffect(() => {
     if (!png.classe) return;
@@ -275,9 +309,11 @@ const [totaleStep, setTotaleStep] = useState(8);
       data.tool_proficiencies?.map((t) => t.name).join(", ") || "";
     const lingue = data.languages?.join(", ") || "";
 
+    const descrizioneBreve = data.feature?.desc?.[0]?.slice(0, 80) + "...";
     setDettagliBackground({
       abilita,
       talento,
+      descrizioneBreve,
       descrizioneTalento,
       strumenti,
       lingue,
@@ -326,16 +362,16 @@ const [totaleStep, setTotaleStep] = useState(8);
   };
 
   const handleGenerazione = async () => {
-  setLoading(true);
-  setStepCorrente(0);
-  try {
-    await generaPNGStepByStep(setPng, tipo, setStepCorrente);
-  } catch (err) {
-    console.error("Errore generazione PNG:", err);
-  } finally {
-    setLoading(false);
-  }
-};
+    setLoading(true);
+    setStepCorrente(0);
+    try {
+      await generaPNGStepByStep(setPng, tipo, setStepCorrente);
+    } catch (err) {
+      console.error("Errore generazione PNG:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSalvaPNG = async () => {
     try {
@@ -369,9 +405,10 @@ const [totaleStep, setTotaleStep] = useState(8);
   };
 
   // Tab disponibili in base al tipo PNG
-  const tabComune = ["Generali",  "Equipaggiamento", "Narrativa"];
+  const tabComune = ["Generali", "Narrativa", "Equipaggiamento"];
   const tabNonComune = [
     ...tabComune,
+    "Competenze ed Abilità",
     "Statistiche",
     "Combattimento",
     "Magia",
@@ -379,42 +416,47 @@ const [totaleStep, setTotaleStep] = useState(8);
   ];
   const tabList =
     tipo === "Comune"
-      ? ["Generali",  "Equipaggiamento", "Narrativa",]
+      ? ["Generali", "Narrativa", "Equipaggiamento"]
       : [
           "Generali",
+          "Narrativa",
+          "Competenze ed Abilità",
           "Statistiche",
           "Combattimento",
           "Equipaggiamento",
-          "Narrativa",
           ...(classeMagica ? ["Magia"] : []),
         ];
 
-        const handleCambioArma = async (nuovaArma) => {
-  if (!nuovaArma) return;
+  const handleCambioArma = async (nuovaArma) => {
+    if (!nuovaArma) return;
 
-  try {
-    const res = await fetch(`https://www.dnd5eapi.co/api/equipment/${nuovaArma.toLowerCase().replace(/\s+/g, "-")}`);
-    if (!res.ok) return;
-    const armaDettaglio = await res.json();
+    try {
+      const res = await fetch(
+        `https://www.dnd5eapi.co/api/equipment/${nuovaArma
+          .toLowerCase()
+          .replace(/\s+/g, "-")}`
+      );
+      if (!res.ok) return;
+      const armaDettaglio = await res.json();
 
-    const modCar = armaDettaglio.weapon_range === "Melee"
-      ? Math.floor((png.stats.forza - 10) / 2)
-      : Math.floor((png.stats.destrezza - 10) / 2);
+      const modCar =
+        armaDettaglio.weapon_range === "Melee"
+          ? Math.floor((png.stats.forza - 10) / 2)
+          : Math.floor((png.stats.destrezza - 10) / 2);
 
-    const proficiency = Math.ceil(png.livello / 4) + 2;
-    const bonusAttacco = proficiency + modCar;
+      const proficiency = Math.ceil(png.livello / 4) + 2;
+      const bonusAttacco = proficiency + modCar;
 
-    setPng((prev) => ({
-      ...prev,
-      arma: nuovaArma,
-      dettagliArma: armaDettaglio,
-      bonusAttacco
-    }));
-  } catch (error) {
-    console.error("Errore nel cambio arma:", error);
-  }
-};
-
+      setPng((prev) => ({
+        ...prev,
+        arma: nuovaArma,
+        dettagliArma: armaDettaglio,
+        bonusAttacco,
+      }));
+    } catch (error) {
+      console.error("Errore nel cambio arma:", error);
+    }
+  };
 
   // Generazione automatica
 
@@ -443,27 +485,29 @@ const [totaleStep, setTotaleStep] = useState(8);
           </div>
           <div className="actions">
             {loading && (
-  <div className="overlay-loading">
-    <div className="progress-container">
-      <div className="progress-bar">
-        <div
-          className="progress-fill"
-          style={{ width: `${(stepCorrente / totaleStep) * 100}%` }}
-        ></div>
-        <span className="progress-text">{`Fase ${stepCorrente} di ${totaleStep}`}</span>
-      </div>
-    </div>
+              <div className="overlay-loading">
+                <div className="progress-container">
+                  <div className="progress-bar">
+                    <div
+                      className="progress-fill"
+                      style={{ width: `${(stepCorrente / totaleStep) * 100}%` }}
+                    ></div>
+                    <span className="progress-text">{`Fase ${stepCorrente} di ${totaleStep}`}</span>
+                  </div>
+                </div>
 
-    <Lottie animationData={calderoneAnim} loop={true} className="calderone-lottie" />
-    <p className="loading-text">Creando il PNG...</p>
-  </div>
-)}
+                <Lottie
+                  animationData={calderoneAnim}
+                  loop={true}
+                  className="calderone-lottie"
+                />
+                <p className="loading-text">Creando il PNG...</p>
+              </div>
+            )}
 
-    <button onClick={handleGenerazione} className="btn-genera">
-      🎲 Genera PNG
-    </button>
-
-
+            <button onClick={handleGenerazione} className="btn-genera">
+              🎲 Genera PNG
+            </button>
 
             <button title="Salva PNG" onClick={handleSalvaPNG}>
               💾
@@ -491,114 +535,226 @@ const [totaleStep, setTotaleStep] = useState(8);
         <div className="modale-body">
           {tab === "Generali" && (
             <div className="tab-generali">
-              <div className="field-group">
-                <label>Nome:</label>
+              <div className="generali-right">
+                <label>📸 Immagine PNG</label>
                 <input
-                  type="text"
-                  value={png.nome}
-                  onChange={(e) => aggiornaCampo("nome", e.target.value)}
-                  placeholder="Es. Gundra"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file)
+                      caricaImmagine(file, (base64) =>
+                        setPng((prev) => ({ ...prev, immagine: base64 }))
+                      );
+                  }}
                 />
+                {png.immagine && <img src={png.immagine} alt="PNG" />}
               </div>
+              <div className="generali-left">
+                <div className="field-group">
+                  <label>Nome:</label>
+                  <input
+                    type="text"
+                    value={png.nome}
+                    onChange={(e) => aggiornaCampo("nome", e.target.value)}
+                    placeholder="Es. Gundra"
+                  />
 
-              {/* <div className="field-group">
-                <label>Cognome:</label>
-                <input
-                  type="text"
-                  value={png.cognome}
-                  onChange={(e) => aggiornaCampo("cognome", e.target.value)}
-                  placeholder="Es. Manodura"
-                />
-              </div> */}
-
-              <label>📸 Immagine Villain</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files[0];
-                  if (file)
-                    caricaImmagine(file, (base64) =>
-                      setPng((prev) => ({ ...prev, immagine: base64 }))
-                    );
-                }}
-              />
-
-              <div className="field-group">
-                <label>Razza:</label>
-                <select
-  value={png.razza}
-  onChange={(e) => aggiornaCampo("razza", e.target.value)}
->
-                  <option value="">-- Seleziona razza --</option>
-                  {listaRazze.map((razza) => (
-                        <option key={razza.index} value={razza.index}>
-                          {razzeItaliane[razza.name] || razza.name}
-                        </option>
-                  ))}
-                </select>
-                {tipo === "Non Comune" && (
-  <p>
-    <em>{png.bonusRazza?.join(", ")}</em>
-  </p>
-)}
-
+                  <label>Razza:</label>
+                  <select
+                    value={png.razza}
+                    onChange={(e) => {
+                      const nuovaRazza = e.target.value;
+                      setPng((prev) => ({
+                        ...prev,
+                        razza: nuovaRazza,
+                        nome: generaNomePerRazza(nuovaRazza),
+                        descrizione: aggiornaDescrizioneConRazza(
+                          prev.descrizione,
+                          nuovaRazza
+                        ),
+                      }));
+                    }}
+                  >
+                    <option value="">-- Seleziona razza --</option>
+                    {listaRazze.map((razza) => (
+                      <option key={razza.index} value={razza.index}>
+                        {razzeItaliane[razza.name] || razza.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-              <div className="tab-classe">
+              {tipo === "Non Comune" && (
+                <div className="field-group">
+                  <label>Livello:</label>
+                  <select
+                    value={png.livello}
+                    onChange={(e) =>
+                      aggiornaCampo("livello", Number(e.target.value))
+                    }
+                  >
+                    {[...Array(20)].map((_, i) => (
+                      <option key={i} value={i + 1}>
+                        {i + 1}
+                      </option>
+                    ))}
+                  </select>
+
+                  <hr />
+                  <label>Classe:</label>
+                  <select
+                    value={png.classe}
+                    onChange={(e) => aggiornaCampo("classe", e.target.value)}
+                  >
+                    <option value="">-- Seleziona classe --</option>
+                    {listaClassi.map((cls) => (
+                      <option key={cls.index} value={cls.index}>
+                        {classiItaliane[cls.index] || cls.name}
+                      </option>
+                    ))}
+                  </select>
+                  {png.sottoclasse && (
+                    <div
+                      className="sottoclasse-box"
+                      style={{ marginTop: "15px" }}
+                    >
+                      <h4>Sottoclasse: {png.sottoclasse.nome}</h4>
+                      <p>{png.sottoclasse.descrizione}</p>
+                      {png.sottoclasse.privilegi.length > 0 && (
+                        <>
+                          <h5>Privilegi:</h5>
+                          <ul>
+                            {png.sottoclasse.privilegi.map((p, i) => (
+                              <li key={i}>{p}</li>
+                            ))}
+                          </ul>
+                        </>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="field-group">
+                    <label>Background:</label>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      <select
+                        value={png.background}
+                        onChange={(e) => selezionaBackground(e.target.value)}
+                      >
+                        <option value="">-- Seleziona background --</option>
+                        {listaBackgrounds.map((bg) => (
+                          <option key={bg.index} value={bg.index}>
+                            {bg.name}
+                          </option>
+                        ))}
+                      </select>
+                      {dettagliBackground && (
+                        <div className="tooltip-content">
+                          <strong>{png.background}</strong>
+                          <p>
+                            <em>{dettagliBackground.descrizioneBreve}</em>
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="field-group">
-                <label>Classe:</label>
+{tipo === "Comune" && (
+  <>
+                <label>Mestiere:</label>
                 <select
-                  value={png.classe}
-                  onChange={(e) => aggiornaCampo("classe", e.target.value)}
+                  value={png.mestiere}
+                  onChange={(e) => aggiornaCampo("mestiere", e.target.value)}
                 >
-                  <option value="">-- Seleziona classe --</option>
-                  {listaClassi.map((cls) => (
-                    <option key={cls.index} value={cls.index}>
-  {classiItaliane[cls.index] || cls.name}
-</option>
-                  ))}
-                </select>
-              </div>
-              {png.sottoclasse && (
-  <div className="sottoclasse-box" style={{ marginTop: "15px" }}>
-    <h4>Sottoclasse: {png.sottoclasse.nome}</h4>
-    <p>{png.sottoclasse.descrizione}</p>
-    {png.sottoclasse.privilegi.length > 0 && (
-      <>
-        <h5>Privilegi:</h5>
-        <ul>
-          {png.sottoclasse.privilegi.map((p, i) => (
-            <li key={i}>{p}</li>
-          ))}
-        </ul>
-      </>
-    )}
-  </div>
-)}
-
-              <div className="field-group">
-                <label>Livello:</label>
-                <select
-                  value={png.livello}
-                  onChange={(e) =>
-                    aggiornaCampo("livello", Number(e.target.value))
-                  }
-                >
-                  {[...Array(20)].map((_, i) => (
-                    <option key={i} value={i + 1}>
-                      {i + 1}
+                  <option value="">-- Seleziona mestiere --</option>
+                  {listaMestieri.map((m, i) => (
+                    <option key={i} value={m}>
+                      {m}
                     </option>
                   ))}
                 </select>
+  </>
+                )}
+
+                <label>Descrizione / Aspetto:</label>
+                <textarea
+                  rows={3}
+                  value={png.descrizione}
+                  onChange={(e) => aggiornaCampo("descrizione", e.target.value)}
+                  placeholder="Es. Basso, calvo, con una cicatrice sull'occhio destro..."
+                />
               </div>
+
+              <div className="field-group">
+  <label>Segni particolari:</label>
+  <input
+    type="text"
+    value={png.segni || ""}
+    onChange={(e) => aggiornaCampo("segni", e.target.value)}
+  />
+</div>
+
+            </div>
+          )}
+          {tab === "Narrativa" && (
+            <div className="tab-narrativa">
+              <div className="field-group">
+  <label>Origine del PNG:</label>
+  <textarea
+    value={png.origine || ""}
+    onChange={(e) => aggiornaCampo("origine", e.target.value)}
+  />
+</div>
+<div className="field-group">
+  <label>Ruolo narrativo:</label>
+  <input
+    type="text"
+    value={png.ruolo || ""}
+    onChange={(e) => aggiornaCampo("ruolo", e.target.value)}
+  />
+</div>
+<div className="field-group">
+  <label>Collegamento:</label>
+  <input
+    type="text"
+    value={png.collegamento || ""}
+    onChange={(e) => aggiornaCampo("collegamento", e.target.value)}
+  />
+</div>
+
+            </div>
+          )}
+          {tab === "Competenze ed Abilità" && (
+            <div className="tab-classe">
+              <div className="field-group">
+                
+                <h4>Background</h4>
+                <p>
+                  <strong>Abilità:</strong> {png.abilitaBackground || "—"}
+                </p>
+                <p>
+                  <strong>Talento:</strong> {png.talentiBackground || "—"}
+                </p>
+              </div>
+
+              <hr />
+
               <div className="field-group">
                 <h4>Competenze di Classe</h4>
                 <ul>
-                  {png.competenzeClasse.map((c, i) => (
-                    <li key={i} title={c.descrizione}>
-                      {c.nome}
-                    </li>
-                  ))}
+                  {png.competenzeClasse?.length > 0 ? (
+                    png.competenzeClasse.map((c, i) => <li key={i}>{c}</li>)
+                  ) : (
+                    <li>Nessuna competenza disponibile</li>
+                  )}
                 </ul>
               </div>
 
@@ -648,90 +804,18 @@ const [totaleStep, setTotaleStep] = useState(8);
               </div>
 
               <div className="field-group">
-                <label>Tiri Salvezza:</label>
-                <input
-  type="text"
-  value={Object.entries(png.tiriSalvezzaClasse || {})
-    .map(([k,v]) => `${k} +${v}`)
-    .join(", ") || "—"}
-  readOnly
-/>
-              </div>
+                <h4>Tiri Salvezza</h4>
+<ul>
+  {png.tiriSalvezzaClasse?.map((ts, i) => (
+    <li key={i}>
+      {ts}: {calcolaModCaratteristica(png.stats[ts]) + (proficientIn(ts) ? Math.ceil(png.livello / 4) + 2 : 0)}
+    </li>
+  ))}
+</ul>
 
-              <div className="field-group">
-                <label>Background:</label>
-                <select
-                  value={png.background}
-                  onChange={(e) => selezionaBackground(e.target.value)}
-                >
-                  <option value="">-- Seleziona background --</option>
-                  {listaBackgrounds.map((bg) => (
-                    <option key={bg.index} value={bg.index}>
-                      {bg.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {dettagliBackground && (
-                <div className="background-dettagli">
-                  <p>
-                    <strong>Abilità:</strong> {dettagliBackground.abilita}
-                  </p>
-                  <p>
-                    <strong>Strumenti:</strong> {dettagliBackground.strumenti}
-                  </p>
-                  <p>
-                    <strong>Lingue:</strong> {dettagliBackground.lingue}
-                  </p>
-                  <p>
-                    <strong>Talento:</strong> {dettagliBackground.talento}
-                  </p>
-                  <p>{dettagliBackground.descrizioneTalento}</p>
-                </div>
-              )}
-            </div>
-
-              {tipo === "Comune" && (
-                <div className="field-group">
-                  <label>Mestiere:</label>
-                  <select
-                    value={png.mestiere}
-                    onChange={(e) => aggiornaCampo("mestiere", e.target.value)}
-                  >
-                    <option value="">-- Seleziona mestiere --</option>
-                    <option>Locandiere</option>
-                    <option>Erborista</option>
-                    <option>Mercante</option>
-                    <option>Cacciatore</option>
-                    <option>Studioso</option>
-                    <option>Ladro</option>
-                    <option>Guida</option>
-                  </select>
-                </div>
-              )}
-              <div className="field-group">
-                <label>Descrizione / Aspetto:</label>
-                <textarea
-                  rows={3}
-                  value={png.descrizione}
-                  onChange={(e) => aggiornaCampo("descrizione", e.target.value)}
-                  placeholder="Es. Basso, calvo, con una cicatrice sull'occhio destro..."
-                />
-              </div>
-
-              <div className="field-group">
-                <label>Segni particolari:</label>
-                <textarea
-                  rows={2}
-                  value={png.segni}
-                  onChange={(e) => aggiornaCampo("segni", e.target.value)}
-                  placeholder="Es. Fischietta nei momenti di tensione; 'Ah, la gioventù...' è la sua frase tipica."
-                />
               </div>
             </div>
           )}
-          
           {tab === "Statistiche" && (
             <div className="stats-grid">
               {png.stats &&
@@ -749,9 +833,7 @@ const [totaleStep, setTotaleStep] = useState(8);
                     png.bonusRazza?.find((b) => b.includes(mappa[chiave])) ||
                     "—";
 
-                  const abilitaCollegate =
-                    png.abilita?.filter((a) => a.caratteristica === chiave) ||
-                    [];
+                  const abilitaCollegate = abilitaPerStat[chiave] || [];
 
                   return (
                     <div key={i} className="stat-box">
@@ -760,15 +842,20 @@ const [totaleStep, setTotaleStep] = useState(8);
                       <p>Mod: {mod >= 0 ? `+${mod}` : mod}</p>
                       <small>Bonus razziale: {bonusRaz}</small>
                       <hr />
-                      
-                        {abilitaCollegate.map((a, idx) => (
-                          <div key={idx}>
-                            {a.nome}{" "}
-                            {a.competente && (
-                              <span style={{ color: "#FFD700" }}>★</span>
-                            )}
-                          </div>
-                        ))} : <small>Nessuna abilità</small>
+                      {abilitaCollegate.length > 0 ? (
+                        abilitaCollegate.map((a, idx) => (
+  <label key={idx}>
+    <input
+      type="checkbox"
+      checked={png.abilitaClasse.includes(a)}
+      onChange={() => toggleAbilita(a)}
+    />
+    {a}
+  </label>
+                        ))
+                      ) : (
+                        <small>Nessuna abilità</small>
+                      )}
                     </div>
                   );
                 })}
@@ -776,91 +863,124 @@ const [totaleStep, setTotaleStep] = useState(8);
           )}
           {tab === "Combattimento" && (
             <div className="tab-combattimento">
-             <div className="combattimento-sezione">
-  <h3>Combattimento</h3>
+              <div className="combattimento-sezione">
+                <h3>Combattimento</h3>
 
-  {/* Punti Ferita e Classe Armatura */}
-  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
-    <div><strong>PF:</strong> {png.pf || "-"}</div>
-    <div><strong>CA:</strong> {png.ca || "-"}</div>
-  </div>
+                {/* Punti Ferita e Classe Armatura */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: "10px",
+                  }}
+                >
+                  <div>
+                    <strong>PF:</strong> {png.pf || "-"}
+                  </div>
+                  <div>
+                    <strong>CA:</strong> {png.ca || "-"}
+                  </div>
+                  <p><strong>Bonus Competenza:</strong> +{Math.ceil(png.livello / 4) + 2}</p>
 
-  {/* Tabella Armi */}
-  <h4>Attacchi e Armi</h4>
-  <table className="tabella-combattimento">
-    <thead>
-      <tr>
-        <th>Nome</th>
-        <th>Bonus</th>
-        <th>Danno</th>
-        <th>Proprietà</th>
-      </tr>
-    </thead>
-    <tbody>
-      {png.dettagliArma ? (
-        <tr>
-          <td
-  title={`Categoria: ${png.dettagliArma.weapon_category}\nRange: ${png.dettagliArma.weapon_range}`}
->{png.dettagliArma.name}</td>
-          <td>+{png.bonusAttacco || 0}</td>
-          <td>
-            {png.dettagliArma.damage?.damage_dice || "-"}{" "}
-            {png.dettagliArma.damage?.damage_type?.name || ""}
-          </td>
-          <td>
-  {png.dettagliArma.properties?.map((p, idx) => (
-    <span
-      key={idx}
-      title={`Proprietà: ${p.name}`}
-      style={{ marginRight: "8px", cursor: "help" }}
-    >
-      {p.name}
-    </span>
-  )) || "-"}
-</td>
+                </div>
 
-        </tr>
-      ) : (
-        <tr>
-          <td colSpan="4" style={{ textAlign: "center" }}>Nessuna arma assegnata</td>
-        </tr>
-      )}
-    </tbody>
-  </table>
+                {/* Tabella Armi */}
+                <h4>Armi</h4>
+                <table className="tabella-combattimento">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Bonus</th>
+                      <th>Danno</th>
+                      <th>Proprietà</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {png.dettagliArma ? (
+                      <tr>
+                        <td
+                          title={`Categoria: ${png.dettagliArma.weapon_category}\nRange: ${png.dettagliArma.weapon_range}`}
+                        >
+                          {png.dettagliArma.name}
+                        </td>
+                        <td>+{png.bonusAttacco || 0}</td>
+                        <td>
+                          {png.dettagliArma.damage?.damage_dice || "-"}{" "}
+                          {png.dettagliArma.damage?.damage_type?.name || ""}
+                        </td>
+                        <td>
+                          {png.dettagliArma.properties?.map((p, idx) => (
+                            <span
+                              key={idx}
+                              title={`Proprietà: ${p.name}`}
+                              style={{ marginRight: "8px", cursor: "help" }}
+                            >
+                              {p.name}
+                            </span>
+                          )) || "-"}
+                        </td>
+                      </tr>
+                    ) : (
+                      <tr>
+                        <td colSpan="4" style={{ textAlign: "center" }}>
+                          Nessuna arma assegnata
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+                <h4>Armatura</h4>
+<table>
+<thead><tr><th>Nome</th><th>CA Base</th></tr></thead>
+<tbody>
+<tr><td>{png.armatura}</td><td>{png.ca}</td></tr>
+</tbody>
+</table>
 
-  {/* Select per cambiare arma */}
-  {png.armiCompatibili && png.armiCompatibili.length > 0 && (
-    <div style={{ marginTop: "10px" }}>
-      <label><strong>Sostituisci arma:</strong></label>
-      <select
-        value={png.arma || ""}
-        onChange={(e) => handleCambioArma( e.target.value)}
-      >
-        <option value="">-- Seleziona --</option>
-        {png.armiCompatibili.map((a, i) => (
-          <option key={i} value={a}>{a}</option>
-        ))}
-      </select>
-    </div>
-  )}
 
-  {/* Select per cambiare armatura */}
-  {png.armatureCompatibili && png.armatureCompatibili.length > 0 && (
-    <div style={{ marginTop: "10px" }}>
-      <label><strong>Sostituisci armatura:</strong></label>
-      <select
-        value={png.armatura || ""}
-        onChange={(e) => aggiornaCampo("armatura", e.target.value)}
-      >
-        <option value="">-- Seleziona --</option>
-        {png.armatureCompatibili.map((arm, i) => (
-          <option key={i} value={arm}>{arm}</option>
-        ))}
-      </select>
-    </div>
-  )}
-</div>
+                {/* Select per cambiare arma */}
+                {png.armiCompatibili && png.armiCompatibili.length > 0 && (
+                  <div style={{ marginTop: "10px" }}>
+                    <label>
+                      <strong>Sostituisci arma:</strong>
+                    </label>
+                    <select
+                      value={png.arma || ""}
+                      onChange={(e) => handleCambioArma(e.target.value)}
+                    >
+                      <option value="">-- Seleziona --</option>
+                      {png.armiCompatibili.map((a, i) => (
+                        <option key={i} value={a}>
+                          {a}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
+                {/* Select per cambiare armatura */}
+                {png.armatureCompatibili &&
+                  png.armatureCompatibili.length > 0 && (
+                    <div style={{ marginTop: "10px" }}>
+                      <label>
+                        <strong>Sostituisci armatura:</strong>
+                      </label>
+                      <select
+                        value={png.armatura || ""}
+                        onChange={(e) =>
+                          aggiornaCampo("armatura", e.target.value)
+                        }
+                      >
+                        <option value="">-- Seleziona --</option>
+                        {png.armatureCompatibili.map((arm, i) => (
+                          <option key={i} value={arm}>
+                            {arm}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+              </div>
 
               <hr />
 
@@ -892,71 +1012,86 @@ const [totaleStep, setTotaleStep] = useState(8);
           )}
           {tab === "Magia" && classeMagica && (
             <div className="tab-magia">
-  {png.magia ? (
-    <>
-      <h4>Info Magia</h4>
-      <p><strong>Caratteristica:</strong> {png.magia.caratteristica.toUpperCase()}</p>
-      <p><strong>CD Incantesimi:</strong> {png.magia.cd}</p>
-      <p><strong>Bonus Attacco Magico:</strong> +{png.magia.bonusAttaccoMagico}</p>
-      <p><strong>Focus:</strong> {png.magia.focus}</p>
+              {png.magia ? (
+                <>
+                  <h4>Info Magia</h4>
+                  <p>
+                    <strong>Caratteristica:</strong>{" "}
+                    {png.magia.caratteristica.toUpperCase()}
+                  </p>
+                  <p>
+                    <strong>CD Incantesimi:</strong> {png.magia.cd}
+                  </p>
+                  <p>
+                    <strong>Bonus Attacco Magico:</strong> +
+                    {png.magia.bonusAttaccoMagico}
+                  </p>
+                  <p>
+                    <strong>Focus:</strong> {png.magia.focus}
+                  </p>
 
-      <h4>Slot Incantesimi</h4>
-      <table className="tabella-slot">
-        <thead>
-          <tr>
-            <th>Livello</th>
-            {[...Array(9)].map((_, i) => (
-              <th key={i}>{i + 1}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Slot</td>
-            {png.slotIncantesimi.map((slot, i) => (
-              <td key={i}>{slot || "-"}</td>
-            ))}
-          </tr>
-        </tbody>
-      </table>
+                  <h4>Slot Incantesimi</h4>
+                  <table className="tabella-slot">
+                    <thead>
+                      <tr>
+                        <th>Livello</th>
+                        {[...Array(9)].map((_, i) => (
+                          <th key={i}>{i + 1}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Slot</td>
+                        {png.slotIncantesimi.map((slot, i) => (
+                          <td key={i}>{slot || "-"}</td>
+                        ))}
+                      </tr>
+                    </tbody>
+                  </table>
 
-      <h4>Incantesimi Conosciuti</h4>
-      {png.incantesimi?.length > 0 ? (
-        <ul>
-          {png.incantesimi.map((spell, i) => (
-            <li
-              key={i}
-              onClick={async () => {
-                const res = await fetch(`https://www.dnd5eapi.co${spell.url}`);
-                const dettagli = await res.json();
-                alert(`${dettagli.name}\n${dettagli.desc.join("\n")}`);
-              }}
-              style={{ cursor: "pointer", color: "#FFD700" }}
-              title="Clicca per dettagli"
-            >
-              {spell.name} {spell.level === 0 ? "(Trucchetto)" : `(Lv.${spell.level})`}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>Nessun incantesimo disponibile.</p>
-      )}
-    </>
-  ) : (
-    <p>Questa classe non possiede capacità magiche.</p>
-  )}
-</div>
-
+                  <h4>Incantesimi Conosciuti</h4>
+                  {png.incantesimi?.length > 0 ? (
+                    <ul>
+                      {png.incantesimi.map((spell, i) => (
+                        <li
+                          key={i}
+                          onClick={async () => {
+                            const res = await fetch(
+                              `https://www.dnd5eapi.co${spell.url}`
+                            );
+                            const dettagli = await res.json();
+                            alert(
+                              `${dettagli.name}\n${dettagli.desc.join("\n")}`
+                            );
+                          }}
+                          style={{ cursor: "pointer", color: "#FFD700" }}
+                          title="Clicca per dettagli"
+                        >
+                          {spell.name}{" "}
+                          {spell.level === 0
+                            ? "(Trucchetto)"
+                            : `(Lv.${spell.level})`}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>Nessun incantesimo disponibile.</p>
+                  )}
+                </>
+              ) : (
+                <p>Questa classe non possiede capacità magiche.</p>
+              )}
+            </div>
           )}
           {tab === "Equipaggiamento" && (
             <div className="tab-equipaggiamento">
               <div className="field-group">
                 <label>Cosa indossa:</label>
                 <textarea
-  rows={3}
-  value={[png.armatura, png.arma, png.equipIndossato].filter(Boolean).join(", ")}
-  onChange={(e) => aggiornaCampo("equipIndossato", e.target.value)}
+  value={`${png.armatura}, ${png.arma}, ${png.equipPortato || ""}`}
 />
+
               </div>
 
               <div className="field-group">
@@ -968,50 +1103,6 @@ const [totaleStep, setTotaleStep] = useState(8);
                     aggiornaCampo("equipPortato", e.target.value)
                   }
                   placeholder="Es: Borsa con erbe, piccolo pugnale arrugginito, pergamena arrotolata..."
-                />
-              </div>
-            </div>
-          )}
-          {tab === "Narrativa" && (
-            <div className="tab-narrativa">
-              <div className="field-group">
-                <label>Origine del PNG:</label>
-                <textarea
-                  rows={3}
-                  value={png.origine}
-                  onChange={(e) => aggiornaCampo("origine", e.target.value)}
-                  placeholder="Da dove viene? Qual è il suo passato?"
-                />
-              </div>
-
-              <div className="field-group">
-                <label>🎭 Ruolo Narrativo</label>
-                <select
-                  value={png.ruolo || ""}
-                  onChange={(e) => aggiornaCampo("ruolo", e.target.value)}
-                >
-                  <option value="">-- Seleziona ruolo --</option>
-                  <option>Alleato</option>
-                  <option>Amico</option>
-                  <option>Traditore</option>
-                  <option>Mentore</option>
-                  <option>Guida</option>
-                  <option>Nemico</option>
-                  <option>Mercante</option>
-                  <option>Contatto</option>
-                  <option>Informatore</option>
-                </select>
-              </div>
-
-              <div className="field-group">
-                <label>Collegamento a scena/capitolo:</label>
-                <input
-                  type="text"
-                  value={png.collegamento}
-                  onChange={(e) =>
-                    aggiornaCampo("collegamento", e.target.value)
-                  }
-                  placeholder="Es: Capitolo 2 - Il Bosco di Tenebra / Scena: L’incontro al bivio"
                 />
               </div>
             </div>
