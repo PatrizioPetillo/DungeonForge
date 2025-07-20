@@ -130,6 +130,17 @@ function DashboardDM() {
 
       <hr />
 
+      <section className="dashboard-section">
+  <h2>Gestione Oggetti</h2>
+  <p className="section-desc">
+    Gestisci gli oggetti della tua campagna, come armi, armature e altri
+    equipaggiamenti.
+  </p>
+      <button onClick={() => setMostraModaleOggetti(true)}>📜 Gestisci Oggetti</button>
+</section>
+
+<hr />
+
       {/* Archivio Narrativo */}
       <section className="dashboard-section">
         <h2>📚 Archivio</h2>
@@ -162,14 +173,7 @@ function DashboardDM() {
         <p className="section-desc">Appunti sparsi, idee, bozze di trame o colpi di scena.</p>
         <button>Aggiungi nota</button>
       </section> */}
-<section className="dashboard-section">
-  <h2>Gestione Oggetti</h2>
-  <p className="section-desc">
-    Gestisci gli oggetti della tua campagna, come armi, armature e altri
-    equipaggiamenti.
-  </p>
-      <button onClick={() => setMostraModaleOggetti(true)}>📜 Gestisci Oggetti</button>
-</section>
+
 {mostraModaleOggetti && (
   <ModaleOggetti
     onClose={() => setMostraModaleOggetti(false)}

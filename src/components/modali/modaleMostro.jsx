@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { serverTimestamp } from "firebase/firestore";
 import { addDoc, collection } from "firebase/firestore";
 import { firestore } from "../../firebase/firebaseConfig";
+import LootBox from "../generatori/lootBox";
 import CompendioMostri from "../compendioMostri";
 
 const ModaleMostro = ({ onClose }) => {
@@ -42,9 +43,11 @@ const ModaleMostro = ({ onClose }) => {
     "Collegamenti",
     "Incontri"
   ];
+  
   const [mostraCompendio, setMostraCompendio] = useState(false);
   const [incontriDisponibili, setIncontriDisponibili] = useState([]);
   const [incontriCollegati, setIncontriCollegati] = useState([]);
+  
 
   useEffect(() => {
   if (!campagnaAttiva?.id) return;
@@ -65,6 +68,8 @@ const ModaleMostro = ({ onClose }) => {
       setSceneDisponibili(data);
     });
   }, [campagnaAttiva]);
+
+
 
   const salvaMostro = async () => {
     try {
@@ -224,15 +229,6 @@ const ModaleMostro = ({ onClose }) => {
                   }
                 />
               </div>
-              <label>🔥 Grado di Difficoltà</label>
-<select
-  value={incontro.difficolta || ""}
-  onChange={(e) => aggiorna("difficolta", e.target.value)}
->
-  <option value="Facile">Facile</option>
-  <option value="Medio">Medio</option>
-  <option value="Difficile">Difficile</option>
-</select>
 
               <div className="field-group">
                 <label>Quantità:</label>
@@ -481,28 +477,8 @@ const ModaleMostro = ({ onClose }) => {
     </div>
     {/* BLOCCO LOOT PER MOSTRO */}
 <div className="field-group">
-  <label>🎁 Loot del Mostro:</label>
-  {mostro.loot && mostro.loot.length > 0 ? (
-    <ul>
-      {mostro.loot.map((item, idx) => (
-        <li key={idx} className="tooltip" data-tip={`Rarità: ${item.rarita}`}>
-          {item.nome} ({item.rarita})
-        </li>
-      ))}
-    </ul>
-  ) : (
-    <p>Nessun loot assegnato.</p>
-  )}
+  <LootBox loot={mostro.loot} onUpdate={(nuovoLoot) => setMostro({ ...mostro, loot: nuovoLoot })} />
 
-  <button
-    onClick={() => {
-      const nuovoLoot = generaLootCasuale(2); // funzione globale usata anche in villain
-      setMostro((prev) => ({ ...prev, loot: nuovoLoot }));
-    }}
-    style={{ marginTop: "0.5rem" }}
-  >
-    🔄 Rigenera Loot
-  </button>
 </div>
 
   </div>

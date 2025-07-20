@@ -63,3 +63,9 @@ export function getBonusProva(entita, tipo, nomeProva, bonusExtra = 0) {
 
   return { valore, spiegazione: spiegazione.trim() };
 }
+
+export const caricaImmagine = (file, callback) => {
+  const reader = new FileReader();
+  reader.onloadend = () => callback(reader.result);
+  reader.readAsDataURL(file);
+};

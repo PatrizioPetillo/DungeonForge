@@ -7,41 +7,30 @@ import ModalePNG from "../components/modali/modalePNG";
 import ModaleLuogo from "../components/modali/modaleLuogo";
 import ModaleEnigma from "../components/modali/modaleEnigma";
 import ModaleIncontro from "../components/modali/modaleIncontro";
+import {
+  generaNomeCasuale,
+  generaCognomeCasuale,
+  generaTitoloCasuale,
+  generaHookCasuale,
+  generaBlurbCasuale,
+  generaLootCasuale,
+  generaTesoroIncontro,
+  generaTesoroCampagna,
+  generaObiettivoScena,
+  generaNomeLuogo,
+  generaEquipBase,
+  tiraStats,
+  rand,
+  casuale,
+  shuffle
+} from "../utils/generators";
+
+
 import { collection, doc, setDoc, addDoc, serverTimestamp } from "firebase/firestore";
 import { firestore } from "../firebase/firebaseConfig";
 import { generateId } from "../utils/idUtils";
 
 import "../styles/modaleCreaCampagna.css";
-
-// Liste per titoli, hook e blurb
-const TITOLI = [
-  "Le Ombre di Arkath", "Il Respiro del Drago", "Il Crepuscolo delle Maschere",
-  "L’Alba delle Tenebre", "Le Catene del Vuoto", "La Marcia dei Dannati", "Il Segreto degli Antichi",
-  "Il Richiamo della Tempesta", "Il Cuore del Labirinto", "La Profezia del Sangue"
-];
-
-const HOOKS = [
-  "Una cometa solca i cieli, annunciando un presagio oscuro dimenticato da tempo...",
-  "Un antico artefatto è stato rubato e il tempo stringe. La ricerca è iniziata...",
-  "Le mura della città iniziano a sanguinare durante la notte... Cosa significa? ",
-  "Un dio dimenticato sussurra nei sogni dei mortali. Egli è in cerca di un campione che lo liberi...",
-  "Il mare è in fiamme e le navi spariscono tra le onde. Si dice che la rotta verso Est sia maledetta ..."
-];
-
-const BLURB = [
-  "Un viaggio epico tra rovine sepolte e segreti dimenticati. Un viaggio che condurrà a rivelazioni inaspettate.",
-  "Intrighi politici e ombre arcane si intrecciano nella corte reale. Molte verità sono nascoste dietro sorrisi e inganni.",
-  "Una lotta disperata contro forze che minacciano il destino del mondo. Solo i più coraggiosi possono affrontare il buio imminente.",
-  "L’avventura che cambierà per sempre il volto della civiltà. Un destino intrecciato con il passato e il futuro.",
-];
-
-// Funzioni di utilità
-const casuale = (arr) => arr[Math.floor(Math.random() * arr.length)];
-const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-const generaNomeCasuale = () => `Nome${Math.floor(Math.random() * 1000)}`;
-const generaTitoloCasuale = () => casuale(TITOLI);
-const generaBlurbCasuale = () => casuale(BLURB);
-const generaHookCasuale = () => casuale(HOOKS);
 
 function ModaleCreaCampagna({ onClose }) {
   const [tab, setTab] = useState("Generale");
@@ -548,10 +537,7 @@ const generaPNGCompleto = async () => {
     ruoloNarrativo: casuale(ruoliNarrativi),
   };
 };
-// Funzioni di generazione casuale luoghi
-const generaHookCasuale = () => {
-  return casuale(HOOKS);
-};
+
 // Mostro
 const generaMostroCasuale = async () => {
   if (monstersCache.length === 0) {
@@ -698,36 +684,6 @@ const generaIncontri = (capitoli, villain, png, mostri) => {
 
   return incontri;
 };
-
-const generaLootCasuale = (quantita = 3, raritaPreferita = null) => {
-  const OGGETTI = [
-    { nome: "Pozione di Guarigione", rarita: "Comune" },
-    { nome: "Spada Lunga", rarita: "Comune" },
-    { nome: "Scudo di Legno", rarita: "Comune" },
-    { nome: "Pozione di Mana", rarita: "Comune" },
-    { nome: "Spada Corta +1", rarita: "Non Comune" },
-    { nome: "Armatura di Cuoio", rarita: "Non Comune" },
-    { nome: "Mantello dell'Invisibilità", rarita: "Raro" },
-    { nome: "Anello di Protezione +1", rarita: "Raro" },
-    { nome: "Anello di Protezione", rarita: "Raro" },
-    { nome: "Pergamena di Palla di Fuoco", rarita: "Non Comune" },
-    { nome: "Bastone del Potere", rarita: "Leggendario" },
-    { nome: "Spada della Luce", rarita: "Leggendario" },
-    { nome: "Elmo della Saggezza", rarita: "Raro" },
-    { nome: "Anello dei Sogni", rarita: "Raro" },
-    { nome: "Mantello delle Ombre", rarita: "Raro" },
-    { nome: "Pergamena di Teletrasporto", rarita: "Non Comune" },
-    { nome: "Pozione di Forza", rarita: "Comune" },
-    { nome: "Balestra Leggera", rarita: "Comune" },
-  ];
-
-  const filtrati = raritaPreferita
-    ? OGGETTI.filter((o) => o.rarita === raritaPreferita)
-    : OGGETTI;
-
-  return Array.from({ length: quantita }, () => casuale(filtrati));
-};
-
 
   const renderTab = () => {
     switch (tab) {

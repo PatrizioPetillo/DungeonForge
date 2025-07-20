@@ -1,5 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import {
+  generaNomeCasuale, generaLootCasuale,
+  razzeItaliane, classiItaliane,
+  tiraStats,
+  rand,
+  casuale,
+  shuffle
+} from "../../utils/generators";
+
+import LootBox from "../generatori/lootBox";
+import { firestore } from "../../firebase/firebaseConfig";
+import { caricaImmagine } from "../../utils/helpers";
+
 import "../../styles/modaleVillain.css";
 
 const ModaleVillain = ({ onClose }) => {
@@ -58,37 +71,6 @@ const ModaleVillain = ({ onClose }) => {
   const [sceneDisponibili, setSceneDisponibili] = useState([]);
 const [sceneCollegate, setSceneCollegate] = useState([]);
   const [campagnaAttiva, setCampagnaAttiva] = useState(null);
-
-  // Restituisce un elemento casuale da un array
-  const casuale = (array) => array[Math.floor(Math.random() * array.length)];
-  // Random tra min e max inclusi
-  const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-
-  // Shuffle array
-  const shuffle = (arr) => [...arr].sort(() => 0.5 - Math.random());
-
-  const tiraStats = () => {
-    const tira4d6 = () => {
-      const tiri = Array.from({ length: 4 }, () =>
-        Math.floor(Math.random() * 6 + 1)
-      );
-      return tiri
-        .sort()
-        .slice(1)
-        .reduce((a, b) => a + b, 0);
-    };
-
-    const nuoveStats = {
-      forza: tira4d6(),
-      destrezza: tira4d6(),
-      costituzione: tira4d6(),
-      intelligenza: tira4d6(),
-      saggezza: tira4d6(),
-      carisma: tira4d6(),
-    };
-
-    setStats(nuoveStats);
-  };
 
   // Fetch campagne attive da Firestore
   useEffect(() => {
@@ -303,46 +285,6 @@ const [sceneCollegate, setSceneCollegate] = useState([]);
     return modStat + proficiency;
   };
 
-  // Funzione per generare loot casuale per il villain
-  const generaLootPerVillain = async () => {
-    try {
-      const livello = villain.livello || 5;
-      const lootBase = [
-        "Borsa con 45 monete d'oro",
-        "Pozione di guarigione superiore",
-        "Chiave antica incisa",
-      ];
-
-      const rarezza =
-        livello >= 10 ? "rare" : livello >= 7 ? "uncommon" : "common";
-
-      const res = await fetch("https://www.dnd5eapi.co/api/magic-items");
-      const tutti = await res.json();
-
-      const oggettiFiltrati = tutti.results.filter((o) =>
-        o.name.toLowerCase().includes(rarezza)
-      );
-
-      const oggettiCasuali = shuffle(oggettiFiltrati).slice(0, 2);
-
-      const dettagli = await Promise.all(
-        oggettiCasuali.map((o) =>
-          fetch(`https://www.dnd5eapi.co${o.url}`).then((res) => res.json())
-        )
-      );
-
-      const descrizioni = dettagli.map(
-        (d) => `${d.name}: ${d.desc?.[0] || "oggetto misterioso"}`
-      );
-
-      setVillain((prev) => ({
-        ...prev,
-        equipPortato: [...lootBase, ...descrizioni].join("\n"),
-      }));
-    } catch (err) {
-      console.error("Errore generazione loot:", err);
-    }
-  };
 
   // Funzione per aggiornare i campi del villain
   const aggiornaCampo = (campo, valore) => {
@@ -376,8 +318,7 @@ const [sceneCollegate, setSceneCollegate] = useState([]);
     const background = casuale(backgrounds.results);
 
     const nome = generaNomeCasuale();
-    const cognome = generaCognomeCasuale();
-
+    
     // 2. Stats 4d6 + Bonus razziali
     const stats = tiraStats(); // restituisce oggetto {forza, destrezza, ...}
     const bonusRazza = await fetch(`https://www.dnd5eapi.co${razza.url}`).then(
@@ -479,6 +420,7 @@ const [sceneCollegate, setSceneCollegate] = useState([]);
     }
 
     // 8. Assembla
+    villain.loot = generaLootCasuale(villain.livello, villain.classe);
     setVillain({
       nome,
       cognome,
@@ -624,13 +566,9 @@ const [sceneCollegate, setSceneCollegate] = useState([]);
   type="file"
   accept="image/*"
   onChange={(e) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setVillain((prev) => ({ ...prev, immagine: reader.result }));
-    };
-    reader.readAsDataURL(file);
-  }}
+  const file = e.target.files[0];
+  if (file) caricaImmagine(file, (base64) => setVillain((prev) => ({ ...prev, immagine: base64 })));
+}}
 />
 {villain.immagine && (
   <img
@@ -1126,9 +1064,8 @@ const [sceneCollegate, setSceneCollegate] = useState([]);
               </div>
 
               <div className="field-group">
-                <button onClick={generaLootPerVillain}>
-                  🎁 Genera loot in base al livello
-                </button>
+                <LootBox loot={villain.loot} onUpdate={(nuovoLoot) => setVillain({ ...villain, loot: nuovoLoot })} />
+
               </div>
             </div>
           )}

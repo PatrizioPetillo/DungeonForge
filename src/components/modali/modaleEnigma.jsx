@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { firestore } from "../../firebase/firebaseConfig";
 import { toast } from "react-toastify";
+import { generaNomeCasuale } from "../../utils/generators";
+
+
 import "../../styles/enigmaWidget.css";
 
 const modelliEnigma = [
@@ -51,6 +54,10 @@ const ModaleEnigma = ({ onClose }) => {
   { abilita: "Saggezza (Percezione)", cd: 15 },
   { abilita: "Destrezza (Rapidità di mano)", cd: 14 },
   { abilita: "Carisma (Persuasione)", cd: 12 },
+  { abilita: "Forza (Atletica)", cd: 16 },
+  { abilita: "Intelligenza (Arcana)", cd: 18 },
+  { abilita: "Intelligenza (Storia)", cd: 17 },
+  { abilita: "Saggezza (Intuizione)", cd: 14 },
 ];
 
 const effetti = [
@@ -59,6 +66,11 @@ const effetti = [
   "Allarme attivato: mostri in arrivo",
   "Trappola esplosiva (2d8 danni da forza)",
   "Caduta in una fossa (CD 15 Destrezza per evitarla)",
+  "Inizio di un combattimento con un mostro nascosto",
+  "Rallentamento del gruppo (movimento dimezzato per 1 minuto)",
+  "Inversione del movimento per 1 minuto (destra diventa sinistra e viceversa)",
+  "Rivelazione di un passaggio segreto che conduce a una stanza nascosta",
+  "Rivelazione di un oggetto magico nascosto che può essere utile",
 ];
 
   const generaEnigmaCasuale = () => {

@@ -2,23 +2,13 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { firestore } from "../../firebase/firebaseConfig";
+import {
+  generaTitoloCasuale,
+  generaContenutoCasuale,
+  generaHookCasuale
+} from "../../utils/generators";
+
 import "../../styles/modaleFiveRoomDungeon.css";
-
-const stanzeTemplate = [
-  "Ingresso drammatico",
-  "Sfida enigmatica o sociale",
-  "Scoperta o rivelazione",
-  "Conflitto (boss o trappola)",
-  "Ricompensa, uscita o colpo di scena",
-];
-
-const esempiStanze = [
-  "Un grande portale inciso di rune si apre solo al tramonto. Una voce sussurra: ‘Tornate indietro’.",
-  "Un enigma inciso su mosaici: ‘Solo insieme le verità si vedono chiare’.",
-  "Salvano una figura incatenata, ma appena liberata si trasforma in un fantasma ostile.",
-  "Un cuore di pietra pulsa al centro, e un drider emerge dal sangue versato…",
-  "Un artefatto pulsa di luce, mostrando al gruppo il vero nemico dietro tutto finora.",
-];
 
 const ModaleFiveRoomDungeon = ({ onClose }) => {
   const [titolo, setTitolo] = useState("");
@@ -73,42 +63,22 @@ const ModaleFiveRoomDungeon = ({ onClose }) => {
   const [tabAttiva, setTabAttiva] = useState(0);
 
   const generaAvventura = () => {
-    const idee = stanzeTemplate.map((nome, i) => ({
-      titolo: nome,
-      scopo: stanze[i]?.scopo || "",
-      descrizione: generaContenutoCasuale(i),
-      scene: [],
-      png: [],
-      enigmi: [],
-      personaggi: [],
-      dialogo: "",
-      durata: "",
-      trappola: "",
-    }));
-    setStanze(idee);
-
-    toast.info("Five Room Dungeon generato!");
-  };
-
-  const generaContenutoCasuale = (indice) => {
-    const pool = [
-      [
-        "Una porta runica sigillata da tempo",
-        "Un urlo riecheggia appena entrate",
-      ],
-      [
-        "Un enigma posto da uno spirito antico",
-        "Un PNG mente per proteggere qualcosa",
-      ],
-      [
-        "Una stanza piena di simboli dimenticati",
-        "Il diario di un avventuriero caduto",
-      ],
-      ["Un golem sorveglia l’area", "Un’orda improvvisa blocca l’uscita"],
-      ["Un artefatto arcano contorto", "Una creatura chiede aiuto per fuggire"],
-    ];
-    return pool[indice][Math.floor(Math.random() * pool[indice].length)];
-  };
+  const idee = stanzeTemplate.map((nome, i) => ({
+    titolo: generaTitoloCasuale(),
+    scopo: stanze[i]?.scopo || "",
+    descrizione: generaContenutoCasuale(i),
+    scene: [],
+    png: [],
+    enigmi: [],
+    personaggi: [],
+    dialogo: "",
+    durata: "",
+    trappola: "",
+  }));
+  setTitolo(generaHookCasuale()); // Aggancio narrativo
+  setStanze(idee);
+  toast.info("Five Room Dungeon generato!");
+};
 
   useEffect(() => {
     const fetchDati = async () => {

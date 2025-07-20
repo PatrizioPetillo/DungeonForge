@@ -1,3 +1,4 @@
+import { roll } from "./rolls";
 // Stat suggerite per ogni tipo di attacco
 const statPerTipo = {
   melee: "Forza",
@@ -16,24 +17,6 @@ const getModificatore = (val) => Math.floor((val - 10) / 2);
  * @param {number} bonusExtra - Bonus magico o situazionale
  * @returns {object} - { bonusAttacco, dannoBase, spiegazione }
  */
-
-// Esempio: "1d8 + 2"
-export function roll(formula) {
-  const match = formula.match(/(\d+)d(\d+)(\s*\+\s*(-?\d+))?/);
-  if (!match) return { totale: 0, dettagli: "Errore formula" };
-
-  const num = parseInt(match[1], 10);
-  const dado = parseInt(match[2], 10);
-  const bonus = parseInt(match[4], 10) || 0;
-
-  const tiri = Array.from({ length: num }, () => Math.floor(Math.random() * dado) + 1);
-  const totale = tiri.reduce((a, b) => a + b, 0) + bonus;
-
-  return {
-    totale,
-    dettagli: `${tiri.join(" + ")} ${bonus ? `+ ${bonus}` : ""} = ${totale}`
-  };
-}
 
 export function getBonusAttacco(entita, arma, bonusExtra = 0, eseguiTiro = false) {
   const stats = entita?.stats || {};

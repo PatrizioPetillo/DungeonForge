@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { getBonusAttacco } from "../../utils/getBonusAttacco";
-import { roll } from "../../utils/getBonusAttacco";
+import { roll } from "../../utils/rolls";
 
 const AttaccoRapido = ({ entita, bersagli = [], onLog }) => {
   const armi = entita.armi || []; // array di oggetti arma

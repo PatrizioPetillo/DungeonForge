@@ -7,12 +7,17 @@
   justify-content: center;
   z-index: 999;
 }
+.modale-body {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 10px;
+}
 
 .modale-png {
   background: #1A1F2B;
   padding: 2rem;
   border-radius: 10px;
-  width: 800px;
+  width: 833px;
   color: #F2F2F0;
   box-shadow: 0 0 15px rgba(0,0,0,0.6);
 }
@@ -74,7 +79,7 @@
 
 .actions button {
   margin-left: 0.5rem;
-  font-size: 1.2rem;
+  font-size: 1.23rem;
   cursor: pointer;
   background: transparent;
   border: none;
@@ -84,6 +89,127 @@
 
 .actions button:hover {
   color: #D4AF37;
+}
+
+.btn-genera {
+  background: #FFD700;
+  color: #1e1e1e;
+  border: none;
+  padding: 12px 18px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn-genera:hover {
+  background: #f7c600;
+}
+
+.tabella-combattimento {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+
+.tabella-combattimento th,
+.tabella-combattimento td {
+  border: 1px solid #444;
+  padding: 6px;
+  text-align: center;
+}
+
+.tabella-combattimento th {
+  background: #222;
+}
+.tabella-slot {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.tabella-slot th, .tabella-slot td {
+  border: 1px solid #444;
+  padding: 6px;
+  text-align: center;
+}
+
+.tabella-slot th {
+  background: #222;
+}
+.sottoclasse-box {
+  border: 1px solid #555;
+  padding: 10px;
+  background: #1e1e1e;
+  border-radius: 6px;
+}
+.sottoclasse-box h4 {
+  color: #FFD700;
+  margin-bottom: 5px;
+}
+.overlay-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.progress-container {
+  width: 80%;
+  margin-bottom: 20px;
+}
+
+.progress-bar {
+  background: url('https://i.ibb.co/d4Vf3mY/pergamena-bg.jpg') no-repeat center;
+  background-size: cover;
+  border: 3px solid #d4af37;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 30px;
+  position: relative;
+  box-shadow: 0 0 12px #d4af37, inset 0 0 8px #3d3d3d;
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, #d4af37, #ffd700, #ffec8b);
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
+.progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  color: #2b1d0e;
+  font-weight: bold;
+  text-shadow: 0 0 5px #ffd700;
+}
+
+.calderone-lottie {
+  width: 250px;
+  height: 250px;
+  margin-top: 20px;
+}
+
+.loading-text {
+  color: #ffd700;
+  font-style: italic;
+  font-size: 1.3rem;
+  margin-top: 10px;
+  font-family: 'Cinzel', serif;
+  text-shadow: 0 0 8px #000;
 }
 
 .tab-selector {
@@ -132,6 +258,61 @@
 .tab-magia button:hover {
   color: #D4AF37;
 }
+
+/* Griglia delle caratteristiche */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.stat-box {
+  border: 1px solid #444;
+  background: #1e1e1e;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-box h4 {
+  margin-bottom: 6px;
+}
+
+.stat-box small {
+  display: block;
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+/* Tabella Privilegi */
+.tabella-talenti {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.tabella-talenti th, .tabella-talenti td {
+  border: 1px solid #444;
+  padding: 6px 8px;
+}
+
+.tabella-talenti th {
+  background: #222;
+  text-align: left;
+}
+@media (max-width: 900px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 colonne per tablet */
+  }
+}
+
+@media (max-width: 600px) {
+  .stats-grid {
+    grid-template-columns: 1fr; /* 1 colonna per smartphone */
+  }
+}
+
+
 @media (max-width: 768px) {
   .modale-png {
     width: 95%;

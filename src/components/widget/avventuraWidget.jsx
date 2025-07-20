@@ -7,7 +7,7 @@ const AvventuraWidget = ({ onClick }) => {
   return (
     <div className="widget-avventura" onClick={onClick}>
       <h3>🧭 Avventure Modulari</h3>
-      <p>Crea rapidamente una mini avventura in 5 stanze con il metodo Five Room Dungeon.</p>
+      <p>Crea rapidamente una mini avventura con il metodo Five Room Dungeon.</p>
     </div>
   );
 };

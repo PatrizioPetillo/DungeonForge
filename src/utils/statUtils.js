@@ -11,16 +11,7 @@ export function rollStatistica() {
 export function getModificatore(stat) {
   return Math.floor((stat - 10) / 2);
 }
-export const tiraStats = () => {
-  const stats = [];
-  for (let i = 0; i < 6; i++) {
-    let rolls = Array.from({ length: 4 }, () => Math.floor(Math.random() * 6) + 1);
-    rolls.sort((a, b) => a - b).shift(); // rimuove il più basso
-    const total = rolls.reduce((a, b) => a + b, 0);
-    stats.push(total);
-  }
-  return stats;
-};
+
 
 export const calcolaModificatori = (stats) => {
   return {

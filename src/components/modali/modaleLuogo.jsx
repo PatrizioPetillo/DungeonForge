@@ -7,7 +7,10 @@ import {
 } from "firebase/firestore";
 import { firestore } from "../../firebase/firebaseConfig";
 import { toast } from "react-toastify";
+import { caricaImmagine } from "../../utils/helpers";
+
 import "../../styles/modaleLuogo.css";
+
 const ModaleLuogo = ({ onClose, campagnaId }) => {
   const [tab, setTab] = useState("Generale");
   const [sceneDisponibili, setSceneDisponibili] = useState([]);
@@ -20,6 +23,7 @@ const ModaleLuogo = ({ onClose, campagnaId }) => {
     sceneCollegate: [],
     createdAt: null,
   });
+
   const generaLuogoCasuale = () => {
     const tipi = [
       "Taverna",
@@ -254,11 +258,9 @@ const ModaleLuogo = ({ onClose, campagnaId }) => {
   type="file"
   accept="image/*"
   onChange={(e) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onloadend = () => aggiornaLuogo(index, "immagine", reader.result);
-    reader.readAsDataURL(file);
-  }}
+  const file = e.target.files[0];
+  if (file) caricaImmagine(file, (base64) => setLuogo((prev) => ({ ...prev, immagine: base64 })));
+}}
 />
 {l.immagine && <img src={l.immagine} alt={l.nome} style={{ width: "120px", borderRadius: "8px" }} />}
 
