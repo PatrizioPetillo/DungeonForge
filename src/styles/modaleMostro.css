@@ -99,10 +99,18 @@
   border: 2px solid #6E4F9E;
   border-radius: 10px;
   padding: 1rem;
-  width: 166px;
+  width: 200px;
   text-align: center;
   color: #F2F2F0;
   box-shadow: 0 0 8px rgba(0,0,0,0.3);
+}
+
+.stat-box label {
+  display: block;
+  text-align: left;
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: bold;
 }
 
 .stat-title {

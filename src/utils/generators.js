@@ -251,7 +251,23 @@ export function aggiornaDescrizioneConRazza(descrizioneVecchia, nuovaRazza) {
   const razzaDescr = razzeItaliane[nuovaRazza] || "individuo";
   return descrizioneVecchia.replace(/(umano|elfo|nano|individuo)/gi, razzaDescr.toLowerCase());
 }
+export function generaEquipaggiamentoNonComune(png) {
+  const equipBase = generaEquipBase(png.classe.toLowerCase());
+  const arma = equipBase.find(e => e.toLowerCase().includes("spada") || e.toLowerCase().includes("pugnale")) || "Pugnale";
+  const armatura = equipBase.find(e => e.toLowerCase().includes("armatura") || e.toLowerCase().includes("cuoio")) || "Abiti comuni";
 
+  // Aggiungi dettagli arma dal file locale
+  const armaDettaglio = armi.find((a) => a.name === arma);
+
+  return {
+    ...png,
+    arma,
+    dettagliArma: armaDettaglio,
+    armatura,
+    equipIndossato: `${armatura}, ${arma}`,
+    equipPortato: equipBase.filter(e => e !== arma && e !== armatura).join(", "),
+  };
+}
 
 // ==============================
 // GENERA NARRATIVA 
@@ -317,7 +333,7 @@ export const generaEquipBase = (classe) => {
     monaco: ["Bastone corto", "Abito da combattimento", "Sandali di cuoio", "Borsa di monete", "Razioni x5"],
     paladino: ["Spada lunga", "Scudo", "Armatura a piastre", "Razioni x5", "Torcia x2", "Simbolo sacro (Croce d'argento)"],
   };
-  return equipaggiamento[classe.toLowerCase()] || ["Equip generico"];
+  return equipaggiamento[png.classe.toLowerCase()] || ["Equip generico"];
 };
 
 // ==============================
@@ -337,17 +353,20 @@ export async function generaRazza(png) {
   const scelta = casuale(razze.results);
   const razzaDet = await (await fetch(`https://www.dnd5eapi.co${scelta.url}`)).json();
 
+  const bonusMap = razzaDet.ability_bonuses.reduce((acc, b) => {
+    acc[b.ability_score.index] = b.bonus;
+    return acc;
+  }, {});
+
   return {
     ...png,
     razza: scelta.index,
-    bonusRazza: razzaDet.ability_bonuses.map((b) => `${b.ability_score.name} +${b.bonus}`),
+    bonusRazziali: bonusMap,
     razzaDettaglio: razzaDet,
   };
 }
 
 export async function generaClasse(png) {
-  if (png.tipo === "Comune") return png;
-
   const classi = await (await fetch("https://www.dnd5eapi.co/api/classes")).json();
   const scelta = casuale(classi.results);
   const classeDet = await (await fetch(`https://www.dnd5eapi.co${scelta.url}`)).json();
@@ -359,18 +378,31 @@ export async function generaClasse(png) {
     classe: scelta.index,
     classeDettaglio: classeDet,
     magia: isMagica,
+    tiriSalvezzaClasse: classeDet.saving_throws.map((s) => s.name),
+    talenti: classeDet.class_features || [], // placeholder: puoi popolarli da features
   };
 }
 
-async function generaBackground(png) {
+
+export async function generaBackground(png) {
   const scelta = casuale(backgrounds);
   return {
     ...png,
     background: scelta.name,
     abilitaBackground: scelta.starting_proficiencies.join(", "),
-    talentiBackground: `${scelta.feature.name}: ${scelta.feature.desc[0]}`
+    talentiBackground: `${scelta.feature.name}: ${scelta.feature.desc[0]}`,
+    strumentiBackground: scelta.tool_proficiencies.join(", ") || "Nessuno",
+    lingueBackground: scelta.languages.join(", ") || "Nessuna",
+    dettagliBackground: {
+      nome: scelta.name,
+      descrizioneBreve: scelta.feature.desc[0],
+      strumenti: scelta.tool_proficiencies.join(", ") || "Nessuno",
+      lingue: scelta.languages.join(", ") || "Nessuna",
+    },
   };
 }
+
+
 
 export async function generaStats(png) {
   const rolls = tiraStats().sort((a, b) => b - a);
@@ -599,8 +631,9 @@ export async function generaPNGStepByStep(setPng, tipo = "Non Comune", setStepCo
   if (tipo === "Comune") {
   png = completaPNGComune(png);
   setPng(png);
-  return png; // chiudi qui, niente stats, magie, loot extra
+  return png;
 }
+
 
 const segni = [
   "Cicatrice sull'occhio destro", "Orecchio tagliato", "Tatuaggio sul braccio",
@@ -667,6 +700,9 @@ const modDes = Math.floor((png.stats.destrezza - 10) / 2);
 png.pf = calcolaPF(png.classe, png.livello, modCos);
 png.ca = calcolaCA(png.armatura, modDes);
 png.descrizione = generaDescrizioneEvocativa(png);
+// per Non Comune
+png = await generaEquipaggiamentoNonComune(png);
+
 
 return png;
 

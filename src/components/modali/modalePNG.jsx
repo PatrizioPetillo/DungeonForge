@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { armi } from "../../utils/armi";
+import { armature } from "../../utils/armature";
 import {
   generaPNGStepByStep,
   razzeItaliane,
   classiItaliane,
   listaMestieri,
-  calcolaModCaratteristica,
-  listaRuoli,
   generaNomePerRazza,
   aggiornaDescrizioneConRazza,
 } from "../../utils/generators";
+import { backgrounds } from "../../utils/backgrounds";
 import Lottie from "lottie-react";
 import calderoneAnim from "../../assets/lottie/Animation-Calderone.json";
 import { caricaImmagine } from "../../utils/helpers";
@@ -22,8 +23,6 @@ export default function ModalePng({ onClose }) {
   const [tab, setTab] = useState("Generali");
   const [listaRazze, setListaRazze] = useState([]);
   const [listaClassi, setListaClassi] = useState([]);
-  const [listaBackgrounds, setListaBackgrounds] = useState([]);
-  const [dettagliBackground, setDettagliBackground] = useState(null);
   const [stepCorrente, setStepCorrente] = useState(0);
   const [totaleStep, setTotaleStep] = useState(8);
   const [bonusRazziali, setBonusRazziali] = useState({});
@@ -94,6 +93,11 @@ export default function ModalePng({ onClose }) {
   const [sceneDisponibili, setSceneDisponibili] = useState([]);
   const [sceneCollegate, setSceneCollegate] = useState([]);
 
+  const calcolaModCaratteristica = (valore) => {
+  if (!valore) return 0;
+  return Math.floor((valore - 10) / 2);
+};
+
   const abilitaPerStat = {
     forza: ["Atletica"],
     destrezza: ["Acrobazia", "Furtività", "Rapidità di mano"],
@@ -108,6 +112,15 @@ export default function ModalePng({ onClose }) {
     ],
     carisma: ["Persuasione", "Inganno", "Intimidire", "Intrattenere"],
   };
+
+  const mappa = {
+                    forza: "Strength",
+                    destrezza: "Dexterity",
+                    costituzione: "Constitution",
+                    intelligenza: "Intelligence",
+                    saggezza: "Wisdom",
+                    carisma: "Charisma",
+                  };
 
   useEffect(() => {
     if (!campagnaAttiva?.id) return;
@@ -127,86 +140,7 @@ export default function ModalePng({ onClose }) {
     fetch("https://www.dnd5eapi.co/api/classes")
       .then((res) => res.json())
       .then((data) => setListaClassi(data.results));
-
-    fetch("https://www.dnd5eapi.co/api/backgrounds")
-      .then((res) => res.json())
-      .then((data) => setListaBackgrounds(data.results));
   }, []);
-
-  {
-    /*useEffect(() => {
-    if (!png.classe) return;
-
-    const loadSpellcasting = async () => {
-      try {
-        const res = await fetch(
-          `https://www.dnd5eapi.co/api/classes/${png.classe}/spellcasting`
-        );
-        if (!res.ok) {
-          setClasseMagica(false);
-          setTipoMagia("");
-          return;
-        }
-
-        const data = await res.json();
-        setClasseMagica(true);
-        setTipoMagia(data.spellcasting_type); // 'prepared' o 'known'
-
-        const abilita = data.spellcasting_ability.index;
-        setDatiMagia((prev) => ({
-          ...prev,
-          caratteristica: abilita,
-        }));
-
-        const modStat = png.stats?.[abilita.toLowerCase()] || 0;
-        const proficiency = Math.ceil(png.livello / 4) + 1;
-        const cd = 8 + modStat + proficiency;
-        const bonus = modStat + proficiency;
-
-        setDatiMagia((prev) => ({
-          ...prev,
-          cd,
-          bonusAttacco: bonus,
-        }));
-
-        // Calcolo massimo incantesimi
-        if (data.spellcasting_type === "prepared") {
-          setMaxIncantesimi(modStat + png.livello);
-        } else if (data.spellcasting_type === "known") {
-          // fetch classe principale per tabella
-          const clsRes = await fetch(
-            `https://www.dnd5eapi.co/api/classes/${png.classe}`
-          );
-          const clsData = await clsRes.json();
-          const known = clsData.spellcasting?.spells_known?.[png.livello] || 0;
-          setMaxIncantesimi(known);
-        }
-
-        // Calcolo slot per livello
-        const clsRes = await fetch(
-          `https://www.dnd5eapi.co/api/classes/${png.classe}`
-        );
-        const clsData = await clsRes.json();
-        const slot = clsData.spellcasting?.spell_slots_level_1
-          ? Object.entries(clsData.spellcasting).filter(([k, _]) =>
-              k.startsWith("spell_slots_level_")
-            )
-          : [];
-        setSlotIncantesimi(
-          slot.map(([k, v]) => ({
-            livello: k.replace("spell_slots_level_", ""),
-            quantita: v,
-          }))
-        );
-      } catch (err) {
-        console.error("Errore caricamento spellcasting:", err);
-        setClasseMagica(false);
-      }
-    };
-
-    loadSpellcasting();
-  }, [png.classe, png.livello, png.stats]); */
-  }
 
   const toggleAbilita = (abilita) => {
     setPng((prev) => {
@@ -290,40 +224,6 @@ export default function ModalePng({ onClose }) {
       });
   }, [png.razza]);
 
-  const selezionaBackground = async (valore) => {
-    aggiornaCampo("background", valore);
-    if (!valore) return setDettagliBackground(null);
-
-    const res = await fetch(
-      `https://www.dnd5eapi.co/api/backgrounds/${valore}`
-    );
-    const data = await res.json();
-
-    // Estrai abilità, talenti, ecc.
-    const abilita = Array.isArray(bg?.skill_proficiencies)
-      ? bg.skill_proficiencies.map((a) => a.name).join(", ")
-      : "Nessuna";
-    const talento = data.feature?.name || "—";
-    const descrizioneTalento = data.feature?.desc?.join(" ") || "";
-    const strumenti =
-      data.tool_proficiencies?.map((t) => t.name).join(", ") || "";
-    const lingue = data.languages?.join(", ") || "";
-
-    const descrizioneBreve = data.feature?.desc?.[0]?.slice(0, 80) + "...";
-    setDettagliBackground({
-      abilita,
-      talento,
-      descrizioneBreve,
-      descrizioneTalento,
-      strumenti,
-      lingue,
-    });
-
-    // Popola anche i campi PNG se vuoi salvarli
-    aggiornaCampo("abilitaBackground", abilita);
-    aggiornaCampo("talentiBackground", `${talento}: ${descrizioneTalento}`);
-  };
-
   useEffect(() => {
     if (!png.classe) return;
 
@@ -362,16 +262,18 @@ export default function ModalePng({ onClose }) {
   };
 
   const handleGenerazione = async () => {
-    setLoading(true);
-    setStepCorrente(0);
-    try {
-      await generaPNGStepByStep(setPng, tipo, setStepCorrente);
-    } catch (err) {
-      console.error("Errore generazione PNG:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  setLoading(true);
+  setStepCorrente(0);
+  try {
+    const nuovoPng = await generaPNGStepByStep(setPng, tipo, setStepCorrente);
+    if (nuovoPng.magia) setClasseMagica(true);
+  } catch (err) {
+    console.error("Errore generazione PNG:", err);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleSalvaPNG = async () => {
     try {
@@ -427,36 +329,38 @@ export default function ModalePng({ onClose }) {
           ...(classeMagica ? ["Magia"] : []),
         ];
 
-  const handleCambioArma = async (nuovaArma) => {
-    if (!nuovaArma) return;
+        const handleCambioArmatura = (nuovaArmatura) => {
+  const armaturaDettaglio = armature.find((a) => a.name === nuovaArmatura);
+  if (!armaturaDettaglio) return;
 
-    try {
-      const res = await fetch(
-        `https://www.dnd5eapi.co/api/equipment/${nuovaArma
-          .toLowerCase()
-          .replace(/\s+/g, "-")}`
-      );
-      if (!res.ok) return;
-      const armaDettaglio = await res.json();
+  setPng((prev) => ({
+    ...prev,
+    armatura: nuovaArmatura,
+    dettagliArmatura: armaturaDettaglio
+  }));
+};
 
-      const modCar =
-        armaDettaglio.weapon_range === "Melee"
-          ? Math.floor((png.stats.forza - 10) / 2)
-          : Math.floor((png.stats.destrezza - 10) / 2);
 
-      const proficiency = Math.ceil(png.livello / 4) + 2;
-      const bonusAttacco = proficiency + modCar;
+const handleCambioArma = (nuovaArma) => {
+  const armaDettaglio = armi.find((a) => a.name === nuovaArma);
+  if (!armaDettaglio) return;
 
-      setPng((prev) => ({
-        ...prev,
-        arma: nuovaArma,
-        dettagliArma: armaDettaglio,
-        bonusAttacco,
-      }));
-    } catch (error) {
-      console.error("Errore nel cambio arma:", error);
-    }
-  };
+  const modCar =
+    armaDettaglio.weapon_range === "Melee"
+      ? Math.floor((png.stats.forza - 10) / 2)
+      : Math.floor((png.stats.destrezza - 10) / 2);
+
+  const proficiency = Math.ceil(png.livello / 4) + 2;
+  const bonusAttacco = proficiency + modCar;
+
+  setPng((prev) => ({
+    ...prev,
+    arma: nuovaArma,
+    dettagliArma: armaDettaglio,
+    bonusAttacco,
+  }));
+};
+
 
   // Generazione automatica
 
@@ -644,24 +548,25 @@ export default function ModalePng({ onClose }) {
                       }}
                     >
                       <select
-                        value={png.background}
-                        onChange={(e) => selezionaBackground(e.target.value)}
-                      >
-                        <option value="">-- Seleziona background --</option>
-                        {listaBackgrounds.map((bg) => (
-                          <option key={bg.index} value={bg.index}>
-                            {bg.name}
-                          </option>
-                        ))}
-                      </select>
-                      {dettagliBackground && (
-                        <div className="tooltip-content">
-                          <strong>{png.background}</strong>
-                          <p>
-                            <em>{dettagliBackground.descrizioneBreve}</em>
-                          </p>
-                        </div>
-                      )}
+  value={png.background || ""}
+  onChange={(e) => aggiornaCampo("background", e.target.value)}
+>
+  <option value="">-- Seleziona background --</option>
+  {backgrounds.map((bg) => (
+    <option key={bg.index} value={bg.name}>{bg.name}</option>
+  ))}
+</select>
+
+                      {png.dettagliBackground && (
+  <div className="tooltip-content">
+    <strong>{png.dettagliBackground.nome}</strong>
+    <p><em>{png.dettagliBackground.descrizioneBreve}</em></p>
+    <p>Strumenti: {png.dettagliBackground.strumenti}</p>
+    <p>Lingue: {png.dettagliBackground.lingue}</p>
+  </div>
+)}
+
+
                     </div>
                   </div>
                 </div>
@@ -804,15 +709,18 @@ export default function ModalePng({ onClose }) {
               </div>
 
               <div className="field-group">
-                <h4>Tiri Salvezza</h4>
-<ul>
-  {png.tiriSalvezzaClasse?.map((ts, i) => (
-    <li key={i}>
-      {ts}: {calcolaModCaratteristica(png.stats[ts]) + (proficientIn(ts) ? Math.ceil(png.livello / 4) + 2 : 0)}
-    </li>
-  ))}
-</ul>
-
+              <h4>Tiri Salvezza</h4>
+              <ul>
+                {png.tiriSalvezzaClasse?.map((ts, i) => {
+                  const mod = calcolaModCaratteristica(png.stats[mappa[ts]]);
+                  const bonusCompetenza = Math.ceil(png.livello / 4) + 2;
+                  return (
+                    <li key={i}>
+                      {ts}: {mod + bonusCompetenza} <small>(mod {mod} + prof {bonusCompetenza})</small>
+                    </li>
+                  );
+                })}
+              </ul>
               </div>
             </div>
           )}
@@ -821,14 +729,7 @@ export default function ModalePng({ onClose }) {
               {png.stats &&
                 Object.entries(png.stats).map(([chiave, valore], i) => {
                   const mod = Math.floor((valore - 10) / 2);
-                  const mappa = {
-                    forza: "Strength",
-                    destrezza: "Dexterity",
-                    costituzione: "Constitution",
-                    intelligenza: "Intelligence",
-                    saggezza: "Wisdom",
-                    carisma: "Charisma",
-                  };
+                  
                   const bonusRaz =
                     png.bonusRazza?.find((b) => b.includes(mappa[chiave])) ||
                     "—";
@@ -840,8 +741,8 @@ export default function ModalePng({ onClose }) {
                       <h4>{chiave.toUpperCase()}</h4>
                       <p style={{ fontSize: "1.5rem" }}>{valore}</p>
                       <p>Mod: {mod >= 0 ? `+${mod}` : mod}</p>
-                      <small>Bonus razziale: {bonusRaz}</small>
-                      <hr />
+                      <small>Bonus razziale: {png.bonusRazziali?.[mappa[chiave].toLowerCase()] || 0}</small>
+                      <hr className="separator"/>
                       {abilitaCollegate.length > 0 ? (
                         abilitaCollegate.map((a, idx) => (
   <label key={idx}>
@@ -886,49 +787,31 @@ export default function ModalePng({ onClose }) {
 
                 {/* Tabella Armi */}
                 <h4>Armi</h4>
-                <table className="tabella-combattimento">
-                  <thead>
-                    <tr>
-                      <th>Nome</th>
-                      <th>Bonus</th>
-                      <th>Danno</th>
-                      <th>Proprietà</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {png.dettagliArma ? (
-                      <tr>
-                        <td
-                          title={`Categoria: ${png.dettagliArma.weapon_category}\nRange: ${png.dettagliArma.weapon_range}`}
-                        >
-                          {png.dettagliArma.name}
-                        </td>
-                        <td>+{png.bonusAttacco || 0}</td>
-                        <td>
-                          {png.dettagliArma.damage?.damage_dice || "-"}{" "}
-                          {png.dettagliArma.damage?.damage_type?.name || ""}
-                        </td>
-                        <td>
-                          {png.dettagliArma.properties?.map((p, idx) => (
-                            <span
-                              key={idx}
-                              title={`Proprietà: ${p.name}`}
-                              style={{ marginRight: "8px", cursor: "help" }}
-                            >
-                              {p.name}
-                            </span>
-                          )) || "-"}
-                        </td>
-                      </tr>
-                    ) : (
-                      <tr>
-                        <td colSpan="4" style={{ textAlign: "center" }}>
-                          Nessuna arma assegnata
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+{png.dettagliArma ? (
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Danno</th>
+        <th>Tipo</th>
+        <th>Proprietà</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{png.dettagliArma.name}</td>
+        <td>{png.dettagliArma.damage.damage_dice}</td>
+        <td>{png.dettagliArma.damage.damage_type.name}</td>
+        <td>{png.dettagliArma.properties.map((p) => p.name).join(", ")}</td>
+      </tr>
+    </tbody>
+  </table>
+) : (
+  <p>Nessuna arma selezionata</p>
+)}
+
+
+
                 <h4>Armatura</h4>
 <table>
 <thead><tr><th>Nome</th><th>CA Base</th></tr></thead>
@@ -1088,8 +971,9 @@ export default function ModalePng({ onClose }) {
             <div className="tab-equipaggiamento">
               <div className="field-group">
                 <label>Cosa indossa:</label>
-                <textarea
-  value={`${png.armatura}, ${png.arma}, ${png.equipPortato || ""}`}
+               <textarea
+  readOnly
+  value={`${png.armatura || ""}, ${png.arma || ""}${png.equipPortato ? ", " + png.equipPortato : ""}`}
 />
 
               </div>
@@ -1098,7 +982,7 @@ export default function ModalePng({ onClose }) {
                 <label>Cosa porta con sé:</label>
                 <textarea
                   rows={3}
-                  value={png.equipPortato}
+                  value={png.equipPortato || ""}
                   onChange={(e) =>
                     aggiornaCampo("equipPortato", e.target.value)
                   }

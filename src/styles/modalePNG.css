@@ -234,6 +234,13 @@
   margin-bottom: 1rem;
 }
 
+hr.separator {
+  border: none;
+  height: 2px;
+  background-color: #575757;
+  margin: 1.1rem 0;
+}
+
 .field-group label {
   display: block;
   font-weight: bold;
