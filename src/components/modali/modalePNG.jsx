@@ -591,11 +591,9 @@ const handleCambioArma = (nuovaArma) => {
 
                 <label>Descrizione / Aspetto:</label>
                 <textarea
-                  rows={3}
-                  value={png.descrizione}
-                  onChange={(e) => aggiornaCampo("descrizione", e.target.value)}
-                  placeholder="Es. Basso, calvo, con una cicatrice sull'occhio destro..."
-                />
+    value={png.descrizione || ""}
+    onChange={(e) => aggiornaCampo("descrizione", e.target.value)}
+  />
               </div>
 
               <div className="field-group">
@@ -646,7 +644,7 @@ const handleCambioArma = (nuovaArma) => {
                   <strong>Abilità:</strong> {png.abilitaBackground || "—"}
                 </p>
                 <p>
-                  <strong>Talento:</strong> {png.talentiBackground || "—"}
+                  <strong>Abilità di Classe:</strong> {png.abilitaClasse|| "—"}
                 </p>
               </div>
 
@@ -668,59 +666,31 @@ const handleCambioArma = (nuovaArma) => {
               <div className="classe-dettagli">
                 {/* Privilegi di Classe */}
                 <h4>Privilegi di Classe</h4>
-                {png.talenti && png.talenti.length > 0 ? (
-                  (() => {
-                    const talentiUnici = {};
-                    png.talenti.forEach((t) => {
-                      if (!talentiUnici[t.nome]) {
-                        talentiUnici[t.nome] = {
-                          descrizione: t.descrizione,
-                          livelli: [t.livello],
-                        };
-                      } else {
-                        talentiUnici[t.nome].livelli.push(t.livello);
-                      }
-                    });
-
-                    return (
-                      <table className="tabella-talenti">
-                        <thead>
-                          <tr>
-                            <th>Livello</th>
-                            <th>Privilegio</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {Object.entries(talentiUnici).map(
-                            ([nome, data], i) => (
-                              <tr key={i}>
-                                <td>{data.livelli.join(", ")}</td>
-                                <td title={data.descrizione}>{nome}</td>
-                              </tr>
-                            )
-                          )}
-                        </tbody>
-                      </table>
-                    );
-                  })()
-                ) : (
-                  <p>Nessun privilegio disponibile.</p>
-                )}
+                <p>(In sviluppo - API features non incluse)</p>
               </div>
 
               <div className="field-group">
               <h4>Tiri Salvezza</h4>
-              <ul>
-                {png.tiriSalvezzaClasse?.map((ts, i) => {
-                  const mod = calcolaModCaratteristica(png.stats[mappa[ts]]);
-                  const bonusCompetenza = Math.ceil(png.livello / 4) + 2;
-                  return (
-                    <li key={i}>
-                      {ts}: {mod + bonusCompetenza} <small>(mod {mod} + prof {bonusCompetenza})</small>
-                    </li>
-                  );
-                })}
-              </ul>
+<ul>
+  {png.tiriSalvezzaClasse?.map((ts, i) => {
+    const mapStat = {
+      Strength: "forza",
+      Dexterity: "destrezza",
+      Constitution: "costituzione",
+      Intelligence: "intelligenza",
+      Wisdom: "saggezza",
+      Charisma: "carisma"
+    };
+    const mod = Math.floor((png.stats[mapStat[ts]] - 10) / 2);
+    const prof = Math.ceil(png.livello / 4) + 2;
+    return (
+      <li key={i}>
+        {ts}: {mod + prof} <small>(mod {mod} + prof {prof})</small>
+      </li>
+    );
+  })}
+</ul>
+
               </div>
             </div>
           )}
@@ -741,7 +711,7 @@ const handleCambioArma = (nuovaArma) => {
                       <h4>{chiave.toUpperCase()}</h4>
                       <p style={{ fontSize: "1.5rem" }}>{valore}</p>
                       <p>Mod: {mod >= 0 ? `+${mod}` : mod}</p>
-                      <small>Bonus razziale: {png.bonusRazziali?.[mappa[chiave].toLowerCase()] || 0}</small>
+                      <small>Bonus razziale: {png.bonusRaziali?.[chiave] || 0}</small>
                       <hr className="separator"/>
                       {abilitaCollegate.length > 0 ? (
                         abilitaCollegate.map((a, idx) => (
@@ -821,48 +791,7 @@ const handleCambioArma = (nuovaArma) => {
 </table>
 
 
-                {/* Select per cambiare arma */}
-                {png.armiCompatibili && png.armiCompatibili.length > 0 && (
-                  <div style={{ marginTop: "10px" }}>
-                    <label>
-                      <strong>Sostituisci arma:</strong>
-                    </label>
-                    <select
-                      value={png.arma || ""}
-                      onChange={(e) => handleCambioArma(e.target.value)}
-                    >
-                      <option value="">-- Seleziona --</option>
-                      {png.armiCompatibili.map((a, i) => (
-                        <option key={i} value={a}>
-                          {a}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                {/* Select per cambiare armatura */}
-                {png.armatureCompatibili &&
-                  png.armatureCompatibili.length > 0 && (
-                    <div style={{ marginTop: "10px" }}>
-                      <label>
-                        <strong>Sostituisci armatura:</strong>
-                      </label>
-                      <select
-                        value={png.armatura || ""}
-                        onChange={(e) =>
-                          aggiornaCampo("armatura", e.target.value)
-                        }
-                      >
-                        <option value="">-- Seleziona --</option>
-                        {png.armatureCompatibili.map((arm, i) => (
-                          <option key={i} value={arm}>
-                            {arm}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
+                
               </div>
 
               <hr />

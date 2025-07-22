@@ -255,20 +255,21 @@ export function generaEquipaggiamentoNonComune(png) {
   const equipBase = generaEquipBase(png.classe.toLowerCase());
   const arma = equipBase.find(e => e.toLowerCase().includes("spada") || e.toLowerCase().includes("pugnale")) || "Pugnale";
   const armatura = equipBase.find(e => e.toLowerCase().includes("armatura") || e.toLowerCase().includes("cuoio")) || "Abiti comuni";
-
-  // Aggiungi dettagli arma dal file locale
-  const armaDettaglio = armi.find((a) => a.name === arma);
+  const armaDettaglio = armi.find(a => a.name === arma);
 
   return {
     ...png,
     arma,
-    dettagliArma: armaDettaglio,
+    dettagliArma: armaDettaglio || null,
     armatura,
     equipIndossato: `${armatura}, ${arma}`,
     equipPortato: equipBase.filter(e => e !== arma && e !== armatura).join(", "),
   };
 }
 
+png = await generaEquipaggiamentoNonComune(png);
+const modDes = Math.floor((png.stats.destrezza - 10) / 2);
+png.ca = calcolaCA(png.armatura, modDes);
 // ==============================
 // GENERA NARRATIVA 
 // ==============================
@@ -402,16 +403,19 @@ export async function generaBackground(png) {
   };
 }
 
-
-
 export async function generaStats(png) {
   const rolls = tiraStats().sort((a, b) => b - a);
   const priorita = {
-    barbarian: ["forza", "costituzione", "destrezza"],
-    fighter: ["forza", "costituzione", "destrezza"],
-    wizard: ["intelligenza", "costituzione", "saggezza"],
-    cleric: ["saggezza", "forza", "costituzione"],
-    rogue: ["destrezza", "carisma", "intelligenza"],
+    barbarian: ["forza", "costituzione"],
+    fighter: ["forza", "costituzione"],
+    wizard: ["intelligenza", "costituzione"],
+    cleric: ["saggezza", "forza"],
+    rogue: ["destrezza", "carisma"],
+    bard: ["carisma", "destrezza"],
+    druid: ["saggezza", "costituzione"],
+    ranger: ["destrezza", "saggezza"],
+    sorcerer: ["carisma", "costituzione"],
+    paladin: ["carisma", "forza"],
   };
   const ordine = priorita[png.classe] || ["forza", "destrezza", "costituzione", "intelligenza", "saggezza", "carisma"];
 
@@ -420,42 +424,31 @@ export async function generaStats(png) {
 
   // Applica bonus razziali
   const statsFinali = { ...statsBase };
-  png.razzaDettaglio.ability_bonuses.forEach((b) => {
-    if (b.ability_score.index === "str") statsFinali.forza += b.bonus;
-    if (b.ability_score.index === "dex") statsFinali.destrezza += b.bonus;
-    if (b.ability_score.index === "con") statsFinali.costituzione += b.bonus;
-    if (b.ability_score.index === "int") statsFinali.intelligenza += b.bonus;
-    if (b.ability_score.index === "wis") statsFinali.saggezza += b.bonus;
-    if (b.ability_score.index === "cha") statsFinali.carisma += b.bonus;
-  });
+  if (png.razzaDettaglio?.ability_bonuses) {
+    png.razzaDettaglio.ability_bonuses.forEach((b) => {
+      const map = { str: "forza", dex: "destrezza", con: "costituzione", int: "intelligenza", wis: "saggezza", cha: "carisma" };
+      const chiave = map[b.ability_score.index];
+      if (chiave) statsFinali[chiave] += b.bonus;
+    });
+  }
 
   return { ...png, stats: statsFinali };
 }
 
 export async function generaCompetenze(png) {
   const { classeDettaglio } = png;
-
-  // Competenze fisse
-  const competenzeFisse = classeDettaglio.proficiencies.map((p) => p.name);
-
-  // Opzioni abilità
-  const abilitaOpzioni = classeDettaglio.proficiency_choices.map((choice) => ({
+  const competenzeFisse = classeDettaglio.proficiencies.map(p => p.name);
+  const abilitaOpzioni = classeDettaglio.proficiency_choices.map(choice => ({
     numeroScelte: choice.choose,
     opzioni: (choice.from?.options || []).map(opt => opt.item?.name || "")
   }));
 
-  // Selezione casuale di default
   const abilitaScelte = [];
-  for (const choice of abilitaOpzioni) {
+  abilitaOpzioni.forEach(choice => {
     abilitaScelte.push(...shuffle(choice.opzioni).slice(0, choice.numeroScelte));
-  }
+  });
 
-  return {
-    ...png,
-    abilitaClasse: abilitaScelte, // default
-    abilitaOpzioni, // per UI interattiva
-    competenzeClasse: competenzeFisse
-  };
+  return { ...png, abilitaClasse: abilitaScelte, competenzeClasse: competenzeFisse, abilitaOpzioni };
 }
 
 export async function generaMagia(png) {
@@ -628,18 +621,20 @@ export function generaContenutoCasuale(indice) {
 // ==============================
 export async function generaPNGStepByStep(setPng, tipo = "Non Comune", setStepCorrente = null) {
   let png = { tipo };
+
   if (tipo === "Comune") {
   png = completaPNGComune(png);
   setPng(png);
   return png;
 }
 
-
 const segni = [
   "Cicatrice sull'occhio destro", "Orecchio tagliato", "Tatuaggio sul braccio",
   "Ride nervosamente", "Zoppia evidente", "Si gratta spesso la testa",
   "Parla in modo confuso", "Si morde le labbra", "Tamburella con le dita",
-  "Si tocca il mento quando riflette", "Dente mancante", "Braccio destro amputato", "Si gratta spesso la testa quando è in pensiero"
+  "Si tocca il mento quando riflette", "Dente mancante a causa di una scommessa di gioventu'", 
+  "Braccio destro amputato all'altezza del gomito. Cerca di cambiare argomento a riguardo.", 
+  "Si gratta spesso la testa quando è in pensiero"
 ];
 png.segni = casuale(segni);
 png.origine = casuale([
@@ -650,7 +645,6 @@ png.origine = casuale([
 ]);
 png.ruolo = casuale(listaRuoli);
 png.collegamento = "Capitolo 1: Introduzione";
-
 
   const steps = [
     generaLivelloETipo,
@@ -664,27 +658,31 @@ png.collegamento = "Capitolo 1: Introduzione";
 
   if (setStepCorrente) setStepCorrente(0);
 
+   // Esegui gli step principali
   for (let i = 0; i < steps.length; i++) {
-    const stepFn = steps[i];
     try {
-      png = await stepFn(png);
+      png = await steps[i](png);
     } catch (error) {
       console.warn(`Errore nello step ${i + 1}: uso fallback`, error);
-      png = fallbackStep(png, i); // Funzione di fallback
+      png = fallbackStep(png, i);
     }
     setPng(png);
     if (setStepCorrente) setStepCorrente(i + 1);
-    await new Promise((res) => setTimeout(res, 300));
+    await new Promise((res) => setTimeout(res, 250));
   }
+  // Genera equipaggiamento (Non Comune)
+  png = generaEquipaggiamentoNonComune(png);
 
-   try {
-    png.loot = generaLootCasualePerPNG(png);
-  } catch {
-    png.loot = [{ nome: "Pugnale arrugginito", rarita: "Comune" }];
-  }
-  setPng(png);
-  if (setStepCorrente) setStepCorrente(steps.length + 1);
+   // Calcola PF e CA
+  const modCos = Math.floor((png.stats.costituzione - 10) / 2);
+  const modDes = Math.floor((png.stats.destrezza - 10) / 2);
+  png.pf = calcolaPF(png.classe, png.livello, modCos);
+  png.ca = calcolaCA(png.armatura, modDes);
 
+  // Loot
+  png.loot = generaLootCasualePerPNG(png);
+
+  // Magia (se la classe è magica)
   if (png.magia) {
     try {
       png = await generaMagia(png);
@@ -693,20 +691,14 @@ png.collegamento = "Capitolo 1: Introduzione";
       png.magia = { caratteristica: "int", cd: 12, bonusAttacco: 4, focus: "Cristallo" };
       png.incantesimi = [{ name: "Dardo Incantato", level: 1 }, { name: "Trucchetto: Luce", level: 0 }];
     }
-    setPng(png);
   }
-const modCos = Math.floor((png.stats.costituzione - 10) / 2);
-const modDes = Math.floor((png.stats.destrezza - 10) / 2);
-png.pf = calcolaPF(png.classe, png.livello, modCos);
-png.ca = calcolaCA(png.armatura, modDes);
-png.descrizione = generaDescrizioneEvocativa(png);
-// per Non Comune
-png = await generaEquipaggiamentoNonComune(png);
 
+  // Descrizione evocativa
+  png.descrizione = generaDescrizioneEvocativa(png);
 
-return png;
+  setPng(png);
+  if (setStepCorrente) setStepCorrente(steps.length + 1);
 
-
+  return png;
 }
-
 
