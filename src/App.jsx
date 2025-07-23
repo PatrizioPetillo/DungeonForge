@@ -9,9 +9,9 @@ import CampagnaCard from './components/campagnaCard';
 import SuggerimentoDelGiorno from './components/suggerimentodelGiorno';
 import ModaleDettagliCampagna from './components/modaleDettagliCampagna';
 import ModaleDettaglioArchivio from './components/modali/modaleDettaglioArchivio';
+import ArchivioSezione from './components/archivioSezione';
 import Archivio from './pages/archivio';
 import CardElemento from './components/cardElemento';
-import ArchivioSezione from './components/archivioSezione';
 import LiveSessionDM from './pages/liveSessionDM';
 
 import './App.css';

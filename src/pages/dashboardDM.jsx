@@ -30,7 +30,6 @@ function DashboardDM() {
     stato: "bozza",
   });
   const [campagnaSelezionata, setCampagnaSelezionata] = useState(null);
-  const [showPngModal, setShowPngModal] = useState(false);
   const [showVillainModal, setShowVillainModal] = useState(false);
   const [showMostroModal, setShowMostroModal] = useState(false);
   const [showLuogoModal, setShowLuogoModal] = useState(false);
@@ -98,7 +97,7 @@ function DashboardDM() {
         </p>
         </div>
         <div className="dashboard-generatori">
-  <PngWidget onClick={() => setShowPngModal(true)} />
+  <PngWidget />
   <VillainWidget onClick={() => setShowVillainModal(true)} />
   <MostroWidget onClick={() => setShowMostroModal(true)} />
   <LuogoWidget onClick={() => setShowLuogoModal(true)} />
@@ -106,7 +105,6 @@ function DashboardDM() {
   <AvventuraWidget onClick={() => setMostraModaleAvventura(true)} />
 </div>
 <hr />
-{showPngModal && <ModalePng onClose={() => setShowPngModal(false)} />}
 {showVillainModal && <ModaleVillain onClose={() => setShowVillainModal(false)} />}
 {showMostroModal && <ModaleMostro onClose={() => setShowMostroModal(false)} />}
 {showLuogoModal && <ModaleLuogo onClose={() => setShowLuogoModal(false)} />}

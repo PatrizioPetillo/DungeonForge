@@ -150,11 +150,12 @@ export function generaNomePerRazza(razza) {
 }
 export const listaMestieri = ["Locandiere", "Erborista", "Mercante", "Cacciatore", "Studioso", "Ladro", "Guida", "Artigiano", "Guardia cittadina", "Contadino", "Cultista", "Guardiano", "Cacciatore di taglie", "Artista", "Bardo", "Saggio", "Guaritore", "Cavaliere errante", "Esploratore", "Guardaboschi", "Cacciatore di reliquie", "Guardiano del tempio", "Custode della biblioteca", "Maestro di spada", "Alchimista", "Cartografo", "Costruttore di armi", "Mercenario", "Cavaliere errante"];
 export const listaRuoli = ["Alleato", "Traditore", "Guida", "Mentore", "Mercante", "Contatto", "Nemico", "Sfidante", "Sostenitore", "Testimone", "Vittima", "Spia", "Informatore"];
-export function completaPNGComune(png) {
-   const razza = png.razza || casuale(Object.keys(razzeItaliane));
-  const razzaDescr = razzeItaliane[png.razza] || "individuo";
 
-  const mestieri = ["Locandiere", "Erborista", "Mercante", "Cacciatore", "Studioso", "Ladro", "Guida", "Artigiano", "Guardia cittadina", "Contadino", "Cultista", "Guardiano", "Cacciatore di taglie", "Artista", "Bardo", "Saggio", "Guaritore", "Cavaliere errante", "Esploratore", "Guardaboschi", "Cacciatore di reliquie", "Guardiano del tempio", "Custode della biblioteca", "Maestro di spada", "Alchimista", "Cartografo", "Costruttore di armi", "Mercenario", "Cavaliere errante"];
+export function completaPNGComune(png) {
+   const razzaKey = png.razza || casuale(Object.keys(razzeItaliane));
+  const razzaDescr = razzeItaliane[razzaKey] || "individuo";
+
+  const mestiere = casuale(listaMestieri);
   const descrizioni = [
     `Un ${razzaDescr.toLowerCase()} robusto con occhi stanchi e mani callose. Capelli grigi e barba incolta. Il viso paffuto, è segnato da anni di lavoro duro. Indossa abiti semplici ed un grembiule macchiato.`,
     `Una giovane ${razzaDescr.toLowerCase()} dai capelli rossi e occhi neri curiosi. Il viso snello è adornato da lentiggini. Indossa abiti colorati e ha un sorriso contagioso. Porta sempre con sé un piccolo cestino pieno di erbe e fiori.`,
@@ -209,44 +210,42 @@ const collegamenti = [
   "Guardia cittadina": { indossa: "Uniforme, elmetto", porta: "Bastone, fischietto" },
   Contadino: { indossa: "Tunica di lino, stivali di paglia", porta: "Forcone, cesto di verdure" },
   Cultista: { indossa: "Cappuccio nero, tunica", porta: "Amuleto oscuro, libro di rituali" },
-  "Guardiano": { indossa: "Armatura leggera, scudo", porta: "Chiave del tempio, torcia" },
+  "Guardiano": { indossa: "Armatura a scaglie, scudo", porta: "Chiave del tempio, torcia" },
   "Cacciatore di taglie": { indossa: "Giacca di pelle, stivali robusti", porta: "Bastone da combattimento, borsa con ricompense" },
   "Artista": { indossa: "Abito colorato, berretto", porta: "Strumento musicale, blocco da disegno" },
   Bardo: { indossa: "Abito elegante, mantello", porta: "Strumento musicale, pergamena di canzoni" },
   Saggio: { indossa: "Tunica semplice, mantello", porta: "Bastone, libro di saggezza" },
   Guaritore: { indossa: "Tunica bianca, mantello", porta: "Borsa con erbe curative, amuleto di guarigione" },
-  "Cavaliere errante": { indossa: "Armatura leggera, mantello", porta: "Spada corta, scudo" },
+  "Cavaliere errante": { indossa: "Armatura completa, mantello", porta: "Spada corta, scudo" },
   "Esploratore": { indossa: "Giacca di pelle, stivali robusti", porta: "Mappa, bussola" },
   "Guardaboschi": { indossa: "Tunica verde, stivali di cuoio", porta: "Arco, frecce" },
   "Cacciatore di reliquie": { indossa: "Tunica logora, stivali robusti", porta: "Borsa con attrezzi, mappa antica" },
   "Guardiano del tempio": { indossa: "Tunica bianca, mantello", porta: "Chiave del tempio, libro sacro" },
   "Custode della biblioteca": { indossa: "Abito semplice, occhiali", porta: "Libro antico, penna d'oca" },
-  "Maestro di spada": { indossa: "Armatura leggera, mantello", porta: "Spada lunga, scudo" },
+  "Maestro di spada": { indossa: "Armatura di cuoio, mantello", porta: "Spada lunga, scudo" },
   Alchimista: { indossa: "Grembiule, occhiali protettivi", porta: "Borsa con ingredienti, alambicco" },
   Cartografo: { indossa: "Giacca di pelle, cappello", porta: "Mappa, bussola" },
   "Costruttore di armi": { indossa: "Grembiule di cuoio, guanti", porta: "Attrezzi da lavoro, pezzi di metallo" },
-  Mercenario: { indossa: "Armatura leggera, mantello", porta: "Spada corta, borsa con monete" },
+  Mercenario: { indossa: "Armatura di cuoio, mantello", porta: "Spada corta, borsa con monete" },
   };
   
-  const mestiere = casuale(mestieri);
   const equip = equipPerMestiere[mestiere] || { indossa: "Abiti semplici", porta: "Niente di particolare" };
 
   return {
      ...png,
     nome: `${generaNomePerRazza(png.razza)} ${generaCognomeCasuale()}`,
-    razza,
+    razza: razzaDescr,
     mestiere,
     descrizione: casuale(descrizioni),
     segni: casuale(segni),
     ruolo: casuale(listaRuoli),
     origine: casuale(origini),
     collegamento: casuale(collegamenti),
-    equipIndossato: equip?.indossa || "",
-  equipPortato: equip?.porta || "",
-  armatura: png.armatura || "",
-  arma: png.arma || "",
+    equipIndossato: equipPerMestiere[mestiere]?.indossa || "Abiti semplici",
+    equipPortato: equipPerMestiere[mestiere]?.porta || "Niente di particolare",
   };
 }
+
 export function aggiornaDescrizioneConRazza(descrizioneVecchia, nuovaRazza) {
   const razzaDescr = razzeItaliane[nuovaRazza] || "individuo";
   return descrizioneVecchia.replace(/(umano|elfo|nano|individuo)/gi, razzaDescr.toLowerCase());
@@ -267,10 +266,6 @@ export function generaEquipaggiamentoNonComune(png) {
   };
 }
 
-png = await generaEquipaggiamentoNonComune(png);
-const modDes = Math.floor((png.stats.destrezza - 10) / 2);
-png.ca = calcolaCA(png.armatura, modDes);
-// ==============================
 // GENERA NARRATIVA 
 // ==============================
 
@@ -332,57 +327,14 @@ export const generaEquipBase = (classe) => {
     barbaro: ["Ascia bipenne", "Scudo di legno", "Armatura di pelle", "Razioni x5", "Torcia x2"],
     bardo: ["Lira", "Spada corta", "Abito colorato", "Borsa di monete", "Razioni x5"],
     monaco: ["Bastone corto", "Abito da combattimento", "Sandali di cuoio", "Borsa di monete", "Razioni x5"],
-    paladino: ["Spada lunga", "Scudo", "Armatura a piastre", "Razioni x5", "Torcia x2", "Simbolo sacro (Croce d'argento)"],
+    paladino: ["Spada lunga", "Scudo", "Armatura a piastre", "Razioni x5", "Torcia x2", "Simbolo sacro (Mezzo Sole d'argento)"],
   };
-  return equipaggiamento[png.classe.toLowerCase()] || ["Equip generico"];
+  return equipaggiamento[classe.toLowerCase()] || ["Equip generico"];
 };
 
 // ==============================
 // STEP GENERATION FUNCTIONS
 // ==============================
-export async function generaLivelloETipo(png) {
-  const livello = png.tipo === "Non Comune" ? rand(1, 10) : 1;
-  return {
-    ...png,
-    livello,
-    nome: `${generaNomeCasuale()} ${generaCognomeCasuale()}`,
-  };
-}
-
-export async function generaRazza(png) {
-  const razze = await (await fetch("https://www.dnd5eapi.co/api/races")).json();
-  const scelta = casuale(razze.results);
-  const razzaDet = await (await fetch(`https://www.dnd5eapi.co${scelta.url}`)).json();
-
-  const bonusMap = razzaDet.ability_bonuses.reduce((acc, b) => {
-    acc[b.ability_score.index] = b.bonus;
-    return acc;
-  }, {});
-
-  return {
-    ...png,
-    razza: scelta.index,
-    bonusRazziali: bonusMap,
-    razzaDettaglio: razzaDet,
-  };
-}
-
-export async function generaClasse(png) {
-  const classi = await (await fetch("https://www.dnd5eapi.co/api/classes")).json();
-  const scelta = casuale(classi.results);
-  const classeDet = await (await fetch(`https://www.dnd5eapi.co${scelta.url}`)).json();
-
-  const isMagica = await fetch(`https://www.dnd5eapi.co/api/classes/${scelta.index}/spellcasting`).then((res) => res.ok);
-
-  return {
-    ...png,
-    classe: scelta.index,
-    classeDettaglio: classeDet,
-    magia: isMagica,
-    tiriSalvezzaClasse: classeDet.saving_throws.map((s) => s.name),
-    talenti: classeDet.class_features || [], // placeholder: puoi popolarli da features
-  };
-}
 
 
 export async function generaBackground(png) {
@@ -403,111 +355,6 @@ export async function generaBackground(png) {
   };
 }
 
-export async function generaStats(png) {
-  const rolls = tiraStats().sort((a, b) => b - a);
-  const priorita = {
-    barbarian: ["forza", "costituzione"],
-    fighter: ["forza", "costituzione"],
-    wizard: ["intelligenza", "costituzione"],
-    cleric: ["saggezza", "forza"],
-    rogue: ["destrezza", "carisma"],
-    bard: ["carisma", "destrezza"],
-    druid: ["saggezza", "costituzione"],
-    ranger: ["destrezza", "saggezza"],
-    sorcerer: ["carisma", "costituzione"],
-    paladin: ["carisma", "forza"],
-  };
-  const ordine = priorita[png.classe] || ["forza", "destrezza", "costituzione", "intelligenza", "saggezza", "carisma"];
-
-  const statsBase = {};
-  ordine.forEach((s, i) => (statsBase[s] = rolls[i]));
-
-  // Applica bonus razziali
-  const statsFinali = { ...statsBase };
-  if (png.razzaDettaglio?.ability_bonuses) {
-    png.razzaDettaglio.ability_bonuses.forEach((b) => {
-      const map = { str: "forza", dex: "destrezza", con: "costituzione", int: "intelligenza", wis: "saggezza", cha: "carisma" };
-      const chiave = map[b.ability_score.index];
-      if (chiave) statsFinali[chiave] += b.bonus;
-    });
-  }
-
-  return { ...png, stats: statsFinali };
-}
-
-export async function generaCompetenze(png) {
-  const { classeDettaglio } = png;
-  const competenzeFisse = classeDettaglio.proficiencies.map(p => p.name);
-  const abilitaOpzioni = classeDettaglio.proficiency_choices.map(choice => ({
-    numeroScelte: choice.choose,
-    opzioni: (choice.from?.options || []).map(opt => opt.item?.name || "")
-  }));
-
-  const abilitaScelte = [];
-  abilitaOpzioni.forEach(choice => {
-    abilitaScelte.push(...shuffle(choice.opzioni).slice(0, choice.numeroScelte));
-  });
-
-  return { ...png, abilitaClasse: abilitaScelte, competenzeClasse: competenzeFisse, abilitaOpzioni };
-}
-
-export async function generaMagia(png) {
-  const res = await fetch(`https://www.dnd5eapi.co/api/classes/${png.classe}/spellcasting`);
-  if (!res.ok) return png;
-  const spellData = await res.json();
-
-  const abilitaMagia = spellData.spellcasting_ability.index;
-  const modMagia = Math.floor((png.stats[abilitaMagia] - 10) / 2);
-  const proficiency = Math.ceil(png.livello / 4) + 2;
-
-  const cd = 8 + modMagia + proficiency;
-  const bonusAttacco = modMagia + proficiency;
-
-  const spellsFetched = [];
-  for (let lvl = 0; lvl <= png.livello; lvl++) {
-    const resLvl = await fetch(`https://www.dnd5eapi.co/api/spells?classes=${png.classe}&level=${lvl}`);
-    const data = await resLvl.json();
-    spellsFetched.push(...data.results);
-  }
-
-  return {
-    ...png,
-    magia: { caratteristica: abilitaMagia, cd, bonusAttacco, focus: spellData.spellcasting_focus?.join(", ") || "Nessun focus" },
-    incantesimi: shuffle(spellsFetched).slice(0, png.livello + 3),
-  };
-}
-
-export async function generaEquipaggiamento(png) {
-  const equipBase = generaEquipBase(png.classe);
-  const arma = equipBase.find((e) => e.toLowerCase().includes("spada") || e.toLowerCase().includes("pugnale")) || "Pugnale";
-  const armatura = equipBase.find((e) => e.toLowerCase().includes("armatura") || e.toLowerCase().includes("cuoio")) || "Abiti comuni";
-  return {
-    ...png,
-    arma,
-    armatura,
-    equipIndossato: `${armatura}, ${arma}`,
-    equipPortato: equipBase.filter(e => e !== armatura && e !== arma).join(", "),
-  };
-}
-
-function fallbackStep(png, stepIndex) {
-  switch (stepIndex) {
-    case 0: // Livello
-      return { ...png, livello: 3, nome: "Fallback PNG" };
-    case 1: // Razza
-      return { ...png, razza: "human", bonusRazza: ["Forza +1"], razzaDettaglio: {} };
-    case 2: // Classe
-      return { ...png, classe: "fighter", magia: false, classeDettaglio: {} };
-    case 3: // Stats
-      return { ...png, stats: { forza: 14, destrezza: 12, costituzione: 13, intelligenza: 10, saggezza: 11, carisma: 9 } };
-    case 4: // Competenze
-      return { ...png, abilitaClasse: ["Atletica"], competenzeClasse: ["Armi semplici"] };
-    case 5: // Equipaggiamento
-      return { ...png, arma: "Spada lunga", armatura: "Armatura di cuoio", equipIndossato: "Mantello logoro" };
-    default:
-      return png;
-  }
-}
 export function generaLootCasuale(livello = 1, tipo = "generico") {
   const lootBase = [
     { nome: "Pozione di guarigione", rarita: "Comune" },
@@ -619,86 +466,5 @@ export function generaContenutoCasuale(indice) {
 // ==============================
 // ORCHESTRATORE
 // ==============================
-export async function generaPNGStepByStep(setPng, tipo = "Non Comune", setStepCorrente = null) {
-  let png = { tipo };
 
-  if (tipo === "Comune") {
-  png = completaPNGComune(png);
-  setPng(png);
-  return png;
-}
-
-const segni = [
-  "Cicatrice sull'occhio destro", "Orecchio tagliato", "Tatuaggio sul braccio",
-  "Ride nervosamente", "Zoppia evidente", "Si gratta spesso la testa",
-  "Parla in modo confuso", "Si morde le labbra", "Tamburella con le dita",
-  "Si tocca il mento quando riflette", "Dente mancante a causa di una scommessa di gioventu'", 
-  "Braccio destro amputato all'altezza del gomito. Cerca di cambiare argomento a riguardo.", 
-  "Si gratta spesso la testa quando è in pensiero"
-];
-png.segni = casuale(segni);
-png.origine = casuale([
-  "Cresciuto in un villaggio remoto", "Addestrato in un'accademia segreta",
-  "Ex ladro redento", "Ex soldato in cerca di redenzione",
-  "Orfano cresciuto per le strade", "Viaggiatore in cerca di avventure",
-  "Mercante in cerca di fortuna", "Cacciatore di taglie",
-]);
-png.ruolo = casuale(listaRuoli);
-png.collegamento = "Capitolo 1: Introduzione";
-
-  const steps = [
-    generaLivelloETipo,
-    generaRazza,
-    generaClasse,
-    generaStats,
-    generaCompetenze,
-    generaBackground,
-    generaEquipaggiamento,
-  ];
-
-  if (setStepCorrente) setStepCorrente(0);
-
-   // Esegui gli step principali
-  for (let i = 0; i < steps.length; i++) {
-    try {
-      png = await steps[i](png);
-    } catch (error) {
-      console.warn(`Errore nello step ${i + 1}: uso fallback`, error);
-      png = fallbackStep(png, i);
-    }
-    setPng(png);
-    if (setStepCorrente) setStepCorrente(i + 1);
-    await new Promise((res) => setTimeout(res, 250));
-  }
-  // Genera equipaggiamento (Non Comune)
-  png = generaEquipaggiamentoNonComune(png);
-
-   // Calcola PF e CA
-  const modCos = Math.floor((png.stats.costituzione - 10) / 2);
-  const modDes = Math.floor((png.stats.destrezza - 10) / 2);
-  png.pf = calcolaPF(png.classe, png.livello, modCos);
-  png.ca = calcolaCA(png.armatura, modDes);
-
-  // Loot
-  png.loot = generaLootCasualePerPNG(png);
-
-  // Magia (se la classe è magica)
-  if (png.magia) {
-    try {
-      png = await generaMagia(png);
-    } catch (error) {
-      console.warn("Errore magia: uso fallback", error);
-      png.magia = { caratteristica: "int", cd: 12, bonusAttacco: 4, focus: "Cristallo" };
-      png.incantesimi = [{ name: "Dardo Incantato", level: 1 }, { name: "Trucchetto: Luce", level: 0 }];
-    }
-  }
-
-  // Descrizione evocativa
-  png.descrizione = generaDescrizioneEvocativa(png);
-
-  setPng(png);
-  if (setStepCorrente) setStepCorrente(steps.length + 1);
-
-  return png;
-}
 

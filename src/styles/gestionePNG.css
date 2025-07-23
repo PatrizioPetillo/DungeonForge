@@ -1,0 +1,57 @@
+/* Overlay per popup gestione PNG */
+.overlay-gestione {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Popup centrale */
+.popup-gestione {
+  background: #1a1f2b;
+  color: #f2f2f0;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 400px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+}
+
+.popup-gestione h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.popup-gestione button {
+  display: block;
+  margin: 0.5rem auto;
+  padding: 0.8rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.popup-gestione button:hover {
+  background: #553d7a;
+}
+
+.btn-gestione {
+  background: #6e4f9e;
+  color: white;
+  padding: 0.8rem 1.2rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}

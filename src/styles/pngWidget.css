@@ -1,4 +1,42 @@
-.widget-png {
+.overlay-gestione {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.popup-gestione {
+  background: #1a1f2b;
+  color: #f2f2f0;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 400px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+}
+
+.popup-gestione h3 {
+  margin-bottom: 1rem;
+}
+
+.popup-gestione button {
+  margin-top: 1rem;
+  background: #6e4f9e;
+  color: white;
+  padding: 0.8rem 1.2rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+  .png-widget {
   background-color: #1A1F2B;
   color: #F2F2F0;
   padding: 1rem;
@@ -9,24 +47,24 @@
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
 }
 
-.widget-png:hover {
+.png-widget:hover {
   background-color: #2A2F3C;
   transform: scale(1.02);
 }
 
-.widget-png h3 {
+.png-widget h3 {
   margin: 0;
   color: #D4AF37;
 }
 
-.widget-png p {
+.png-widget p {
   margin: 0.5rem 0 0;
   font-size: 0.9rem;
   font-style: italic;
   color: #B2B9C3;
 }
 @media (max-width: 768px) {
-  .widget-png {
+  .png-widget {
     width: 95%;
     margin: 0 auto;
     font-size: 0.85rem;
