@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { generaPNGNonComuneCompleto } from "../../utils/generatorePNGNonComune";
+import { armi } from "../../utils/armi";
+import { armature } from "../../utils/armature";
 import "../../styles/modalePNG.css";
 
 const abilitaPerStat = {
@@ -96,6 +98,11 @@ export default function ModalePNGNonComune({ onClose }) {
                 </div>
 
                 <div className="form-group">
+                  <label>Velocità</label>
+                  <input type="number" value={png.velocita || ""} readOnly />
+                </div>
+
+                <div className="form-group">
                   <label>Livello</label>
                   <input type="number" value={png.livello || ""} readOnly />
                 </div>
@@ -104,7 +111,12 @@ export default function ModalePNGNonComune({ onClose }) {
                 {png.dettagliRazza && (
                   <div className="background-info">
                     <p><strong>Razza:</strong> {png.razza}</p>
-                    <p><strong>Linguaggi:</strong> {png.dettagliRazza.languages.join(", ")}</p>
+                    {png.linguaggi && png.linguaggi.length > 0 && (
+                  <div className="form-group">
+                    <label>Linguaggi</label>
+                    <input type="text" value={png.linguaggi.join(", ")} readOnly />
+                  </div>
+                )}
                     <p><strong>Tratti:</strong> {png.dettagliRazza.traits.map(t => t.name).join(", ")}</p>
                   </div>
                 )}
@@ -126,6 +138,7 @@ export default function ModalePNGNonComune({ onClose }) {
                 />
                 {png.immagine && <img src={png.immagine} alt="Anteprima PNG" />}
               </div>
+              <hr />
             </div>
           )}
 
@@ -153,7 +166,11 @@ export default function ModalePNGNonComune({ onClose }) {
                       <h5>{stat.toUpperCase()}</h5>
                       <div className="stat-score">{val}</div>
                       <div className="stat-mod">{mod >= 0 ? `+${mod}` : mod}</div>
-                      {tiroSalvezza && <div className="stat-save">TS: {tiroSalvezza}</div>}
+                      {isSavingThrow && (
+                        <div className="saving-throw">
+                          <strong>Tiro Salvezza:</strong> {tiroSalvezza}
+                        </div>
+                      )}
 
                       {abilita.length > 0 && (
                         <div className="abilita-box">
@@ -429,14 +446,205 @@ export default function ModalePNGNonComune({ onClose }) {
 
           {/* TAB EQUIPAGGIAMENTO */}
           {tab === "Equipaggiamento" && (
-            <div className="tab-content">
-              <div className="form-group" style={{ gridColumn: "span 2" }}>
-                <label>Cosa indossa</label>
-                <input type="text" value={png.equipIndossato || ""} readOnly />
+            <div className="tab-equipaggiamento">
+              <h4>Armi Equipaggiate</h4>
+              <ul className="equip-list">
+                {png.armiEquippate?.length > 0 ? (
+                  png.armiEquippate.map((arma, i) => (
+                    <li key={i} className="equip-item">
+                      <strong>{arma.name}</strong> – {arma.damage.damage_dice} {arma.damage.damage_type.name}
+                      <br />
+                      <small>
+                        Proprietà: {arma.properties.map(p => p.name).join(", ")} • Peso: {arma.weight || 0} lb
+                      </small>
+                      <button onClick={() => {
+                        const updated = png.armiEquippate.filter((_, idx) => idx !== i);
+                        setPng({ ...png, armiEquippate: updated });
+                      }}>❌</button>
+                    </li>
+                  ))
+                ) : (
+                  <p>Nessuna arma equipaggiata.</p>
+                )}
+              </ul>
+
+              <select
+                onChange={(e) => {
+                  const armaSelezionata = armi.find(a => a.index === e.target.value);
+                  if (armaSelezionata) {
+                    setPng({ ...png, armiEquippate: [...(png.armiEquippate || []), armaSelezionata] });
+                  }
+                  e.target.value = "";
+                }}
+              >
+                <option value="">+ Aggiungi arma</option>
+                {armi.map((a) => (
+                  <option key={a.index} value={a.index}>{a.name}</option>
+                ))}
+              </select>
+
+              <hr />
+              <h4>Armature Indossate</h4>
+              <ul className="equip-list">
+                {png.armatureIndossate?.length > 0 ? (
+                  png.armatureIndossate.map((armor, i) => (
+                    <li key={i} className="equip-item">
+                      <strong>{armor.name}</strong> – CA base: {armor.armor_class.base}
+                      <br />
+                      <small>
+                        Tipo: {armor.armor_category} • Peso: {armor.weight || 0} lb
+                      </small>
+                      <button onClick={() => {
+                        const updated = png.armatureIndossate.filter((_, idx) => idx !== i);
+                        setPng({ ...png, armatureIndossate: updated });
+                      }}>❌</button>
+                    </li>
+                  ))
+                ) : (
+                  <p>Nessuna armatura indossata.</p>
+                )}
+              </ul>
+
+              <select
+                onChange={(e) => {
+                  const armorSelezionata = armature.find(a => a.index === e.target.value);
+                  if (armorSelezionata) {
+                    const updated = [...(png.armatureIndossate || []), armorSelezionata];
+
+                    // Ricalcolo CA dinamicamente
+                    const modDex = Math.floor((png.stats.destrezza - 10) / 2);
+                    let nuovaCA = 10 + modDex;
+                    updated.forEach(a => {
+                      if (a.armor_category === "Shield") {
+                        nuovaCA += a.armor_class.base;
+                      } else {
+                        nuovaCA = a.armor_class.base;
+                        if (a.armor_class.dex_bonus) {
+                          nuovaCA += a.armor_class.max_bonus
+                            ? Math.min(modDex, a.armor_class.max_bonus)
+                            : modDex;
+                        }
+                      }
+                    });
+
+                    setPng({ ...png, armatureIndossate: updated, ca: nuovaCA });
+                  }
+                  e.target.value = "";
+                }}
+              >
+                <option value="">+ Aggiungi armatura</option>
+                {armature.map((a) => (
+                  <option key={a.index} value={a.index}>{a.name}</option>
+                ))}
+              </select>
+
+              <div className="ca-display">
+                <h5>Classe Armatura Attuale: {png.ca}</h5>
               </div>
-              <div className="form-group" style={{ gridColumn: "span 2" }}>
-                <label>Cosa porta con sé</label>
-                <input type="text" value={png.equipPortato || ""} readOnly />
+              <hr />
+              <h4>Oggetti Vari</h4>
+              <ul className="equip-list">
+                {png.equipVari?.length > 0 ? (
+                  png.equipVari.map((obj, i) => (
+                    <li key={i} className="equip-item">
+                      {obj}
+                      <button onClick={() => {
+                        const updated = png.equipVari.filter((_, idx) => idx !== i);
+                        setPng({ ...png, equipVari: updated });
+                      }}>❌</button>
+                    </li>
+                  ))
+                ) : (
+                  <p>Nessun oggetto presente.</p>
+                )}
+              </ul>
+
+              <div className="form-group">
+                <input
+                  type="text"
+                  placeholder="Aggiungi oggetto"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && e.target.value.trim() !== "") {
+                      setPng({ ...png, equipVari: [...(png.equipVari || []), e.target.value.trim()] });
+                      e.target.value = "";
+                    }
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* TAB COMBATTIMENTO */}
+          {tab === "Combattimento" && (
+            <div className="tab-combattimento">
+              <h4>Statistiche di Combattimento</h4>
+
+              {/* PF e CA */}
+              <div className="combat-stats-grid">
+                <div className="form-group">
+                  <label>PF Attuali</label>
+                  <input
+                    type="number"
+                    value={png.pf || 0}
+                    onChange={(e) => setPng({ ...png, pf: parseInt(e.target.value) })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>PF Massimi</label>
+                  <input type="number" value={png.pf || 0} readOnly />
+                </div>
+                <div className="form-group">
+                  <label>Classe Armatura</label>
+                  <input type="number" value={png.ca || 10} readOnly />
+                </div>
+                <div className="form-group">
+                  <label>Velocità</label>
+                  <input type="text" value={`${png.velocita || 9} m`} readOnly />
+                </div>
+              </div>
+
+              <hr />
+
+              {/* Lista Attacchi */}
+              <h5>Attacchi</h5>
+              <div className="attacks-list">
+                {png.armiEquippate?.length > 0 ? (
+                  png.armiEquippate.map((arma, i) => {
+                    const modFor = Math.floor((png.stats.forza - 10) / 2);
+                    const modDes = Math.floor((png.stats.destrezza - 10) / 2);
+                    const profBonus = Math.ceil(png.livello / 4) + 2;
+
+                    // Determina la stat per colpire
+                    let modCaratteristica = modFor;
+                    if (
+                      arma.properties.some((p) => p.name === "Finesse") &&
+                      modDes > modFor
+                    ) {
+                      modCaratteristica = modDes;
+                    } else if (arma.weapon_range === "Ranged") {
+                      modCaratteristica = modDes;
+                    }
+
+                    const bonusAttacco = modCaratteristica + profBonus;
+                    const bonusDanno =
+                      modCaratteristica >= 0 ? `+${modCaratteristica}` : modCaratteristica;
+
+                    return (
+                      <div key={i} className="attack-item">
+                        <div className="attack-header">
+                          <strong>{arma.name}</strong>
+                          <span className="tooltip-icon" title={arma.properties.map(p => `${p.name}: ${p.desc}`).join("\n")}>ℹ️</span>
+                        </div>
+                        <p>
+                          <strong>Attacco:</strong> +{bonusAttacco} •{" "}
+                          <strong>Danno:</strong> {arma.damage.damage_dice} {arma.damage.damage_type.name} {bonusDanno}
+                        </p>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p>Nessuna arma equipaggiata.</p>
+                )}
               </div>
             </div>
           )}

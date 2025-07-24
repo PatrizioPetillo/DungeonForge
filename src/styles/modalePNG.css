@@ -220,6 +220,11 @@
   gap: 0.4rem;
 }
 
+.saving-throw {
+  margin-top: 0.4rem;
+  color: #9fdb9f;
+  font-size: 0.9rem;
+}
 
 .salvezza-box {
   background: #2d2d2d;
@@ -311,6 +316,81 @@ textarea {
   visibility: visible;
   opacity: 1;
 }
+
+/* === EQUIPAGGIAMENTO === */
+.tab-equipaggiamento {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.equip-list {
+  list-style: none;
+  padding: 0;
+}
+
+.equip-item {
+  background: #1a1f2b;
+  padding: 8px;
+  border: 1px solid #3d3d3d;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.equip-item button {
+  background: #8a3a24;
+  color: white;
+  border: none;
+  cursor: pointer;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.ca-display {
+  margin-top: 15px;
+  font-weight: bold;
+  color: #d4af37;
+}
+
+/* === COMBATTIMENTO === */
+.tab-combattimento {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.combat-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.attacks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.attack-item {
+  background: #1a1f2b;
+  padding: 8px;
+  border: 1px solid #3d3d3d;
+  border-radius: 4px;
+}
+
+.attack-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.tooltip-icon {
+  cursor: pointer;
+}
+
 
 /* === PNGNONCOMUNE === */
 .background-info {

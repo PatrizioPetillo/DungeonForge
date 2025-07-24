@@ -24,6 +24,21 @@ const abilitaPerStat = {
   carisma: ["Persuasione", "Inganno", "Intrattenere", "Intimidire"]
 };
 
+  const equipBasePerClasse = {
+  barbaro: { armi: ["battleaxe"], armature: ["leather-armor"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"] },
+  bardo: { armi: ["dagger"], armature: ["leather-armor"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni", "Liuto di quercia bianca"], focusArcano: generaFocusArcano("bardo") },
+  chierico: { armi: ["warhammer"], armature: ["chain-mail", "shield"], equipaggiamento: ["Abiti comuni", "Giaciglio", "Libro di preghiere", "Zaino", "Razioni"], focusArcano: generaFocusArcano("chierico") },
+  druido: { armi: ["dagger"], armature: ["leather-armor"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"], focusArcano: generaFocusArcano("druido") },
+  guerriero: { armi: ["longsword"], armature: ["chain-mail", "shield"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"] },
+  ladro: { armi: ["shortsword"], armature: ["leather-armor"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"] },
+  mago: { armi: ["dagger"], armature: [], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"], focusArcano: generaFocusArcano("mago") },
+  monaco: { armi: ["shortsword"], armature: [], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"] },
+  paladino: { armi: ["longsword"], armature: ["chain-mail", "shield"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"], focusArcano: generaFocusArcano("paladino") },
+  ranger: { armi: ["longbow", "shortsword"], armature: ["leather-armor"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"] },
+  stregone: { armi: ["dagger"], armature: [], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"], focusArcano: generaFocusArcano("stregone") },
+  warlock: { armi: ["dagger"], armature: [], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"], focusArcano: generaFocusArcano("warlock") }
+};
+
 export const slotPerClasse = {
   fullCaster: {
     1: [2],
@@ -65,6 +80,28 @@ function generaFocusArcano(classe) {
     return casuale(focusPerClasse[classe] || ["Cristallo mistico con venature luminose"]);
 }
 
+function calcolaCA(stats, armatureEquip) {
+  let baseCA = 10 + Math.floor((stats.destrezza - 10) / 2);
+  armatureEquip.forEach(a => {
+    if (a.armor_category === "Shield") {
+      baseCA += a.armor_class.base;
+    } else {
+      baseCA = a.armor_class.base;
+      if (a.armor_class.dex_bonus) {
+        const modDex = Math.floor((stats.destrezza - 10) / 2);
+        baseCA += a.armor_class.max_bonus
+          ? Math.min(modDex, a.armor_class.max_bonus)
+          : modDex;
+      }
+    }
+  });
+  return baseCA;
+}
+
+  function getEquipFromIds(ids, lista) {
+  return lista.filter(item => ids.includes(item.index));
+}
+
 export function generaPNGNonComuneCompleto(opzioni = {}) {
   const png = {};
 
@@ -80,7 +117,10 @@ export function generaPNGNonComuneCompleto(opzioni = {}) {
   const classeData = classes.find(c => c.index === classeKey);
 
   png.razza = razzaData.name;
+  png.linguaggi = razzaData.languages || [];
+  png.velocita = razzaData.speed || 9; // in metri
   png.classe = classeData.name;
+  png.dadoVita = classeData.hit_die || 8;
 
   // 3. Sottoclasse
   png.sottoclasse = casuale(classeData.subclasses)?.name || "";
@@ -166,8 +206,19 @@ ordine.forEach((stat) => {
 });
 
   // 11. Equipaggiamento
-  png.equipIndossato = (classeData.equipaggiamento || ["Abiti comuni", "Zaino", "Razioni"]).join(", ");
-  png.equipPortato = "Oggetti vari";
+  const equipBase = equipBasePerClasse[classeKey] || { armi: [], armature: [] };
+png.armiEquippate = getEquipFromIds(equipBase.armi, armi);
+png.armatureIndossate = getEquipFromIds(equipBase.armature, armature);
+// Ricalcolo CA dinamica
+png.ca = calcolaCA(png.stats, png.armatureIndossate);
+png.equipVari = equipBase.equipaggiamento || [];
+
+// Penalità se indossa armatura pesante senza forza minima
+png.armatureIndossate.forEach(a => {
+  if (a.armor_category === "Heavy" && a.strength_minimum && png.stats.forza < a.strength_minimum) {
+    png.velocita -= 3; // riduzione di 3 metri
+  }
+});
 
   // 12. Magia
   function getIncantesimiPerClasse(classeKey, livello) {
