@@ -1,10 +1,10 @@
-// src/utils/pngNonComuneGenerator.js
-import { casuale, rand, shuffle, tiraStats, generaNomeCasuale, generaCognomeCasuale, generaDescrizioneEvocativa, razzeItaliane, classiItaliane } from "./generators";
+import { casuale, rand, tiraStats, generaNomeCasuale, generaCognomeCasuale, generaDescrizioneEvocativa } from "./generators";
+import { classes } from "./classes"; // API locale
+import { razze } from "./races";     // API locale 
+import { spells } from "./spells";
 import { backgrounds } from "./backgrounds";
-import { armi } from "./armi";
-import { armature } from "./armature";
 
-  const statMagicaPerClasse = {
+const statMagicaPerClasse = {
   mago: "intelligenza",
   stregone: "carisma",
   warlock: "carisma",
@@ -13,8 +13,42 @@ import { armature } from "./armature";
   druido: "saggezza",
   paladino: "carisma",
   ranger: "saggezza",
-    monaco: "saggezza",
+  monaco: "saggezza"
 };
+const abilitaPerStat = {
+  forza: ["Atletica"],
+  destrezza: ["Acrobazia", "Furtività", "Rapidità di mano"],
+  costituzione: [],
+  intelligenza: ["Arcano", "Indagare", "Storia", "Natura", "Religione"],
+  saggezza: ["Percezione", "Intuizione", "Medicina", "Sopravvivenza", "Addestrare Animali"],
+  carisma: ["Persuasione", "Inganno", "Intrattenere", "Intimidire"]
+};
+
+export const slotPerClasse = {
+  fullCaster: {
+    1: [2],
+    2: [3],
+    3: [4, 2],
+    4: [4, 3],
+    5: [4, 3, 2],
+    6: [4, 3, 3],
+    7: [4, 3, 3, 1],
+    8: [4, 3, 3, 2],
+    9: [4, 3, 3, 3, 1]
+  },
+  halfCaster: {
+    1: [2],
+    2: [2],
+    3: [3],
+    4: [3],
+    5: [4, 2],
+    6: [4, 2],
+    7: [4, 3],
+    8: [4, 3],
+    9: [4, 3, 2]
+  }
+};
+
 
 function generaFocusArcano(classe) {
   const focusPerClasse = {
@@ -28,136 +62,151 @@ function generaFocusArcano(classe) {
     paladino: ["Simbolo sacro incastonato in argento (Mezzo Sole)", "Scudo con runa sacra", "Anello di giada con croce"],
     monaco: ["Corda di preghiera", "Amuleto di giada", "Bracciale di meditazione"],
   };
-    return casuale(focusPerClasse[classe] || ["Cristallo opalescente"]);
+    return casuale(focusPerClasse[classe] || ["Cristallo mistico con venature luminose"]);
 }
-// Progressione slot (semplificata per D&D 5e)
-const slotPerLivello = {
-  1: [2],
-  2: [3],
-  3: [4, 2],
-  4: [4, 3],
-  5: [4, 3, 2],
-  6: [4, 3, 3],
-  7: [4, 3, 3, 1],
-  8: [4, 3, 3, 2],
-  9: [4, 3, 3, 3, 1],
-  10: [4, 3, 3, 3, 2]
-};
 
-export async function generaPNGNonComuneCompleto(opzioni = {}) {
-  let png = {};
+export function generaPNGNonComuneCompleto(opzioni = {}) {
+  const png = {};
 
   // 1. Livello
   png.livello = opzioni.livello || rand(3, 10);
-    const proficiencies = Math.floor((png.livello + 7) / 4);
+  const proficienza = Math.ceil(png.livello / 4) + 2;
 
-  // 2. Razza e Classe
-  const razzaKey = opzioni.razza || casuale(Object.keys(razzeItaliane));
-png.razza = razzeItaliane[razzaKey] || "Umano";
+  // 2. Razza e Classe (da API locali)
+  const razzaKey = casuale(Object.keys(razze));
+  const classeKey = casuale(classes.map(c => c.index));
 
-const classeKey = opzioni.classe || casuale(Object.keys(classiItaliane));
-png.classe = classiItaliane[classeKey] || "Guerriero";
+  const razzaData = razze[razzaKey];
+  const classeData = classes.find(c => c.index === classeKey);
 
-  // 2.2 Abilità di Classe e Competenze
-  const abilitaPerClasse = {
-    guerriero: ["Atletica", "Intimidire"],
-    mago: ["Arcano", "Storia"],
-    ladro: ["Furtività", "Rapidità di mano"],
-    chierico: ["Religione", "Medicina"],
-    barbaro: ["Atletica", "Sopravvivenza"],
-    druido: ["Natura", "Medicina"],
-    ranger: ["Percezione", "Sopravvivenza"],
-    bardo: ["Intrattenimento", "Persuasione"],
-    monaco: ["Atletica", "Acrobazia"],
-    paladino: ["Intimidire", "Religione"],
-    stregone: ["Arcano", "Persuasione"],
-    warlock: ["Arcano", "Inganno"],
-  };
-  png.abilitaClasse = abilitaPerClasse[png.classe] || ["Percezione"];
-  png.competenzeClasse = ["Armi semplici", "Armature leggere"]; // placeholder
-  png.tiriSalvezzaClasse = ["forza", "costituzione"]; // coerente con la classe
+  png.razza = razzaData.name;
+  png.classe = classeData.name;
 
-  // 3. Nome
+  // 3. Sottoclasse
+  png.sottoclasse = casuale(classeData.subclasses)?.name || "";
+
+  // 4. Nome PNG
   png.nome = `${generaNomeCasuale()} ${generaCognomeCasuale()}`;
 
-  // 4. Stats (4d6 drop lowest)
-  const rolls = tiraStats().sort((a, b) => b - a);
-  const ordine = ["forza", "destrezza", "costituzione", "intelligenza", "saggezza", "carisma"];
-  const statsBase = {};
-  ordine.forEach((s, i) => (statsBase[s] = rolls[i]));
+  // 5. Stats
+  // Ordine preferenze per ogni classe
+const prioritaStat = {
+  barbaro: ["forza", "costituzione"],
+  bardo: ["carisma", "destrezza"],
+  chierico: ["saggezza", "costituzione"],
+  druido: ["saggezza", "costituzione"],
+  guerriero: ["forza", "costituzione"],
+  ladro: ["destrezza", "intelligenza"],
+  mago: ["intelligenza", "costituzione"],
+  monaco: ["destrezza", "saggezza"],
+  paladino: ["forza", "carisma"],
+  ranger: ["destrezza", "saggezza"],
+  stregone: ["carisma", "costituzione"],
+  warlock: ["carisma", "costituzione"]
+};
 
-  png.stats = statsBase;
+// Tiro delle stats e ordinamento
+const rolls = tiraStats().sort((a, b) => b - a);
+const ordine = ["forza", "destrezza", "costituzione", "intelligenza", "saggezza", "carisma"];
+const priorita = prioritaStat[classeKey] || ordine;
 
-  // 5. Background
-  const bg = casuale(backgrounds);
-  png.background = bg.name;
-  png.abilitaBackground = bg.starting_proficiencies.join(", ");
-  png.lingueBackground = bg.languages.join(", ") || "Nessuna";
+// Distribuzione basata sulla priorità
+png.stats = {};
+let i = 0;
+priorita.forEach((stat) => {
+  png.stats[stat] = rolls[i++];
+});
 
-  // 6. Equipaggiamento
-  const equipPerClasse = {
-    guerriero: ["Spada lunga", "Scudo di legno", "Cotta di maglia", "Razioni x5", "Torcia x2"],
-    mago: ["Bastone", "Libro degli incantesimi", "Tunica", "Borsa di componenti", "Focus arcano (Ametista incisa)"],
-    ladro: ["Pugnale", "Mantello scuro", "Attrezzi da scasso", "Borsa di monete", "Razioni x5", "Dadi truccati"],
-    chierico: ["Morningstar", "Simbolo sacro (Rosario d'ebano)", "Armatura a scaglie", "Scudo di legno", "Razioni x5", "Torcia x2"],
-    ranger: ["Arco lungo", "Freccia", "Armatura di cuoio", "Borsa di erbe medicinali", "Razioni x5"],
-    druido: ["Bastone", "Totem", "Tunica di pelle", "Borsa di erbe", "Razioni x5", "Totem druidico (Artiglio di lupo)"],
-    barbaro: ["Ascia bipenne", "Scudo di legno", "Armatura di pelle", "Razioni x5", "Torcia x2"],
-    bardo: ["Lira", "Spada corta", "Abito colorato", "Borsa di monete", "Razioni x5"],
-    monaco: ["Bastone corto", "Abito da combattimento", "Sandali di cuoio", "Borsa di monete", "Razioni x5"],
-    paladino: ["Spada lunga", "Scudo", "Armatura a piastre", "Razioni x5", "Torcia x2", "Simbolo sacro (Mezzo Sole d'argento)"],
-  };
-const equip = equipPerClasse[classeKey] || ["Pugnale", "Tunica"];
-  png.arma = equip[0];
-  png.armatura = equip.find((e) => e.toLowerCase().includes("armatura")) || "Tunica";
+// Completiamo le rimanenti
+ordine.forEach((stat) => {
+  if (!png.stats[stat]) {
+    png.stats[stat] = rolls[i++];
+  }
+});
 
-  png.dettagliArma = armi.find((a) => a.name === png.arma) || {
-    name: png.arma,
-    damage: { damage_dice: "1d6", damage_type: { name: "Tagliente" } },
-    weapon_range: "Melee"
-  };
-  png.dettagliArmatura = armature.find((a) => a.name === png.armatura) || {
-    name: png.armatura,
-    ac: 10,
-    type: "Leggera"
-  };
+// Aggiunta bonus razziali
+razzaData.ability_bonuses.forEach((bonus) => {
+  if (png.stats[bonus.ability_score] !== undefined) {
+    png.stats[bonus.ability_score] += bonus.bonus;
+  }
+});
 
-  png.equipIndossato = `${png.armatura}, ${png.arma}`;
-  png.equipPortato = equip.slice(2).join(", ");
+  // 6. Bonus razziali
+  png.bonusRaziali = razzaData.ability_bonuses.map(b => `${b.ability_score}: +${b.bonus}`).join(", ") || "Nessuno";
 
-  // 7. Calcola PF e CA e bonus attacco
-  const dadiVita = { guerriero: 10, mago: 6, ladro: 8, chierico: 8, barbaro: 12, ranger: 10, druido: 8, bardo: 8, monaco: 8, paladino: 10 };
-  const dado = dadiVita[png.classe] || 8;
+  // 7. Competenze e abilità a scelta
+  png.privilegiClasse = classeData.proficiencies;
+  png.competenzeScelte = classeData.proficiency_choices[0]?.from || [];
+  const sceltaAbilita = classeData.proficiency_choices[0];
+const abilitaScelte = [];
+if (sceltaAbilita) {
+  const opzioni = sceltaAbilita.from;
+  for (let i = 0; i < sceltaAbilita.choose; i++) {
+    const scelta = casuale(opzioni);
+    if (!abilitaScelte.includes(scelta)) abilitaScelte.push(scelta);
+  }
+}
+png.abilitaClasse = abilitaScelte;
+
+
+  // 8. Privilegi filtrati per livello
+  png.privilegiDettagliati = classeData.features.filter(f => f.level <= png.livello);
+
+  // 9. PF e CA
   const modCos = Math.floor((png.stats.costituzione - 10) / 2);
-  const modDes = Math.floor((png.stats.destrezza - 10) / 2);
-  png.pf = dado + ((dado / 2 + 1) + modCos) * (png.livello - 1);
-  png.ca = png.armatura.includes("maglia")
-    ? 16
-    : png.armatura.includes("cuoio")
-    ? 11 + modDes
-    : 10 + modDes;
+  png.pf = (classeData.hit_die || 8) + (png.livello - 1) * ((classeData.hit_die || 8) / 2 + modCos);
+  png.ca = 10 + Math.floor((png.stats.destrezza - 10) / 2);
 
-    const modCar = png.dettagliArma.weapon_range === "Melee"
-  ? Math.floor((png.stats.forza - 10) / 2)
-  : Math.floor((png.stats.destrezza - 10) / 2);
-png.bonusAttacco = modCar + proficiencies;
+  // 10. Tiri salvezza
+  png.savingThrowsClasse = classeData.saving_throws || [];
+png.tiriSalvezza = {};
+ordine.forEach((stat) => {
+  const mod = Math.floor((png.stats[stat] - 10) / 2);
+  png.tiriSalvezza[stat] = mod + (png.savingThrowsClasse.includes(stat) ? proficienza : 0);
+});
 
-   // 9. Magia (solo classi magiche)
+  // 11. Equipaggiamento
+  png.equipIndossato = (classeData.equipaggiamento || ["Abiti comuni", "Zaino", "Razioni"]).join(", ");
+  png.equipPortato = "Oggetti vari";
+
+  // 12. Magia
+  function getIncantesimiPerClasse(classeKey, livello) {
+  const spellData = spells[classeKey];
+  if (!spellData) return {};
+
+  const incantesimi = { cantrips: [], level1: [], level2: [] };
+
+  // Trucchetti
+  const maxCantrips = Math.min(3 + Math.floor(livello / 4), 6);
+  incantesimi.cantrips = spellData.cantrips.slice(0, maxCantrips);
+
+  // Livello 1
+  if (spellData.level1) {
+    incantesimi.level1 = spellData.level1.slice(0, Math.min(livello + 1, spellData.level1.length));
+  }
+
+  // Livello 2 (dal livello 3)
+  if (livello >= 3 && spellData.level2) {
+    incantesimi.level2 = spellData.level2.slice(0, Math.min(livello - 2, spellData.level2.length));
+  }
+
+  return incantesimi;
+}
   const classiMagiche = ["mago", "stregone", "warlock", "bardo", "chierico", "druido", "paladino", "ranger"];
   if (classiMagiche.includes(classeKey)) {
     const statMagica = statMagicaPerClasse[classeKey] || "intelligenza";
-    const modMagia = mod(statMagica);
+    const modMagia = Math.floor((png.stats[statMagica] - 10) / 2);
     png.magia = {
       caratteristica: statMagica,
-      cd: 8 + modMagia + proficiencies,
-      bonusAttacco: modMagia + proficiencies,
+      cd: 8 + modMagia + proficienza,
+      bonusAttacco: modMagia + proficienza,
       focus: generaFocusArcano(classeKey)
     };
-    png.slotIncantesimi = slotPerLivello[png.livello] || [4, 3, 3];
-    png.incantesimi = []; // Popolati nella modale via API
+    png.slotIncantesimi = [4, 3, 2]; // esemplificativo
+     png.incantesimi = getIncantesimiPerClasse(classeKey, png.livello);
   }
 
-  // 9. Narrativa
+  // 13. Narrativa
   png.descrizione = generaDescrizioneEvocativa(png);
   png.origine = casuale([
      "Nato e cresciuto in un piccolo villaggio sulle montagne, dove ha imparato a cacciare e a sopravvivere. Divenuto un cacciatore esperto, ora offre le sue abilità per aiutare gli altri.",
@@ -172,13 +221,6 @@ png.bonusAttacco = modCar + proficiencies;
 
   ]);
   png.ruolo = casuale(["Alleato", "Traditore", "Guida", "Mentore", "Mercante", "Contatto", "Nemico", "Sfidante", "Sostenitore", "Testimone", "Vittima"]);
-  png.collegamento = "Collegato a Capitolo 1";
-
-  // 10. Loot
-  png.loot = [
-    { nome: "Pozione di guarigione", rarita: "Comune" },
-    { nome: "Gemma scintillante", rarita: "Comune" },
-  ];
 
   return png;
 }

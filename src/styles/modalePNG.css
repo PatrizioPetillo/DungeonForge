@@ -3,7 +3,7 @@
   background: #1A1F2B;
   color: #F2F2F0;
   width: 850px;
-  max-height: 90vh;
+  max-height: 133vh;
   padding: 1.5rem;
   border-radius: 10px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
@@ -84,15 +84,13 @@
 /* === BODY === */
 .modale-png .modale-body {
   overflow-y: auto;
-  max-height: calc(90vh - 150px);
   padding-right: 8px;
 }
 
 /* === FORM GROUPS === */
 .modale-png .tab-content {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  grid-template-columns: repeat(2, 1fr);
 }
 
 .modale-png .form-group {
@@ -114,6 +112,9 @@
   border: 1px solid #444;
   background: #2d2d2d;
   color: #fff;
+  white-space: pre-wrap; /* mantiene il wrapping del testo */
+  word-wrap: break-word; /* evita overflow del testo */
+
 }
 
 .modale-png textarea {
@@ -153,7 +154,179 @@
   border: 2px solid #444;
 }
 
+/* === STATISTICHE === */
+.tab-statistiche {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.bonus-raziali {
+  background: #2d2d2d;
+  padding: 0.6rem;
+  border-radius: 6px;
+  color: #d4af37;
+  font-size: 0.9rem;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.stat-box {
+  background: #2d2d2d;
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.stat-box h5 {
+  color: #d4af37;
+  margin-bottom: 0.5rem;
+}
+
+.stat-score {
+  font-size: 1.6rem;
+  font-weight: bold;
+}
+
+.stat-mod {
+  font-size: 1.2rem;
+  margin-bottom: 0.4rem;
+}
+
+.stat-save {
+  font-size: 0.9rem;
+  margin-bottom: 0.6rem;
+  color: #9fdb9f;
+}
+
+.abilita-box {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+}
+
+.abilita-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+
+.salvezza-box {
+  background: #2d2d2d;
+  padding: 0.6rem;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* === CLASSE === */
+.tab-classe {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.classe-info,
+.pf-ca {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #2d2d2d;
+  color: #fff;
+}
+
+textarea {
+  min-height: 60px;
+  resize: vertical;
+}
+
+.classe-section {
+  background: #2d2d2d;
+  padding: 0.8rem;
+  border-radius: 6px;
+}
+
+.classe-section h5 {
+  color: #d4af37;
+  margin-bottom: 0.5rem;
+}
+
+.privilegi-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tooltip-container {
+  position: relative;
+  margin-bottom: 0.4rem;
+  cursor: help;
+}
+
+.tooltip-container .privilegio-nome {
+  color: #f2f2f0;
+  font-weight: bold;
+}
+
+.tooltip {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  position: absolute;
+  background: #333;
+  color: #fff;
+  padding: 0.6rem;
+  border-radius: 4px;
+  width: 250px;
+  top: 120%;
+  left: 0;
+  font-size: 0.85rem;
+  z-index: 10;
+}
+
+.tooltip-container:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
 /* === PNGNONCOMUNE === */
+.background-info {
+  /* background: #2d2d2d; */
+  font-style: italic;
+  letter-spacing: 0.4px;
+  padding: 0.8rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.background-info strong {
+  color: #d4af37;
+}
+
 /* === TAB MAGIA === */
 .tab-magia {
   display: flex;
@@ -163,7 +336,7 @@
 
 .magia-info-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 1rem;
 }
 
@@ -180,22 +353,46 @@
   background: #2d2d2d;
 }
 
+.slot-table input {
+  width: 60px;
+  text-align: center;
+  padding: 0.3rem;
+  border-radius: 4px;
+  border: 1px solid #666;
+  background: #1a1f2b;
+  color: #fff;
+}
+
 .spell-list {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.8rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
 }
 
 .spell-card {
   background: #2d2d2d;
   padding: 0.8rem;
   border-radius: 6px;
-  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.spell-card strong {
-  color: #d4af37;
+.spell-card input[type="text"] {
+  font-weight: bold;
+  color: #f2f2f0;
 }
+
+.spell-card textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.add-spell textarea {
+  min-height: 50px;
+  resize: vertical;
+}
+
 
 /* === MEDIA QUERIES === */
 @media (max-width: 768px) {
