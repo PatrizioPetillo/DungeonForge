@@ -12,7 +12,9 @@ export const razze = {
     ],
     speed: 9,
     languages: ["Comune"],
-    traits: ["Versatilità Umano"]
+    traits: [
+      { name: "Versatilità Umano", desc: "Hai competenza in un'abilità a tua scelta." }
+    ]
   },
   elf: {
     index: "elf",
@@ -20,7 +22,11 @@ export const razze = {
     ability_bonuses: [{ ability_score: "destrezza", bonus: 2 }],
     speed: 9,
     languages: ["Comune", "Elfico"],
-    traits: ["Scurovisione", "Sensi Acuti", "Trance"]
+    traits: [
+      { name: "Scurovisione", desc: "Puoi vedere al buio fino a 18 metri come se fosse luce fioca e in condizioni di oscurità totale come se fosse luce tenue." },
+      { name: "Sensi Acuti", desc: "Hai vantaggio nei tiri di Percezione che usano la vista." },
+      { name: "Trance", desc: "Puoi meditare profondamente per 4 ore al giorno invece di dormire." }
+    ]
   },
   dwarf: {
     index: "dwarf",
@@ -28,7 +34,11 @@ export const razze = {
     ability_bonuses: [{ ability_score: "costituzione", bonus: 2 }],
     speed: 7.5,
     languages: ["Comune", "Nanico"],
-    traits: ["Scurovisione", "Resistenza Nanica", "Addestramento alle Armi Nane"]
+    traits: [
+      { name: "Scurovisione", desc: "Puoi vedere al buio fino a 18 metri come se fosse luce fioca e in condizioni di oscurità totale come se fosse luce tenue." },
+      { name: "Resistenza Nanica", desc: "Hai vantaggio nei tiri salvezza contro gli incantesimi." },
+      { name: "Addestramento alle Armi Naniche", desc: "Hai competenza con le armi da guerra nane." }
+    ]
   },
   halfling: {
     index: "halfling",
@@ -36,7 +46,11 @@ export const razze = {
     ability_bonuses: [{ ability_score: "destrezza", bonus: 2 }],
     speed: 7.5,
     languages: ["Comune", "Halfling"],
-    traits: ["Fortunato", "Coraggioso", "Agilità Halfling"]
+    traits: [
+      { name: "Fortunato", desc: "Hai vantaggio nei tiri di dado per le prove di abilità." },
+      { name: "Coraggioso", desc: "Hai vantaggio nei tiri salvezza contro la paura." },
+      { name: "Agilità Halfling", desc: "Puoi muoverti attraverso lo spazio di creature di taglia maggiore." }
+    ]
   },
   tiefling: {
     index: "tiefling",
@@ -47,7 +61,11 @@ export const razze = {
     ],
     speed: 9,
     languages: ["Comune", "Infernale"],
-    traits: ["Scurovisione", "Resistenza Infernale", "Eredità Infernale"]
+    traits: [
+      { name: "Scurovisione", desc: "Puoi vedere al buio fino a 18 metri come se fosse luce fioca e in condizioni di oscurità totale come se fosse luce tenue." },
+      { name: "Resistenza Infernale", desc: "Hai resistenza ai danni da fuoco." },
+      { name: "Eredità Infernale", desc: "Hai competenza in Intimidire." }
+    ]
   },
   "half-orc": {
     index: "half-orc",
@@ -58,7 +76,11 @@ export const razze = {
     ],
     speed: 9,
     languages: ["Comune", "Orchesco"],
-    traits: ["Scurovisione", "Aggressività", "Tenacia Implacabile"]
+    traits: [
+      { name: "Scurovisione", desc: "Puoi vedere al buio fino a 18 metri come se fosse luce fioca e in condizioni di oscurità totale come se fosse luce tenue." },
+      { name: "Aggressività", desc: "Puoi usare un'azione bonus per muoverti verso un nemico e fare un attacco con un'arma in mischia." },
+      { name: "Tenacia Implacabile", desc: "Hai vantaggio nei tiri salvezza contro la paura." }
+    ]
   },
   gnome: {
     index: "gnome",
@@ -66,7 +88,11 @@ export const razze = {
     ability_bonuses: [{ ability_score: "intelligenza", bonus: 2 }],
     speed: 7.5,
     languages: ["Comune", "Gnomesco"],
-    traits: ["Astuzia Gnoma", "Scurovisione", "Maestria nelle Arti"]
+    traits: [
+      { name: "Astuzia Gnoma", desc: "Hai vantaggio nei tiri di Intelligenza (Investigazione) e sui tiri di salvezza contro gli incantesimi." },
+      { name: "Scurovisione", desc: "Puoi vedere al buio fino a 18 metri come se fosse luce fioca e in condizioni di oscurità totale come se fosse luce tenue." },
+      { name: "Maestria nelle Arti", desc: "Hai competenza in uno strumento musicale a tua scelta." }
+    ]
   },
   dragonborn: {
     index: "dragonborn",
@@ -77,7 +103,10 @@ export const razze = {
     ],
     speed: 9,
     languages: ["Comune", "Draconico"],
-    traits: ["Soffio Draconico", "Resistenza Draconica"]
+    traits: [
+      { name: "Soffio Draconico", desc: "Puoi usare un'azione per emettere un soffio di energia draconica." },
+      { name: "Resistenza Draconica", desc: "Hai resistenza ai danni del tuo tipo di soffio." }
+    ]
   },
     bugbear: {
         index: "bugbear",
@@ -88,7 +117,11 @@ export const razze = {
         ],
         speed: 9,
         languages: ["Comune", "Bugbear"],
-        traits: ["Scurovisione", "Furtività Naturale", "Forza Bruta"]
+        traits: [
+          { name: "Scurovisione", desc: "Puoi vedere al buio fino a 18 metri come se fosse luce fioca e in condizioni di oscurità totale come se fosse luce tenue." },
+          { name: "Furtività Naturale", desc: "Hai vantaggio nei tiri di Furtività." },
+          { name: "Forza Bruta", desc: "Quando colpisci con un attacco in mischia, puoi aggiungere il tuo modificatore di Forza al danno." }
+        ]
     },
     halfelf: {
         index: "halfelf",
@@ -100,6 +133,9 @@ export const razze = {
         ],
         speed: 9,
         languages: ["Comune", "Elfico"],
-        traits: ["Scurovisione", "Versatilità Mezzelfa"]
+        traits: [
+          { name: "Scurovisione", desc: "Puoi vedere al buio fino a 18 metri come se fosse luce fioca e in condizioni di oscurità totale come se fosse luce tenue." },
+          { name: "Versatilità Mezzelfa", desc: "Puoi scegliere due abilità in cui hai competenza." }
+        ]
     },
 };

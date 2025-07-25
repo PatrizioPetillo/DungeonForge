@@ -30,7 +30,8 @@ function DashboardDM() {
     stato: "bozza",
   });
   const [campagnaSelezionata, setCampagnaSelezionata] = useState(null);
-  const [showVillainModal, setShowVillainModal] = useState(false);
+  const [isVillainModalOpen, setIsVillainModalOpen] = useState(false);
+    const [villain, setVillain] = useState(null);
   const [showMostroModal, setShowMostroModal] = useState(false);
   const [showLuogoModal, setShowLuogoModal] = useState(false);
   const [mostraModaleEnigma, setMostraModaleEnigma] = useState(false);
@@ -41,7 +42,6 @@ function DashboardDM() {
   await addDoc(collection(firestore, `campagne/${campagnaId}/oggetti`), oggetto);
   alert(`Oggetto "${oggetto.name}" aggiunto alla campagna`);
 };
-
 
   return (
     <div className="dashboard-container">
@@ -98,14 +98,23 @@ function DashboardDM() {
         </div>
         <div className="dashboard-generatori">
   <PngWidget />
-  <VillainWidget onClick={() => setShowVillainModal(true)} />
+  <VillainWidget villain={villain} onOpen={() => setIsVillainModalOpen(true)} />
   <MostroWidget onClick={() => setShowMostroModal(true)} />
   <LuogoWidget onClick={() => setShowLuogoModal(true)} />
   <EnigmaWidget onClick={() => setMostraModaleEnigma(true)} />
   <AvventuraWidget onClick={() => setMostraModaleAvventura(true)} />
 </div>
 <hr />
-{showVillainModal && <ModaleVillain onClose={() => setShowVillainModal(false)} />}
+{isVillainModalOpen && (
+  <ModaleVillain
+    onClose={() => setIsVillainModalOpen(false)}
+    onSave={(v) => {
+      setVillain(v);
+      setIsVillainModalOpen(false);
+    }}
+    villain={villain}
+/>
+)}
 {showMostroModal && <ModaleMostro onClose={() => setShowMostroModal(false)} />}
 {showLuogoModal && <ModaleLuogo onClose={() => setShowLuogoModal(false)} />}
 {mostraModaleEnigma && <ModaleEnigma onClose={() => setMostraModaleEnigma(false)} />}

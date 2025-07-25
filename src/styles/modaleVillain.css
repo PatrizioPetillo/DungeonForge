@@ -1,113 +1,339 @@
+/* ========================
+   MODALE VILLAIN - STILE BASE
+   ======================== */
 .modale-overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   z-index: 999;
 }
+
 .modale-villain {
-  background: #1A1F2B;
-  padding: 2rem;
+  background: #1a1f2b;
+  color: #f2f2f0;
+  width: 900px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
   border-radius: 10px;
-  width: 800px;
-  color: #F2F2F0;
-  box-shadow: 0 0 15px rgba(0,0,0,0.6);
+  overflow: hidden;
+  border: 2px solid #d4af37;
+  box-shadow: 0 0 25px rgba(212, 175, 55, 0.4);
 }
+
+/* HEADER */
 .modale-header {
+  background: #2d2d2d;
+  padding: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 1px solid #444;
 }
-.icone-header button {
-  margin-left: 0.5rem;
+
+.modale-header h3 {
+  color: #d4af37;
+  font-size: 1.4rem;
+  font-family: "Cinzel", serif;
+}
+
+.actions button {
+  margin-left: 8px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
   cursor: pointer;
+  transition: 0.3s;
 }
-.tab-selector button {
-  margin-right: 0.5rem;
+
+.actions button:nth-child(1) {
+  background: #6e4f9e; /* Genera */
+  color: #fff;
 }
-.tab-selector .attiva {
-  color: #D4AF37;
+
+.actions button:nth-child(2) {
+  background: #d4af37; /* Salva */
+  color: #1a1f2b;
 }
-.field-group {
-  margin-bottom: 1rem;
+
+.actions button:nth-child(3) {
+  background: #8a3a24; /* Chiudi */
+  color: #fff;
 }
-.stat-grid {
+
+.actions button:hover {
+  transform: scale(1.05);
+}
+
+/* ========================
+   TABS
+   ======================== */
+.tabs {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 1rem;
+  background: #2d2d2d;
+  border-bottom: 1px solid #444;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.tabs button {
+  flex: 1;
+  min-width: 120px;
+  padding: 10px;
+  background: transparent;
+  color: #f2f2f0;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.tabs button.active {
+  background: #3d3d3d;
+  color: #d4af37;
+  border-bottom: 2px solid #d4af37;
+}
+
+/* ========================
+   BODY
+   ======================== */
+.modale-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.villain-layout {
+  display: flex;
+  gap: 20px;
+}
+
+/* Immagine Villain */
+.villain-img {
+  flex: 1;
+  text-align: center;
+  position: sticky;
+  top: 90px;
+  align-self: flex-start;
+}
+
+.villain-img img {
+  max-width: 180px;
+  border-radius: 8px;
+  border: 2px solid #d4af37;
+  margin-bottom: 10px;
+}
+
+/* ========================
+   GRIGLIE
+   ======================== */
+.summary-grid,
+.combat-summary,
+.magia-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
 }
 
 .stat-box {
-  background-color: #2e2e3a;
-  border: 2px solid #6E4F9E;
-  border-radius: 10px;
-  padding: 1rem;
-  width: 110px;
+  background: #2d2d2d;
+  border: 1px solid #444;
+  padding: 10px;
+  border-radius: 8px;
   text-align: center;
-  color: #F2F2F0;
-  box-shadow: 0 0 8px rgba(0,0,0,0.3);
 }
 
-.stat-title {
-  font-weight: bold;
-  font-size: 1.2rem;
-  color: #D4AF37;
-  margin-bottom: 0.5rem;
+.stat-box p {
+  font-size: 0.85rem;
+  margin-top: 4px;
 }
 
-.stat-score {
-  font-size: 1.8rem;
-  font-weight: bold;
+/* ========================
+   TABELLE
+   ======================== */
+.combat-table, .armor-table, .spell-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
-.stat-mod {
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
+.combat-table th, .armor-table th, .spell-table th {
+  background: #2d2d2d;
+  color: #d4af37;
+  padding: 6px;
 }
 
-.stat-abilita {
+.combat-table td, .armor-table td, .spell-table td {
+  padding: 6px;
+  border: 1px solid #3d3d3d;
+  text-align: center;
+}
+
+/* Tooltip */
+.tooltip-container {
+  position: relative;
+  cursor: help;
+}
+
+.tooltip {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s;
+  position: absolute;
+  background: #1a1f2b;
+  color: #f2f2f0;
+  padding: 6px;
+  border-radius: 4px;
+  width: 200px;
+  top: 100%;
+  left: 0;
+  z-index: 10;
+}
+
+.tooltip-container:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* ========================
+   SEZIONE EQUIPAGGIAMENTO
+   ======================== */
+.tab-equipaggiamento textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 8px;
+  background: #1a1f2b;
+  color: #f2f2f0;
+  border: 1px solid #444;
+  border-radius: 6px;
+}
+
+.tab-equipaggiamento ul {
   list-style: none;
   padding: 0;
-  margin: 0;
-  font-size: 0.8rem;
-  text-align: left;
-}
-.abilita-checkboxes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
+  margin-top: 10px;
 }
 
-.checkbox-label {
+.tab-equipaggiamento li {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.3rem;
-  font-size: 0.9rem;
-  background: #2b2e3a;
-  padding: 0.3rem 0.5rem;
-  border-radius: 6px;
-  color: #F2F2F0;
-  border: 1px solid #6E4F9E;
+  background: #2d2d2d;
+  padding: 6px 10px;
+  border-radius: 4px;
+  margin-bottom: 6px;
 }
-@media (max-width: 768px) {
+
+.btn-remove {
+  background: #8a3a24;
+  border: none;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.quick-loot button {
+  background: #6e4f9e;
+  color: #fff;
+  padding: 6px 10px;
+  margin: 5px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* ========================
+   RESPONSIVE
+   ======================== */
+@media (max-width: 1024px) {
   .modale-villain {
     width: 95%;
-    max-height: 80vh;
-    padding: 1rem;
-    overflow-y: auto;
+    max-height: 85vh;
   }
+}
 
-  .stat-grid {
+@media (max-width: 768px) {
+  .villain-layout {
     flex-direction: column;
     align-items: center;
   }
 
-  .stat-box {
+  .villain-img {
+    position: static;
+    margin-bottom: 15px;
+  }
+
+  .villain-img img {
+    max-width: 150px;
+  }
+
+  .summary-grid,
+  .combat-summary,
+  .magia-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .tabs {
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .tabs button {
+    min-width: 120px;
+    font-size: 0.9rem;
+  }
+
+  .combat-table,
+  .armor-table,
+  .spell-table {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .modale-villain {
     width: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+
+  .tabs button {
+    min-width: 100px;
+    font-size: 0.8rem;
+  }
+
+  .actions button {
+    font-size: 0.8rem;
+    padding: 4px 6px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .combat-summary div,
+  .summary-grid div {
+    font-size: 0.9rem;
   }
 }

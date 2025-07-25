@@ -90,12 +90,15 @@
 /* === FORM GROUPS === */
 .modale-png .tab-content {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
 .modale-png .form-group {
   display: flex;
   flex-direction: column;
+  white-space: pre-wrap; /* mantiene il wrapping del testo */
+  word-wrap: break-word;
+  margin-bottom: 1rem;
 }
 
 .modale-png .form-group label {
@@ -391,6 +394,35 @@ textarea {
   cursor: pointer;
 }
 
+.combat-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 15px;
+}
+
+.combat-table th, .combat-table td {
+  border: 1px solid #3d3d3d;
+  padding: 6px;
+  text-align: center;
+}
+
+.tooltip-prop {
+  background: #2d6b4f;
+  color: white;
+  padding: 2px 5px;
+  margin: 2px;
+  border-radius: 4px;
+  display: inline-block;
+  cursor: help;
+  font-size: 12px;
+}
+
+.add-equip-section {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
 
 /* === PNGNONCOMUNE === */
 .background-info {
@@ -473,6 +505,223 @@ textarea {
   resize: vertical;
 }
 
+.spell-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.spell-table th, .spell-table td {
+  border: 1px solid #3d3d3d;
+  padding: 6px;
+  text-align: left;
+}
+
+.spell-table input, .spell-table textarea {
+  width: 95%;
+}
+
+.suggestions {
+  background: #1a1f2b;
+  border: 1px solid #444;
+  border-radius: 4px;
+  max-height: 150px;
+  overflow-y: auto;
+  margin-top: 4px;
+  padding: 0;
+  list-style: none;
+}
+
+.suggestions li {
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.suggestions li:hover {
+  background: #2d6b4f;
+  color: #fff;
+}
+
+.quick-add {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.quick-add button {
+  background: #2d6b4f;
+  color: #fff;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.quick-add button:hover {
+  background: #3b8d67;
+}
+
+.tooltip-spell span {
+  cursor: help;
+  border-bottom: 1px dotted #999;
+}
+
+.loading-text {
+  color: #d4af37;
+  font-weight: bold;
+  text-align: center;
+  margin: 10px 0;
+}
+
+/* === COLOR PALETTE ===
+   Sfondo: #1A1F2B
+   Testo: #F2F2F0
+   Oro: #D4AF37
+   Verde Arcano: #2D6B4F
+   Rosso: #8A3A24
+*/
+
+/* === BOTTONI AZIONI HEADER === */
+.modale-png .actions button:nth-child(1) { /* Genera */
+  background: #6E4F9E;
+}
+
+.modale-png .actions button:nth-child(2) { /* Salva */
+  background: #D4AF37;
+  color: #1A1F2B;
+}
+
+.modale-png .actions button:nth-child(3) { /* Chiudi */
+  background: #8A3A24;
+}
+
+.modale-png .actions button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.8);
+}
+
+/* === BOX SEZIONI === */
+.tab-content,
+.tab-classe,
+.tab-statistiche,
+.tab-equipaggiamento,
+.tab-magia,
+.tab-combattimento {
+  background: rgba(45, 45, 45, 0.8);
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid #3d3d3d;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.4);
+  margin-bottom: 1rem;
+}
+
+/* === TITOLI === */
+.modale-png h4, .modale-png h5 {
+  font-family: "Cinzel", serif;
+  color: #D4AF37;
+  text-shadow: 1px 1px 4px #000;
+}
+
+/* === TABELLE MIGLIORATE === */
+.combat-table th, .combat-table td,
+.slot-table th, .slot-table td,
+.spell-table th, .spell-table td {
+  border: 1px solid #555;
+}
+
+.combat-table th, .slot-table th, .spell-table th {
+  background: #2d2d2d;
+  color: #D4AF37;
+}
+
+.combat-table tr:nth-child(even),
+.spell-table tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.combat-table input,
+.spell-table input,
+.spell-table textarea {
+  background: #1a1f2b;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+/* === TOOLTIP MIGLIORATI === */
+.tooltip {
+  background: rgba(26, 26, 26, 0.95);
+  color: #D4AF37;
+  border: 1px solid #D4AF37;
+  box-shadow: 0 0 6px rgba(212, 175, 55, 0.8);
+}
+
+/* === SCROLLBAR PERSONALIZZATA === */
+.modale-png .modale-body::-webkit-scrollbar {
+  width: 8px;
+}
+.modale-png .modale-body::-webkit-scrollbar-thumb {
+  background: #D4AF37;
+  border-radius: 4px;
+}
+
+.form-group input[placeholder*="focus"] {
+  border: 1px solid #6E4F9E;
+  box-shadow: 0 0 8px rgba(110, 79, 158, 0.4);
+}
+
+.privilegi-razza {
+  margin-top: 1rem;
+  background: #2d2d2d;
+  padding: 0.8rem;
+  border-radius: 6px;
+  border: 1px solid #3d3d3d;
+}
+
+.privilegi-razza h5 {
+  color: #d4af37;
+  margin-bottom: 0.5rem;
+}
+
+.privilegi-razza ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.privilegi-razza li {
+  margin-bottom: 0.4rem;
+  cursor: help;
+}
+
+.privilegio-nome {
+  font-weight: bold;
+  color: #f2f2f0;
+}
+
+.tooltip {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  position: absolute;
+  background: rgba(26, 26, 26, 0.95);
+  color: #d4af37;
+  padding: 0.6rem;
+  border-radius: 4px;
+  width: 250px;
+  top: 120%;
+  left: 0;
+  font-size: 0.85rem;
+  z-index: 10;
+  border: 1px solid #d4af37;
+  box-shadow: 0 0 6px rgba(212, 175, 55, 0.8);
+}
+
+.tooltip-container:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
 
 /* === MEDIA QUERIES === */
 @media (max-width: 768px) {

@@ -2,6 +2,8 @@ import { casuale, rand, tiraStats, generaNomeCasuale, generaCognomeCasuale, gene
 import { classes } from "./classes"; // API locale
 import { razze } from "./races";     // API locale 
 import { spells } from "./spells";
+import { armi } from "./armi";
+import { armature } from "./armature";
 import { backgrounds } from "./backgrounds";
 
 const statMagicaPerClasse = {
@@ -26,44 +28,18 @@ const abilitaPerStat = {
 
   const equipBasePerClasse = {
   barbaro: { armi: ["battleaxe"], armature: ["leather-armor"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"] },
-  bardo: { armi: ["dagger"], armature: ["leather-armor"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni", "Liuto di quercia bianca"], focusArcano: generaFocusArcano("bardo") },
-  chierico: { armi: ["warhammer"], armature: ["chain-mail", "shield"], equipaggiamento: ["Abiti comuni", "Giaciglio", "Libro di preghiere", "Zaino", "Razioni"], focusArcano: generaFocusArcano("chierico") },
-  druido: { armi: ["dagger"], armature: ["leather-armor"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"], focusArcano: generaFocusArcano("druido") },
+  bardo: { armi: ["dagger"], armature: ["leather-armor"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni", "Liuto di quercia bianca"], focusArcano: generaFocusArcano("bard") },
+  chierico: { armi: ["warhammer"], armature: ["chain-mail", "shield"], equipaggiamento: ["Abiti comuni", "Giaciglio", "Libro di preghiere", "Zaino", "Razioni"], focusArcano: generaFocusArcano("cleric") },
+  druido: { armi: ["dagger"], armature: ["leather-armor"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"], focusArcano: generaFocusArcano("druid") },
   guerriero: { armi: ["longsword"], armature: ["chain-mail", "shield"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"] },
   ladro: { armi: ["shortsword"], armature: ["leather-armor"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"] },
-  mago: { armi: ["dagger"], armature: [], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"], focusArcano: generaFocusArcano("mago") },
+  mago: { armi: ["dagger"], armature: [], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"], focusArcano: generaFocusArcano("wizard") },
   monaco: { armi: ["shortsword"], armature: [], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"] },
-  paladino: { armi: ["longsword"], armature: ["chain-mail", "shield"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"], focusArcano: generaFocusArcano("paladino") },
+  paladino: { armi: ["longsword"], armature: ["chain-mail", "shield"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"], focusArcano: generaFocusArcano("paladin") },
   ranger: { armi: ["longbow", "shortsword"], armature: ["leather-armor"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"] },
-  stregone: { armi: ["dagger"], armature: [], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"], focusArcano: generaFocusArcano("stregone") },
+  stregone: { armi: ["dagger"], armature: [], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"], focusArcano: generaFocusArcano("sorcerer") },
   warlock: { armi: ["dagger"], armature: [], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"], focusArcano: generaFocusArcano("warlock") }
 };
-
-export const slotPerClasse = {
-  fullCaster: {
-    1: [2],
-    2: [3],
-    3: [4, 2],
-    4: [4, 3],
-    5: [4, 3, 2],
-    6: [4, 3, 3],
-    7: [4, 3, 3, 1],
-    8: [4, 3, 3, 2],
-    9: [4, 3, 3, 3, 1]
-  },
-  halfCaster: {
-    1: [2],
-    2: [2],
-    3: [3],
-    4: [3],
-    5: [4, 2],
-    6: [4, 2],
-    7: [4, 3],
-    8: [4, 3],
-    9: [4, 3, 2]
-  }
-};
-
 
 function generaFocusArcano(classe) {
   const focusPerClasse = {
@@ -118,6 +94,11 @@ export function generaPNGNonComuneCompleto(opzioni = {}) {
 
   png.razza = razzaData.name;
   png.linguaggi = razzaData.languages || [];
+  // Privilegi e talenti razziali
+  png.privilegiRazza = (razzaData.traits || []).map(trait => ({
+    nome: trait.name,
+    descrizione: trait.desc || ""
+  }));
   png.velocita = razzaData.speed || 9; // in metri
   png.classe = classeData.name;
   png.dadoVita = classeData.hit_die || 8;
@@ -211,7 +192,19 @@ png.armiEquippate = getEquipFromIds(equipBase.armi, armi);
 png.armatureIndossate = getEquipFromIds(equipBase.armature, armature);
 // Ricalcolo CA dinamica
 png.ca = calcolaCA(png.stats, png.armatureIndossate);
-png.equipVari = equipBase.equipaggiamento || [];
+png.equipVari = [
+  ...(equipBase.equipaggiamento || []),
+  "10 torce",
+  "Corda di canapa (15 m)",
+  "Razions da viaggio (5 giorni)",
+  "Otre d’acqua",
+  "Acciarino e pietra focaia"
+];
+// Focus arcano se presente
+if (equipBase.focusArcano) {
+  png.focusArcano = equipBase.focusArcano;
+}
+
 
 // Penalità se indossa armatura pesante senza forza minima
 png.armatureIndossate.forEach(a => {
@@ -221,42 +214,92 @@ png.armatureIndossate.forEach(a => {
 });
 
   // 12. Magia
-  function getIncantesimiPerClasse(classeKey, livello) {
-  const spellData = spells[classeKey];
-  if (!spellData) return {};
+  // Tabella slot per full caster (wizard, cleric, sorcerer, bard, druid)
+const slotFullCaster = {
+  1: [2],
+  2: [3],
+  3: [4, 2],
+  4: [4, 3],
+  5: [4, 3, 2],
+  6: [4, 3, 3],
+  7: [4, 3, 3, 1],
+  8: [4, 3, 3, 2],
+  9: [4, 3, 3, 3, 1],
+  10: [4, 3, 3, 3, 2]
+};
 
-  const incantesimi = { cantrips: [], level1: [], level2: [] };
-
-  // Trucchetti
-  const maxCantrips = Math.min(3 + Math.floor(livello / 4), 6);
-  incantesimi.cantrips = spellData.cantrips.slice(0, maxCantrips);
-
-  // Livello 1
-  if (spellData.level1) {
-    incantesimi.level1 = spellData.level1.slice(0, Math.min(livello + 1, spellData.level1.length));
-  }
-
-  // Livello 2 (dal livello 3)
-  if (livello >= 3 && spellData.level2) {
-    incantesimi.level2 = spellData.level2.slice(0, Math.min(livello - 2, spellData.level2.length));
-  }
-
-  return incantesimi;
-}
-  const classiMagiche = ["mago", "stregone", "warlock", "bardo", "chierico", "druido", "paladino", "ranger"];
-  if (classiMagiche.includes(classeKey)) {
+// Tabella slot per half caster (paladin, ranger)
+const slotHalfCaster = {
+  1: [],
+  2: [2],
+  3: [3],
+  4: [3],
+  5: [4, 2],
+  6: [4, 2],
+  7: [4, 3],
+  8: [4, 3],
+  9: [4, 3, 2],
+  10: [4, 3, 3]
+};
+const classiFullCaster = ["wizard", "sorcerer", "warlock", "bard", "cleric", "druid"];
+const classiHalfCaster = ["paladin", "ranger"];
+   
+  // Se la classe è magica, aggiungiamo le statistiche magiche
+  if (classiFullCaster.includes(classeKey) || classiHalfCaster.includes(classeKey)) {
     const statMagica = statMagicaPerClasse[classeKey] || "intelligenza";
     const modMagia = Math.floor((png.stats[statMagica] - 10) / 2);
+
     png.magia = {
       caratteristica: statMagica,
       cd: 8 + modMagia + proficienza,
       bonusAttacco: modMagia + proficienza,
-      focus: generaFocusArcano(classeKey)
+      focus: generaFocusArcano(classeKey.toLowerCase())
     };
-    png.slotIncantesimi = [4, 3, 2]; // esemplificativo
-     png.incantesimi = getIncantesimiPerClasse(classeKey, png.livello);
-  }
 
+    png.slotIncantesimi = classiFullCaster.includes(classeKey)
+    ? slotFullCaster[png.livello] || []
+    : slotHalfCaster[png.livello] || [];
+
+  const spellData = spells[classeKey];
+  png.incantesimi = [];
+
+  if (spellData) {
+    // Cantrips
+    const maxCantrips = Math.min(3 + Math.floor(png.livello / 4), spellData.cantrips?.length || 0);
+    png.incantesimi.push(
+      ...spellData.cantrips.slice(0, maxCantrips).map(sp => ({
+        nome: sp.name,
+        livello: sp.level,
+        scuola: sp.school,
+        gittata: sp.range,
+        componenti: sp.components,
+        durata: sp.duration,
+        descrizione: sp.desc
+      }))
+    );
+
+
+    // Incantesimi per livello
+    for (let lvl = 1; lvl <= png.livello && lvl <= 5; lvl++) {
+      const key = `level${lvl}`;
+      if (spellData[key]) {
+        const numSpells = Math.min(2, spellData[key].length);
+        png.incantesimi.push(
+          ...spellData[key].slice(0, numSpells).map(sp => ({
+            nome: sp.name,
+            livello: sp.level,
+            scuola: sp.school,
+            gittata: sp.range,
+            componenti: sp.components,
+            durata: sp.duration,
+            descrizione: sp.desc
+          }))
+        );
+      }
+    }
+  }
+}  
+  
   // 13. Narrativa
   png.descrizione = generaDescrizioneEvocativa(png);
   png.origine = casuale([

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { completaPNGComune } from "../../utils/generators";
+import { firestore } from "../../firebase/firebaseConfig";
 import "../../styles/modalePNG.css";
 
 export default function ModalePNGComune({ onClose }) {
@@ -153,9 +154,9 @@ export default function ModalePNGComune({ onClose }) {
               </div>
               <div className="form-group">
                 <label>Origine</label>
-                <input
+                <textarea
                   type="text"
-                   rows={2}  // puoi aumentare
+                   rows={4}  // puoi aumentare
   style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}
                   placeholder="Origine del PNG"
                   value={png.origine || ""}

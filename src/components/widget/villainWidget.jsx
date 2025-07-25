@@ -1,11 +1,13 @@
 import React from "react";
 import "../../styles/villainWidget.css";
 
-const VillainWidget = ({ onClick }) => {
+const VillainWidget = ({ villain, onOpen }) => {
   return (
-    <div className="villain-widget" onClick={onClick}>
-      <h3>🧿 Villain</h3>
-      <p>Genera o crea manualmente un antagonista memorabile per la tua campagna.</p>
+    <div className="villain-widget" onClick={onOpen}>
+      
+          <h3>🧿 Villain</h3>
+          <p>Crea il tuo antagonista principale</p>
+        
     </div>
   );
 };

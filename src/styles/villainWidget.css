@@ -1,28 +1,31 @@
 .villain-widget {
   background-color: #1A1F2B;
   color: #F2F2F0;
-  border: 2px solid #6E4F9E;
-  border-radius: 10px;
   padding: 1rem;
+  border-radius: 12px;
   cursor: pointer;
   border: 2px solid #6E4F9E;
   transition: 0.2s ease;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
 }
+
 .villain-widget:hover {
-  background-color: #2b2f3f;
+  background-color: #2A2F3C;
   transform: scale(1.02);
 }
+
 .villain-widget h3 {
   margin: 0;
   color: #D4AF37;
 }
+
 .villain-widget p {
   margin: 0.5rem 0 0;
   font-size: 0.9rem;
   font-style: italic;
   color: #B2B9C3;
 }
+
 @media (max-width: 768px) {
   .villain-widget {
     width: 95%;

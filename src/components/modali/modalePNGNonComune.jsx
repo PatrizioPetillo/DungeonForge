@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { firestore } from "../../firebase/firebaseConfig";
 import { generaPNGNonComuneCompleto } from "../../utils/generatorePNGNonComune";
 import { armi } from "../../utils/armi";
 import { armature } from "../../utils/armature";
@@ -18,6 +19,7 @@ export default function ModalePNGNonComune({ onClose }) {
   const [png, setPng] = useState({});
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState("Generali");
+  const [spellSuggeriti, setSpellSuggeriti] = useState([]);
 
   const tabs = [
     "Generali",
@@ -29,6 +31,77 @@ export default function ModalePNGNonComune({ onClose }) {
     "Narrativa"
   ];
 
+  // Funzione per filtrare gli incantesimi in base alla query
+  const filtraIncantesimi = (query) => {
+  if (!query) {
+    setSpellSuggeriti([]);
+    return;
+  }
+  const classeKey = png.classe?.toLowerCase();
+  if (!classeKey || !spells[classeKey]) return;
+
+  const listaIncantesimi = [
+    ...spells[classeKey].cantrips || [],
+    ...Object.values(spells[classeKey]).flat().filter(sp => sp.level > 0)
+  ];
+
+  const risultati = listaIncantesimi.filter(sp =>
+    sp.name.toLowerCase().includes(query.toLowerCase())
+  );
+
+  setSpellSuggeriti(risultati.slice(0, 6)); // max 6 suggerimenti
+};
+
+  // Funzione per calcolare la CA dinamica
+const calcolaCA = (stats, armature) => {
+  let baseCA = 10 + Math.floor((stats.destrezza - 10) / 2);
+  armature.forEach(a => {
+    if (a.armor_category === "Shield") {
+      baseCA += a.armor_class.base;
+    } else {
+      baseCA = a.armor_class.base;
+      if (a.armor_class.dex_bonus) {
+        const modDex = Math.floor((stats.destrezza - 10) / 2);
+        baseCA += a.armor_class.max_bonus
+          ? Math.min(modDex, a.armor_class.max_bonus)
+          : modDex;
+      }
+    }
+  });
+  return baseCA;
+};
+
+// Funzione per calcolare tiro per colpire e danno per un'arma
+const calcolaAttacco = (arma, stats, livello) => {
+  const modFor = Math.floor((stats.forza - 10) / 2);
+  const modDes = Math.floor((stats.destrezza - 10) / 2);
+  const profBonus = Math.ceil(livello / 4) + 2;
+
+  let modCaratteristica = modFor;
+  if (arma.properties.some(p => p.name === "Finesse") && modDes > modFor) {
+    modCaratteristica = modDes;
+  }
+  if (arma.weapon_range === "Ranged") {
+    modCaratteristica = modDes;
+  }
+
+  return {
+    bonusAttacco: modCaratteristica + profBonus,
+    danno: `${arma.damage.damage_dice} + ${modCaratteristica}`
+  };
+};
+
+const updateSpell = (index, field, value) => {
+  const updated = [...png.incantesimi];
+  updated[index][field] = value;
+  setPng({ ...png, incantesimi: updated });
+};
+
+const removeSpell = (index) => {
+  const updated = png.incantesimi.filter((_, i) => i !== index);
+  setPng({ ...png, incantesimi: updated });
+};
+
   const handleGenera = async () => {
     setLoading(true);
     const nuovoPNG = await generaPNGNonComuneCompleto();
@@ -37,18 +110,78 @@ export default function ModalePNGNonComune({ onClose }) {
   };
 
   const handleSalva = async () => {
-    try {
-      await addDoc(collection(firestore, "png"), {
-        ...png,
-        tipo: "Non Comune",
-        createdAt: serverTimestamp()
-      });
-      alert("PNG Non Comune salvato con successo!");
-    } catch (err) {
-      console.error("Errore salvataggio PNG:", err);
-      alert("Errore durante il salvataggio.");
-    }
-  };
+  if (!png.nome) {
+    alert("Devi generare un PNG prima di salvarlo!");
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const docData = {
+      nome: png.nome,
+      razza: png.razza,
+      classe: png.classe,
+      livello: png.livello,
+      pf: png.pf,
+      ca: png.ca,
+      velocita: png.velocita,
+      dadoVita: png.dadoVita,
+      linguaggi: png.linguaggi || [],
+      stats: png.stats || {},
+      armiEquippate: (png.armiEquippate || []).map(a => ({
+        nome: a.name,
+        danno: `${a.damage.damage_dice} ${a.damage.damage_type.name}`,
+        proprieta: a.properties.map(p => p.name),
+        bonusAttacco: a.bonusAttacco || "",
+        munizioni: a.munizioni || null
+      })),
+      armatureIndossate: (png.armatureIndossate || []).map(a => ({
+        nome: a.name,
+        caBase: a.armor_class.base,
+        tipo: a.armor_category,
+        svantaggio: a.stealth_disadvantage || false,
+        peso: a.weight || 0
+      })),
+      equipVari: png.equipVari || [],
+      magia: png.magia
+        ? {
+            caratteristica: png.magia.caratteristica,
+            cd: png.magia.cd,
+            bonusAttacco: png.magia.bonusAttacco,
+            focus: png.magia.focus,
+            slot: png.slotIncantesimi || [],
+            incantesimi: (png.incantesimi || []).map(sp => ({
+              nome: sp.nome,
+              livello: sp.livello,
+              scuola: sp.scuola,
+              gittata: sp.gittata,
+              componenti: sp.componenti,
+              durata: sp.durata,
+              descrizione: sp.descrizione
+            }))
+          }
+        : null,
+      narrativa: {
+        descrizione: png.descrizione || "",
+        origine: png.origine || "",
+        ruolo: png.ruolo || ""
+      },
+      immagine: png.immagine || null,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    };
+
+    await addDoc(collection(firestore, "png"), docData);
+
+    setLoading(false);
+    alert("✅ PNG salvato con successo!");
+    onClose();
+  } catch (err) {
+    console.error("Errore salvataggio PNG:", err);
+    setLoading(false);
+    alert("❌ Errore durante il salvataggio. Riprova.");
+  }
+};
 
   return (
     <div className="modale-overlay">
@@ -58,6 +191,7 @@ export default function ModalePNGNonComune({ onClose }) {
           <div className="actions">
             <button onClick={handleGenera}>🎲 Genera</button>
             <button onClick={handleSalva} disabled={!png.nome}>💾 Salva</button>
+            {loading && <p className="loading-text">⏳ Salvataggio in corso...</p>}
             <button onClick={onClose}>❌ Chiudi</button>
           </div>
         </div>
@@ -139,6 +273,20 @@ export default function ModalePNGNonComune({ onClose }) {
                 {png.immagine && <img src={png.immagine} alt="Anteprima PNG" />}
               </div>
               <hr />
+              {png.privilegiRazza && png.privilegiRazza.length > 0 && (
+  <div className="privilegi-razza">
+    <h5>Privilegi Razza</h5>
+    <ul>
+      {png.privilegiRazza.map((priv, i) => (
+        <li key={i} className="tooltip-container">
+          <span className="privilegio-nome">{priv.nome}</span>
+          {priv.descrizione && <span className="tooltip">{priv.descrizione}</span>}
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
+
             </div>
           )}
 
@@ -215,7 +363,7 @@ export default function ModalePNGNonComune({ onClose }) {
                 />
               </div>
               <div className="form-group">
-                <label>Sottoclasse / Patto</label>
+                <label>Sottoclasse o Archetipo</label>
                 <input
                   type="text"
                   value={png.sottoclasse || ""}
@@ -241,6 +389,10 @@ export default function ModalePNGNonComune({ onClose }) {
                   value={png.ca || ""}
                   onChange={(e) => setPng({ ...png, ca: parseInt(e.target.value) })}
                 />
+              </div>
+              <div className="form-group">
+                <label>Bonus Competenza</label>
+                <input type="text" value={`+${Math.ceil((png.livello || 1) / 4) + 2}`} readOnly />
               </div>
               <div className="form-group">
                 <label>Dado Vita</label>
@@ -310,136 +462,197 @@ export default function ModalePNGNonComune({ onClose }) {
             <div className="tab-magia">
               <h4>Gestione Magia</h4>
 
-              {/* Info base magia */}
+              {/* Info base */}
               <div className="magia-info-grid">
                 <div className="form-group">
                   <label>Stat Magica</label>
-                  <input
-                    type="text"
-                    value={png.magia.caratteristica || ""}
-                    onChange={(e) =>
-                      setPng({ ...png, magia: { ...png.magia, caratteristica: e.target.value } })
-                    }
-                  />
+                  <input type="text" value={png.magia.caratteristica} readOnly />
                 </div>
                 <div className="form-group">
                   <label>CD Incantesimi</label>
-                  <input
-                    type="number"
-                    value={png.magia.cd || ""}
-                    onChange={(e) =>
-                      setPng({ ...png, magia: { ...png.magia, cd: parseInt(e.target.value) } })
-                    }
-                  />
+                  <input type="text" value={png.magia.cd} readOnly />
                 </div>
                 <div className="form-group">
-                  <label>Bonus Attacco Magico</label>
-                  <input
-                    type="number"
-                    value={png.magia.bonusAttacco || ""}
-                    onChange={(e) =>
-                      setPng({ ...png, magia: { ...png.magia, bonusAttacco: parseInt(e.target.value) } })
-                    }
-                  />
+                  <label>Bonus Attacco</label>
+                  <input type="text" value={`+${png.magia.bonusAttacco}`} readOnly />
                 </div>
                 <div className="form-group">
                   <label>Focus Arcano</label>
                   <input
                     type="text"
                     value={png.magia.focus || ""}
-                    onChange={(e) =>
-                      setPng({ ...png, magia: { ...png.magia, focus: e.target.value } })
-                    }
+                    onChange={(e) => setPng({ ...png, magia: { ...png.magia, focus: e.target.value } })}
                   />
                 </div>
               </div>
+
               <hr />
-              <h5>Trucchetti</h5>
-{renderSpellList(png.incantesimi.cantrips)}
-
-{Object.entries(png.incantesimi)
-  .filter(([key]) => key !== "cantrips")
-  .map(([level, spells]) => (
-    <div key={level}>
-      <h5>{level.replace("level", "Livello ")}</h5>
-      {renderSpellList(spells)}
-    </div>
-  ))}
-
 
               {/* Tabella Slot */}
-              <h5>Slot Incantesimo</h5>
-              <table className="slot-table">
+              <h5>Slot Incantesimi</h5>
+              {png.slotIncantesimi.length > 0 ? (
+                <table className="slot-table">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Livello</th>
+                      <th>Scuola</th>
+                      <th>Gittata</th>
+                      <th>Componenti</th>
+                      <th>Durata</th>
+                      <th>Descrizione</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {png.incantesimi?.map((spell, i) => (
+                      <tr key={i}>
+                        <td className="tooltip-spell">
+                          <span title={spell.descrizione || "Nessuna descrizione"}>{spell.nome}</span>
+                        </td>
+                        <td><input type="number" value={spell.livello} onChange={(e) => updateSpell(i, "livello", e.target.value)} /></td>
+                        <td><input type="text" value={spell.scuola} onChange={(e) => updateSpell(i, "scuola", e.target.value)} /></td>
+                        <td><input type="text" value={spell.gittata} onChange={(e) => updateSpell(i, "gittata", e.target.value)} /></td>
+                        <td><input type="text" value={spell.componenti} onChange={(e) => updateSpell(i, "componenti", e.target.value)} /></td>
+                        <td><input type="text" value={spell.durata} onChange={(e) => updateSpell(i, "durata", e.target.value)} /></td>
+                        <td>
+                          <textarea value={spell.descrizione} onChange={(e) => updateSpell(i, "descrizione", e.target.value)} />
+                        </td>
+                        <td><button onClick={() => removeSpell(i)}>❌</button></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : <p>Nessuno slot disponibile</p>}
+
+              <hr />
+
+              {/* Tabella Incantesimi */}
+              <h5>Incantesimi Conosciuti</h5>
+              <table className="spell-table">
                 <thead>
                   <tr>
-                    {png.slotIncantesimi?.map((_, i) => (
-                      <th key={i}>Lv.{i + 1}</th>
-                    ))}
+                    <th>Nome</th>
+                    <th>Livello</th>
+                    <th>Scuola</th>
+                    <th>Descrizione</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    {png.slotIncantesimi?.map((slot, i) => (
-                      <td key={i}>
-                        <input
-                          type="number"
-                          value={slot}
-                          onChange={(e) => {
-                            const updatedSlots = [...png.slotIncantesimi];
-                            updatedSlots[i] = parseInt(e.target.value);
-                            setPng({ ...png, slotIncantesimi: updatedSlots });
-                          }}
-                        />
-                      </td>
-                    ))}
-                  </tr>
+                  {png.incantesimi?.length > 0 ? (
+                    png.incantesimi.map((spell, i) => (
+                      <tr key={i}>
+                        <td>
+                          <input
+                            type="text"
+                            value={spell.nome}
+                            onChange={(e) => {
+                              const updated = [...png.incantesimi];
+                              updated[i].nome = e.target.value;
+                              setPng({ ...png, incantesimi: updated });
+                            }}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="number"
+                            value={spell.livello}
+                            onChange={(e) => {
+                              const updated = [...png.incantesimi];
+                              updated[i].livello = parseInt(e.target.value);
+                              setPng({ ...png, incantesimi: updated });
+                            }}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            value={spell.scuola}
+                            onChange={(e) => {
+                              const updated = [...png.incantesimi];
+                              updated[i].scuola = e.target.value;
+                              setPng({ ...png, incantesimi: updated });
+                            }}
+                          />
+                        </td>
+                        <td>
+                          <textarea
+                            value={spell.descrizione}
+                            onChange={(e) => {
+                              const updated = [...png.incantesimi];
+                              updated[i].descrizione = e.target.value;
+                              setPng({ ...png, incantesimi: updated });
+                            }}
+                          />
+                        </td>
+                        <td>
+                          <button onClick={() => {
+                            const updated = png.incantesimi.filter((_, idx) => idx !== i);
+                            setPng({ ...png, incantesimi: updated });
+                          }}>❌</button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr><td colSpan="5">Nessun incantesimo inserito</td></tr>
+                  )}
                 </tbody>
               </table>
 
-              {/* Lista Incantesimi */}
-              <h5>Incantesimi Conosciuti</h5>
-              <div className="spell-list">
-                {png.incantesimi && png.incantesimi.length > 0 ? (
-                  png.incantesimi.map((spell, i) => (
-                    <div key={i} className="spell-card">
-                      <input
-                        type="text"
-                        value={spell.name || ""}
-                        onChange={(e) => {
-                          const updatedSpells = [...png.incantesimi];
-                          updatedSpells[i].name = e.target.value;
-                          setPng({ ...png, incantesimi: updatedSpells });
-                        }}
-                      />
-                      <small>Livello {spell.level} • {spell.school}</small>
-                      <textarea
-                        value={spell.desc || ""}
-                        onChange={(e) => {
-                          const updatedSpells = [...png.incantesimi];
-                          updatedSpells[i].desc = e.target.value;
-                          setPng({ ...png, incantesimi: updatedSpells });
-                        }}
-                      />
-                    </div>
-                  ))
-                ) : (
-                  <p>Nessun incantesimo presente.</p>
+              {/* Aggiunta manuale */}
+              <div className="form-group add-spell">
+                <input
+                  type="text"
+                  placeholder="Cerca incantesimo..."
+                  onChange={(e) => filtraIncantesimi(e.target.value)}
+                />
+                {spellSuggeriti.length > 0 && (
+                  <ul className="suggestions">
+                    {spellSuggeriti.map((sp, idx) => (
+                      <li key={idx} onClick={() => {
+                        const nuovoInc = {
+                          nome: sp.name,
+                          livello: sp.level,
+                          scuola: sp.school,
+                          gittata: sp.range,
+                          componenti: sp.components,
+                          durata: sp.duration,
+                          descrizione: sp.desc
+                        };
+                        setPng({ ...png, incantesimi: [...(png.incantesimi || []), nuovoInc] });
+                        setSpellSuggeriti([]);
+                      }}>
+                        {sp.name} (Liv. {sp.level})
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </div>
+              <div className="quick-add">
+                {[0, 1, 2, 3].map(lv => (
+                  <button key={lv} onClick={() => {
+                    const classeKey = png.classe?.toLowerCase();
+                    if (!classeKey || !spells[classeKey]) return;
 
-              {/* Aggiunta manuale incantesimi */}
-              <div className="form-group add-spell">
-                <label>Aggiungi Incantesimi (nome, separati da virgola)</label>
-                <textarea
-                  placeholder="Es: Palla di Fuoco, Scudo"
-                  onBlur={(e) => {
-                    const nuoviIncantesimi = e.target.value
-                      .split(",")
-                      .map((name) => ({ name: name.trim(), level: 1, school: "Personalizzato", desc: "" }));
-                    setPng({ ...png, incantesimi: [...(png.incantesimi || []), ...nuoviIncantesimi] });
-                    e.target.value = "";
-                  }}
-                />
+                    const disponibili = lv === 0 ? spells[classeKey].cantrips : spells[classeKey][`level${lv}`];
+                    if (!disponibili || disponibili.length === 0) return;
+
+                    const scelto = casuale(disponibili);
+                    const nuovoInc = {
+                      nome: scelto.name,
+                      livello: scelto.level,
+                      scuola: scelto.school,
+                      gittata: scelto.range,
+                      componenti: scelto.components,
+                      durata: scelto.duration,
+                      descrizione: scelto.desc
+                    };
+                    setPng({ ...png, incantesimi: [...(png.incantesimi || []), nuovoInc] });
+                  }}>
+                    + Liv {lv === 0 ? "Trucchetto" : lv}
+                  </button>
+                ))}
               </div>
             </div>
           )}
@@ -570,7 +783,18 @@ export default function ModalePNGNonComune({ onClose }) {
                     }
                   }}
                 />
+                
               </div>
+              <hr />
+                <h4>Focus Arcano</h4>
+                <div className="form-group">
+                  <input
+                    type="text"
+                    value={png.magia?.focus || ""}
+                    onChange={(e) => setPng({ ...png, magia: { ...png.magia, focus: e.target.value } })}
+                    placeholder="Inserisci o modifica il focus arcano"
+                  />
+                </div>
             </div>
           )}
 
@@ -579,7 +803,7 @@ export default function ModalePNGNonComune({ onClose }) {
             <div className="tab-combattimento">
               <h4>Statistiche di Combattimento</h4>
 
-              {/* PF e CA */}
+              {/* PF, CA, Velocità */}
               <div className="combat-stats-grid">
                 <div className="form-group">
                   <label>PF Attuali</label>
@@ -601,50 +825,249 @@ export default function ModalePNGNonComune({ onClose }) {
                   <label>Velocità</label>
                   <input type="text" value={`${png.velocita || 9} m`} readOnly />
                 </div>
+                <div className="form-group">
+                  <label>Bonus Competenza</label>
+                  <input type="text" value={`+${Math.ceil((png.livello || 1) / 4) + 2}`} readOnly />
+                </div>
               </div>
 
               <hr />
 
-              {/* Lista Attacchi */}
-              <h5>Attacchi</h5>
-              <div className="attacks-list">
-                {png.armiEquippate?.length > 0 ? (
-                  png.armiEquippate.map((arma, i) => {
-                    const modFor = Math.floor((png.stats.forza - 10) / 2);
-                    const modDes = Math.floor((png.stats.destrezza - 10) / 2);
-                    const profBonus = Math.ceil(png.livello / 4) + 2;
+              {/* --- TABELLA ARMI DA MISCHIA --- */}
+              <h5>Armi da Mischia</h5>
+              <table className="combat-table">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Tiro per colpire</th>
+                    <th>Danno</th>
+                    <th>Proprietà</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {png.armiEquippate
+                    ?.filter(a => a.weapon_range === "Melee")
+                    .map((arma, i) => {
+                      const modFor = Math.floor((png.stats.forza - 10) / 2);
+                      const modDes = Math.floor((png.stats.destrezza - 10) / 2);
+                      const profBonus = Math.ceil(png.livello / 4) + 2;
 
-                    // Determina la stat per colpire
-                    let modCaratteristica = modFor;
-                    if (
-                      arma.properties.some((p) => p.name === "Finesse") &&
-                      modDes > modFor
-                    ) {
-                      modCaratteristica = modDes;
-                    } else if (arma.weapon_range === "Ranged") {
-                      modCaratteristica = modDes;
+                      let modCaratteristica = modFor;
+                      if (
+                        arma.properties.some(p => p.name === "Finesse") &&
+                        modDes > modFor
+                      ) {
+                        modCaratteristica = modDes;
+                      }
+
+                      const bonusAttacco = modCaratteristica + profBonus;
+                      const danno = `${arma.damage.damage_dice} + ${modCaratteristica}`;
+
+                      return (
+                        <tr key={i}>
+                          <td>{arma.name}</td>
+                          <td>
+                            <input
+                              type="text"
+                              value={arma.bonusAttacco || ""}
+                              onChange={(e) => {
+                                const updated = [...png.armiEquippate];
+                                updated[i].bonusAttacco = e.target.value;
+                                setPng({ ...png, armiEquippate: updated });
+                              }}
+                            />
+                          </td>
+                          <td>
+                            {arma.dannoCalcolato || ""}
+                            <br />
+                            <small>{arma.damage.damage_type.name}</small>
+                          </td>
+                          <td>
+                            {arma.properties.map(p => (
+                              <span
+                                key={p.name}
+                                className="tooltip-prop"
+                                title={p.desc}
+                              >
+                                {p.name}
+                              </span>
+                            ))}
+                          </td>
+                          <td>
+                            <button
+                              onClick={() => {
+                                const updated = png.armiEquippate.filter((_, idx) => idx !== i);
+                                setPng({ ...png, armiEquippate: updated });
+                              }}
+                            >
+                              ❌
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+
+              {/* --- TABELLA ARMI A DISTANZA --- */}
+              <h5>Armi a Distanza</h5>
+              <table className="combat-table">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Tiro per colpire</th>
+                    <th>Danno</th>
+                    <th>Proprietà</th>
+                    <th>Gittata</th>
+                    <th>Munizioni</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {png.armiEquippate
+                    ?.filter(a => a.weapon_range === "Ranged")
+                    .map((arma, i) => {
+                      const modDes = Math.floor((png.stats.destrezza - 10) / 2);
+                      const profBonus = Math.ceil(png.livello / 4) + 2;
+                      const bonusAttacco = modDes + profBonus;
+                      const danno = `${arma.damage.damage_dice} + ${modDes}`;
+                      const gittata = arma.properties.find(p => p.name === "Lancio")?.desc || "—";
+
+                      return (
+                        <tr key={i}>
+                          <td>{arma.name}</td>
+                          <td>
+                            <input
+                              type="text"
+                              value={`+${bonusAttacco}`}
+                              onChange={(e) => {
+                                const updated = [...png.armiEquippate];
+                                updated[i].bonusAttacco = e.target.value;
+                                setPng({ ...png, armiEquippate: updated });
+                              }}
+                            />
+                          </td>
+                          <td>
+                            {danno}
+                            <br />
+                            <small>{arma.damage.damage_type.name}</small>
+                          </td>
+                          <td>
+                            {arma.properties.map(p => (
+                              <span
+                                key={p.name}
+                                className="tooltip-prop"
+                                title={p.desc}
+                              >
+                                {p.name}
+                              </span>
+                            ))}
+                          </td>
+                          <td>{gittata}</td>
+                          <td>
+                            <input
+                              type="number"
+                              value={arma.munizioni || 0}
+                              onChange={(e) => {
+                                const updated = [...png.armiEquippate];
+                                updated[i].munizioni = e.target.value;
+                                setPng({ ...png, armiEquippate: updated });
+                              }}
+                            />
+                          </td>
+                          <td>
+                            <button
+                              onClick={() => {
+                                const updated = png.armiEquippate.filter((_, idx) => idx !== i);
+                                setPng({ ...png, armiEquippate: updated });
+                              }}
+                            >
+                              ❌
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+
+              {/* --- TABELLA ARMATURE --- */}
+              <h5>Armature Indossate</h5>
+              <table className="combat-table">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>CA Base</th>
+                    <th>Tipo</th>
+                    <th>Svantaggio</th>
+                    <th>Peso (kg)</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {png.armatureIndossate?.map((armor, i) => (
+                    <tr key={i}>
+                      <td>{armor.name}</td>
+                      <td>{armor.armor_class.base}</td>
+                      <td>{armor.armor_category}</td>
+                      <td>{armor.stealth_disadvantage ? "Sì" : "No"}</td>
+                      <td>{armor.weight || 0}</td>
+                      <td>
+                        <button
+                          onClick={() => {
+                            const updated = png.armatureIndossate.filter((_, idx) => idx !== i);
+                            const nuovaCA = calcolaCA(png.stats, updated);
+
+                            setPng({ ...png, armatureIndossate: updated, ca: nuovaCA });
+                          }}
+                        >
+                          ❌
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Selettori per aggiungere nuove armi/armature */}
+              <div className="add-equip-section">
+                <select
+                  onChange={(e) => {
+                    const armaSelezionata = armi.find(a => a.index === e.target.value);
+                    if (armaSelezionata) {
+                      const { bonusAttacco, danno } = calcolaAttacco(armaSelezionata, png.stats, png.livello);
+                      armaSelezionata.bonusAttacco = `+${bonusAttacco}`;
+                      armaSelezionata.dannoCalcolato = danno;
+
+                      setPng({ ...png, armiEquippate: [...(png.armiEquippate || []), armaSelezionata] });
                     }
+                    e.target.value = "";
+                  }}
+                >
+                  <option value="">+ Aggiungi arma</option>
+                  {armi.map((a) => (
+                    <option key={a.index} value={a.index}>{a.name}</option>
+                  ))}
+                </select>
 
-                    const bonusAttacco = modCaratteristica + profBonus;
-                    const bonusDanno =
-                      modCaratteristica >= 0 ? `+${modCaratteristica}` : modCaratteristica;
+                <select
+                  onChange={(e) => {
+                    const armorSelezionata = armature.find(a => a.index === e.target.value);
+                    if (armorSelezionata) {
+                      const updated = [...(png.armatureIndossate || []), armorSelezionata];
+                      const nuovaCA = calcolaCA(png.stats, updated);
 
-                    return (
-                      <div key={i} className="attack-item">
-                        <div className="attack-header">
-                          <strong>{arma.name}</strong>
-                          <span className="tooltip-icon" title={arma.properties.map(p => `${p.name}: ${p.desc}`).join("\n")}>ℹ️</span>
-                        </div>
-                        <p>
-                          <strong>Attacco:</strong> +{bonusAttacco} •{" "}
-                          <strong>Danno:</strong> {arma.damage.damage_dice} {arma.damage.damage_type.name} {bonusDanno}
-                        </p>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <p>Nessuna arma equipaggiata.</p>
-                )}
+                      setPng({ ...png, armatureIndossate: updated, ca: nuovaCA });
+                    }
+                    e.target.value = "";
+                  }}
+                >
+                  <option value="">+ Aggiungi armatura</option>
+                  {armature.map((a) => (
+                    <option key={a.index} value={a.index}>{a.name}</option>
+                  ))}
+                </select>
               </div>
             </div>
           )}

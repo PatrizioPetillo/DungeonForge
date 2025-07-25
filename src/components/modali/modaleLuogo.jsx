@@ -1,186 +1,87 @@
-import React, { useState, useEffect } from "react";
-import {
-  addDoc,
-  collection,
-  getDocs,
-  serverTimestamp,
-} from "firebase/firestore";
+import React, { useState } from "react";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { firestore } from "../../firebase/firebaseConfig";
-import { toast } from "react-toastify";
-import { caricaImmagine } from "../../utils/helpers";
-
+import { generaLuogo } from "../../utils/generatoreLuogo"; // Nuovo generatore
 import "../../styles/modaleLuogo.css";
 
-const ModaleLuogo = ({ onClose, campagnaId }) => {
-  const [tab, setTab] = useState("Generale");
-  const [sceneDisponibili, setSceneDisponibili] = useState([]);
-  const [sceneNarrative, setSceneNarrative] = useState([]);
-  const [luogo, setLuogo] = useState({
-    nome: "",
-    tipo: "",
-    immagine: "",
-    descrizione: "",
-    sceneCollegate: [],
-    createdAt: null,
-  });
-
-  const generaLuogoCasuale = () => {
-    const tipi = [
-      "Taverna",
-      "Foresta",
-      "Rovina",
-      "Castello",
-      "Santuario",
-      "Villaggio",
-      "Caverna",
-      "Tempio",
-      "Palude",
-      "Faro",
-      "Isola",
-      "Cittadella",
-      "Accampamento",
-      "Fortezza",
-      "Labirinto",
-      "Cimitero",
-      "Mercato",
-      "Biblioteca",
-      "Arena",
-      "Giardino",
-      "Miniera",
-      "Sotterraneo",
-      "Spiaggia",
-      "Passo di Montagna",
-      "Fiume",
-      "Cascata",
-      "Ponte",
-      "Torre",
-      "Porto",
-      "Città",
-      "Villaggio di pescatori",
-      "Fattoria",
-      "Castello abbandonato",
-      "Rifugio dei ladri",
-    ];
-    const descrizioni = [
-      "Un luogo avvolto da misteri antichi e leggende dimenticate. Si vocifera che qui si nasconda un tesoro perduto. Molti viaggiatori si sono persi tra le sue strade.",
-      "Le sue mura trasudano memorie di guerre e amori perduti. Un tempo era un centro di potere, ora è solo un'ombra di ciò che era.",
-      "Un rifugio sicuro... o forse una trappola ben mascherata. I suoi abitanti sono noti per la loro ospitalità, ma anche per i loro segreti.",
-      "Luogo di potere, protetto da simboli arcani e creature silenziose. Solo i più coraggiosi osano avventurarsi qui.",
-      "Un punto di passaggio dove il tempo sembra essersi fermato. I viaggiatori raccontano storie di incontri straordinari e magie dimenticate.",
-      "La natura qui si è ripresa ciò che l'uomo aveva conquistato. Le piante crescono rigogliose e gli animali sembrano osservare ogni passo.",
-      "Ogni pietra sembra osservare chi osa attraversarne la soglia. Un luogo di saggezza antica, dove le storie si intrecciano con la realtà.",
-      "Un luogo di ritrovo per avventurieri e mercanti. Le sue strade sono animate da suoni, colori e profumi che raccontano storie di terre lontane.",
-      "Un luogo di pace e meditazione, dove il tempo scorre lentamente. I visitatori possono trovare rifugio dalle tempeste del mondo esterno.",
-      "Un luogo di conflitto e alleanze, dove le forze del bene e del male si scontrano in battaglie epiche.",
-      "Il paesaggio è dominato da una grande quercia, sotto la quale si dice che gli spiriti degli antichi si riuniscano per discutere del destino del mondo.",
-      "Un antico castello in rovina, le cui torri si stagliano contro il cielo. Si dice che sia infestato dai fantasmi dei suoi antichi abitanti.",
-      "Questo villaggio è noto per la sua fiera annuale, dove gli abitanti si sfidano in giochi e competizioni per onorare gli dei.",
-      "Un luogo di culto dedicato a una divinità dimenticata, con statue e simboli che raccontano storie di un'epoca passata.",
-      "Un antico faro che guida i marinai attraverso le tempeste. Si dice che la sua luce sia alimentata da un cristallo magico.",
-      "Il tempio è circondato da una piccolo bosco incantato, dove gli alberi sembrano muoversi e le creature magiche si nascondono tra le fronde.",
-      "Un luogo di ritrovo per i ladri e gli avventurieri, dove si scambiano informazioni e si pianificano colpi audaci.",
-      "Un antico cimitero, dove le tombe raccontano storie di eroi e traditori. Si dice che di notte gli spiriti dei defunti si riuniscano per discutere del loro destino.",
-      "Questo accampamento è noto per la sua ospitalità e per le storie che i viaggiatori raccontano intorno al fuoco. Si dice che gli spiriti della foresta proteggano i suoi abitanti.",
-      "Il Sotterraneo si districa tra cunicoli e gallerie, con antiche iscrizioni sbiadite sulle mura e graffi lungo tutte le arcate. L'umidità trasuda dalle pareti e l'odore di muffa è persistente.",
-    ];
-    const nomi = [
-      "Il Rintocco Infranto",
-      "La Quercia delle Ombre",
-      "Rocca del Tramonto",
-      "Le Lame Seppellite",
-      "Bocca del Silenzio",
-      "Fenditura del Sogno",
-      "L'Ultima Campana",
-      "L'Accampamento Spezzato",
-      "Il Faro di Cristallo",
-      "La Torre del Vento",
-      "Il Villaggio dei Sussurri",
-      "La Valle dei Ricordi",
-      "Il Ponte delle Stelle",
-      "La Caverna del Tempo",
-      "Il Giardino delle Illusioni",
-      "Il Labirinto della Luna",
-      "La Spiaggia dei Sogni Perduti",
-      "Il Castello delle Nebbie",
-      "L'Isola dei Segreti",
-      "La Miniera degli Echi",
-      "Il Santuario della Luce",
-      "La Fattoria dei Fantasmi",
-      "Il Mercato delle Meraviglie",
-      "La Biblioteca dei Sogni",
-      "L'Arena dei Campioni",
-      "Il Giardino delle Fate",
-      "La Miniera di Cristallo",
-      "Il Passo del Drago",
-      "Il Fiume delle Stelle",
-      "La Cascata dei Sussurri",
-      "Il Ponte dei Desideri",
-      "La Torre del Mago",
-    ];
-
-    const tipo = tipi[Math.floor(Math.random() * tipi.length)];
-    const nome = nomi[Math.floor(Math.random() * nomi.length)];
-    const descrizione =
-      descrizioni[Math.floor(Math.random() * descrizioni.length)];
-
-    setLuogo((l) => ({
-      ...l,
-      nome,
-      tipo,
-      descrizione,
+const ModaleLuogo = ({ onClose, onSave, luogo: initialLuogo }) => {
+  const [luogo, setLuogo] = useState(
+    initialLuogo || {
+      nome: "",
+      tipo: "",
+      popolazione: 0,
+      descrizione: "",
       immagine: "",
-      sceneCollegate: [],
-    }));
+      risorse: [],
+      autorita: { governante: "", governo: "" },
+      religione: { principale: "", secondaria: "" },
+      difese: [],
+      clima: "",
+      peculiarita: [],
+      problema: "",
+      hook: "",
+      eventi: [],
+      architettura: "",
+      atmosfera: "",
+      quartieri: [],
+      gilde: [],
+      leggende: [],
+      collegamenti: { png: [], villain: [], capitoli: [] }
+    }
+  );
 
-    toast.info("Luogo generato casualmente");
+  const [tab, setTab] = useState("Generale");
+  const [loading, setLoading] = useState(false);
+
+  // GENERAZIONE CASUALE
+  const handleGenera = () => {
+    const nuovoLuogo = generaLuogo();
+    setLuogo(nuovoLuogo);
   };
 
-  useEffect(() => {
-    if (!campagnaId) return;
-    const fetchScene = async () => {
-      const snap = await getDocs(
-        collection(firestore, `campagne/${campagnaId}/scenes`)
-      );
-      const data = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setSceneDisponibili(data);
-    };
-    fetchScene();
-  }, [campagnaId]);
-
-  const salvaLuogo = async () => {
+  // SALVATAGGIO FIRESTORE
+  const handleSalva = async () => {
+    if (!luogo.nome) {
+      alert("Inserisci almeno il nome del luogo!");
+      return;
+    }
+    setLoading(true);
     try {
-      await addDoc(collection(firestore, "luoghi"), {
+      const dataToSave = {
         ...luogo,
         createdAt: serverTimestamp(),
-      });
-      toast.success("Luogo salvato con successo!");
+        updatedAt: serverTimestamp()
+      };
+      await addDoc(collection(firestore, "luoghi"), dataToSave);
+      alert("✅ Luogo salvato con successo!");
+      setLoading(false);
+      if (onSave) onSave(dataToSave);
       onClose();
     } catch (err) {
-      console.error(err);
-      toast.error("Errore durante il salvataggio.");
+      console.error("Errore salvataggio luogo:", err);
+      setLoading(false);
+      alert("❌ Errore durante il salvataggio.");
     }
   };
 
   return (
-    <div className="modal-overlay">
+    <div className="modale-overlay">
       <div className="modale-luogo">
+        {/* HEADER */}
         <div className="modale-header">
-          <h2>📍 Nuovo Luogo</h2>
-          <div className="icone-header">
-            <button onClick={generaLuogoCasuale} title="Genera luogo casuale">
-              🎲
-            </button>
-            <button onClick={salvaLuogo} title="Salva">
-              💾
-            </button>
-            <button onClick={onClose} title="Chiudi">
-              ✖️
-            </button>
+          <h3>🌍 Luogo</h3>
+          <div className="actions">
+            <button onClick={handleGenera}>🎲 Genera</button>
+            <button onClick={handleSalva}>💾 Salva</button>
+            <button onClick={onClose}>✖ Chiudi</button>
           </div>
         </div>
 
-        <div className="tab-bar">
-          {["Generale", "Descrizione", "Collegamenti"].map((t) => (
+        {loading && <p className="loading-text">⏳ Salvataggio in corso...</p>}
+
+        {/* TABS */}
+        <div className="tabs">
+          {["Generale", "Dettagli", "Narrativa", "Collegamenti"].map((t) => (
             <button
               key={t}
               className={tab === t ? "active" : ""}
@@ -191,151 +92,216 @@ const ModaleLuogo = ({ onClose, campagnaId }) => {
           ))}
         </div>
 
-        <div className="tab-content">
+        {/* CONTENUTO */}
+        <div className="modale-body">
+          {/* TAB GENERALE */}
           {tab === "Generale" && (
-            <>
-              <div className="field-group">
-                <label>Nome del luogo:</label>
+            <div className="tab-generale">
+              <div className="form-group">
+                <label>Nome</label>
                 <input
+                  type="text"
                   value={luogo.nome}
-                  onChange={(e) =>
-                    setLuogo((l) => ({ ...l, nome: e.target.value }))
-                  }
+                  onChange={(e) => setLuogo({ ...luogo, nome: e.target.value })}
                 />
               </div>
-              <div className="field-group">
-                <label>Tipo:</label>
-                <input
+
+              <div className="form-group">
+                <label>Tipo</label>
+                <select
                   value={luogo.tipo}
-                  placeholder="Es: Taverna, Bosco, Castello..."
-                  onChange={(e) =>
-                    setLuogo((l) => ({ ...l, tipo: e.target.value }))
-                  }
-                />
+                  onChange={(e) => setLuogo({ ...luogo, tipo: e.target.value })}
+                >
+                  <option value="">-- Seleziona --</option>
+                  {["Taverna", "Borgo", "Villaggio", "Città", "Metropoli"].map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
               </div>
-              <div className="field-group">
-                <label>URL Immagine (facoltativa):</label>
+
+              <div className="form-group">
+                <label>Popolazione</label>
                 <input
-                  value={luogo.immagine}
-                  onChange={(e) =>
-                    setLuogo((l) => ({ ...l, immagine: e.target.value }))
-                  }
+                  type="number"
+                  value={luogo.popolazione}
+                  onChange={(e) => setLuogo({ ...luogo, popolazione: parseInt(e.target.value) })}
                 />
               </div>
-              <h4>🎭 Scene ambientate qui</h4>
-              <select
-                multiple
-                value={luogo.sceneCollegate || []}
-                onChange={(e) => {
-                  const selected = Array.from(
-                    e.target.selectedOptions,
-                    (opt) => opt.value
-                  );
-                  setLuogo({ ...luogo, sceneCollegate: selected });
-                }}
-              >
-                {sceneNarrative.map((scene) => (
-                  <option key={scene.id} value={scene.id}>
-                    {scene.titolo}
-                  </option>
-                ))}
-              </select>
-            </>
-          )}
 
-          {tab === "Descrizione" && (
-            <div className="field-group">
-              <label>Descrizione dettagliata:</label>
-              <textarea
-                rows={8}
-                value={luogo.descrizione}
-                onChange={(e) =>
-                  setLuogo((l) => ({ ...l, descrizione: e.target.value }))
-                }
-              />
-              <label>📸 Immagine Luogo</label>
-<input
-  type="file"
-  accept="image/*"
-  onChange={(e) => {
-  const file = e.target.files[0];
-  if (file) caricaImmagine(file, (base64) => setLuogo((prev) => ({ ...prev, immagine: base64 })));
-}}
-/>
-{l.immagine && <img src={l.immagine} alt={l.nome} style={{ width: "120px", borderRadius: "8px" }} />}
+              <div className="form-group">
+                <label>Immagine (URL)</label>
+                <input
+                  type="text"
+                  value={luogo.immagine}
+                  onChange={(e) => setLuogo({ ...luogo, immagine: e.target.value })}
+                />
+              </div>
 
-              <label>⚠️ Pericolo Associato</label>
-<select
-  value={luogo.pericolo || ""}
-  onChange={(e) => aggiorna("pericolo", e.target.value)}
->
-  <option value="">-- Nessuno --</option>
-  <option>Trappola</option>
-  <option>Mostro</option>
-  <option>Ostacolo Ambientale</option>
-</select>
+              <div className="form-group">
+                <label>Clima</label>
+                <input
+                  type="text"
+                  value={luogo.clima}
+                  onChange={(e) => setLuogo({ ...luogo, clima: e.target.value })}
+                />
+              </div>
 
+              <div className="form-group">
+                <label>Descrizione</label>
+                <textarea
+                  value={luogo.descrizione}
+                  onChange={(e) => setLuogo({ ...luogo, descrizione: e.target.value })}
+                />
+              </div>
             </div>
           )}
 
-          {tab === "Collegamenti" && (
-            <div className="field-group">
-              <label>Collega a Scene:</label>
-              <select
-                multiple
-                value={luogo.sceneCollegate}
-                onChange={(e) =>
-                  setLuogo((l) => ({
-                    ...l,
-                    sceneCollegate: Array.from(e.target.selectedOptions).map(
-                      (opt) => opt.value
-                    ),
-                  }))
-                }
-              >
-                {sceneDisponibili.map((scene) => (
-                  <option key={scene.id} value={scene.id}>
-                    {scene.titolo || "Senza titolo"}
-                  </option>
-                ))}
-              </select>
-              <hr />
-              <h4>👤 PNG presenti</h4>
-              <select
-                multiple
-                value={luogo.pngPresenti || []}
-                onChange={(e) => {
-                  const selected = Array.from(
-                    e.target.selectedOptions,
-                    (opt) => opt.value
-                  );
-                  setLuogo({ ...luogo, pngPresenti: selected });
-                }}
-              >
-                {campagna.png?.map((p) => (
-                  <option key={p.id} value={p.nome}>
-                    {p.nome}
-                  </option>
-                ))}
-              </select>
-              <hr />
-              <h4>👿 Villain collegati</h4>
-<select
-  multiple
-  value={luogo.villainAssociati || []}
-  onChange={(e) => {
-    const selected = Array.from(e.target.selectedOptions, opt => opt.value);
-    setLuogo({ ...luogo, villainAssociati: selected });
-  }}
->
-  {campagna.villain?.map(v => (
-    <option key={v.id} value={v.nome}>{v.nome}</option>
-  ))}
-</select>
+          {/* TAB DETTAGLI */}
+          {tab === "Dettagli" && (
+            <div className="tab-dettagli">
+              <div className="form-group">
+                <label>Risorse Principali</label>
+                <input
+                  type="text"
+                  value={luogo.risorse.join(", ")}
+                  onChange={(e) => setLuogo({ ...luogo, risorse: e.target.value.split(",").map(s => s.trim()) })}
+                />
+              </div>
 
+              <div className="form-group">
+                <label>Autorità</label>
+                <input
+                  type="text"
+                  placeholder="Governante"
+                  value={luogo.autorita.governante}
+                  onChange={(e) =>
+                    setLuogo({ ...luogo, autorita: { ...luogo.autorita, governante: e.target.value } })
+                  }
+                />
+                <input
+                  type="text"
+                  placeholder="Tipo di governo"
+                  value={luogo.autorita.governo}
+                  onChange={(e) =>
+                    setLuogo({ ...luogo, autorita: { ...luogo.autorita, governo: e.target.value } })
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Religione</label>
+                <input
+                  type="text"
+                  placeholder="Divinità principale"
+                  value={luogo.religione.principale}
+                  onChange={(e) =>
+                    setLuogo({ ...luogo, religione: { ...luogo.religione, principale: e.target.value } })
+                  }
+                />
+                <input
+                  type="text"
+                  placeholder="Culto secondario"
+                  value={luogo.religione.secondaria}
+                  onChange={(e) =>
+                    setLuogo({ ...luogo, religione: { ...luogo.religione, secondaria: e.target.value } })
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Difese</label>
+                <input
+                  type="text"
+                  value={luogo.difese.join(", ")}
+                  onChange={(e) => setLuogo({ ...luogo, difese: e.target.value.split(",").map(s => s.trim()) })}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Architettura</label>
+                <input
+                  type="text"
+                  value={luogo.architettura}
+                  onChange={(e) => setLuogo({ ...luogo, architettura: e.target.value })}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Atmosfera</label>
+                <input
+                  type="text"
+                  value={luogo.atmosfera}
+                  onChange={(e) => setLuogo({ ...luogo, atmosfera: e.target.value })}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* TAB NARRATIVA */}
+          {tab === "Narrativa" && (
+            <div className="tab-narrativa">
+              <div className="form-group">
+                <label>Peculiarità</label>
+                <input
+                  type="text"
+                  value={luogo.peculiarita.join(", ")}
+                  onChange={(e) => setLuogo({ ...luogo, peculiarita: e.target.value.split(",").map(s => s.trim()) })}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Problema locale</label>
+                <input
+                  type="text"
+                  value={luogo.problema}
+                  onChange={(e) => setLuogo({ ...luogo, problema: e.target.value })}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Hook narrativo</label>
+                <textarea
+                  value={luogo.hook}
+                  onChange={(e) => setLuogo({ ...luogo, hook: e.target.value })}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Leggende</label>
+                <input
+                  type="text"
+                  value={luogo.leggende.join(", ")}
+                  onChange={(e) => setLuogo({ ...luogo, leggende: e.target.value.split(",").map(s => s.trim()) })}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Eventi</label>
+                <input
+                  type="text"
+                  value={luogo.eventi.join(", ")}
+                  onChange={(e) => setLuogo({ ...luogo, eventi: e.target.value.split(",").map(s => s.trim()) })}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* TAB COLLEGAMENTI */}
+          {tab === "Collegamenti" && (
+            <div className="tab-collegamenti">
+              <p>In futuro qui inseriremo i collegamenti con PNG, Villain e Scene.</p>
             </div>
           )}
         </div>
+        <div className="luogo-img">
+      {luogo.immagine ? (
+        <img src={luogo.immagine} alt={luogo.nome || "Luogo"} />
+      ) : (
+        <p>Nessuna immagine</p>
+      )}
+    </div>
       </div>
     </div>
   );

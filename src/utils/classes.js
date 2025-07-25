@@ -220,7 +220,7 @@ export const classes = [
     index: "rogue",
     name: "Ladro",
     hit_die: 8,
-    proficiencies: ["Armi semplici", "Balestre leggere", "Spade corte", "Spade lunghe", "Stocchi"],
+    proficiencies: ["Armature leggere", "Armi semplici", "Balestre leggere", "Spade corte", "Spade lunghe", "Stocchi"],
     proficiency_choices: [
       {
         choose: 4,
