@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/modaleMostro.css";
 import { toast } from "react-toastify";
-import { salvaInArchivio } from "../../utils/salvataggi";
+import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import { collection } from "firebase/firestore";
 import { firestore } from "../../firebase/firebaseConfig";
 import LootBox from "../generatori/lootBox";

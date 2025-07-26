@@ -15,6 +15,7 @@ const CardElemento = ({ item, categoria, collegamenti  }) => {
         <div className="badge-status">{item.status || "Salvato"}</div>
         <div className="card-footer">
           <h4>{item.nome || item.titolo}</h4>
+          {item.tipo && <span className="badge-tipo">{item.tipo}</span>}
           {collegamenti[item.id] && (
             <span className="badge-collegato">
               ✔ Collegato a: {collegamenti[item.id].scena} ({collegamenti[item.id].capitolo})

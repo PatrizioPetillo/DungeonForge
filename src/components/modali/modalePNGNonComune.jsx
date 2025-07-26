@@ -3,7 +3,7 @@ import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import { generaPNGNonComuneCompleto } from "../../utils/generatorePNGNonComune";
 import { armi } from "../../utils/armi";
 import { armature } from "../../utils/armature";
-import { generaHookPNG, generaDialogoPNG } from "../../utils/narrativeGenerator";
+import { generaHookPNG, generaDialogoPNG } from "../../utils/narrativeGenerators";
 import "../../styles/modalePNG.css";
 
 const abilitaPerStat = {

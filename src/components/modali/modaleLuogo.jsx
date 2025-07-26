@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import { generaLuogo } from "../../utils/generatoreLuogo"; // Nuovo generatore
-import { generaHookLuogo, generaFraseLuogo } from "../../utils/narrativeGenerator";
+import { generaHookLuogo, generaFraseLuogo } from "../../utils/narrativeGenerators";
 
 import "../../styles/modaleLuogo.css";
 

@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { completaPNGComune } from "../../utils/generators";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
-import { generaHookPNG, generaDialogoPNG } from "../../utils/narrativeGenerator";
+import { generaHookPNG, generaDialogoPNG } from "../../utils/narrativeGenerators";
 
 import "../../styles/modalePNG.css";
 

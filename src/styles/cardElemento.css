@@ -47,6 +47,17 @@
   font-weight: bold;
 }
 
+.badge-tipo {
+  display: inline-block;
+  background: #6e4f9e;
+  color: #fff;
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  margin-top: 4px;
+}
+
+
 @media (max-width: 768px) {
   .card-elemento {
     height: 180px;

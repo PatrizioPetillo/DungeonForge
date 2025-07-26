@@ -13,7 +13,22 @@ const Archivio = () => {
   const [collegamenti, setCollegamenti] = useState({});
   const [filtro, setFiltro] = useState("tutti");
 const [searchTerm, setSearchTerm] = useState("");
+const [filtroTipoPNG, setFiltroTipoPNG] = useState("");
 
+const filtraDati = (lista, tipoCategoria = null) => {
+  return lista.filter((item) => {
+    const nome = (item.nome || item.titolo || "").toLowerCase();
+    const matchSearch = nome.includes(searchTerm.toLowerCase());
+
+    const isCollegato = collegamenti[item.id] !== undefined;
+    if (filtro === "collegati" && !isCollegato) return false;
+    if (filtro === "non-collegati" && isCollegato) return false;
+
+    if (tipoCategoria === "png" && filtroTipoPNG && item.tipo !== filtroTipoPNG) return false;
+
+    return matchSearch;
+  });
+};
 
 const caricaCollegamenti = async () => {
   const map = {};
@@ -83,6 +98,15 @@ const caricaCollegamenti = async () => {
 </div>
 <hr />
       <h1>Archivio Globale</h1>
+      <div className="filtro-tipo-png">
+  <label>Filtra PNG:</label>
+  <select value={filtroTipoPNG} onChange={(e) => setFiltroTipoPNG(e.target.value)}>
+    <option value="">Tutti</option>
+    <option value="Comune">Comuni</option>
+    <option value="Non Comune">Non Comuni</option>
+  </select>
+</div>
+
       <ArchivioSezione
   titolo="Villain"
   dati={filtraDati(villain)}
@@ -90,9 +114,7 @@ const caricaCollegamenti = async () => {
   collegamenti={collegamenti}
 />
         <hr className="archivio" />
-      <ArchivioSezione titolo="PNG Comuni" dati={filtraDati(png)} categoria="png" collegamenti={collegamenti} />
-      <hr className="archivio" />
-      <ArchivioSezione titolo="PNG Non Comuni" dati={filtraDati(png)} categoria="png" collegamenti={collegamenti} />
+      <ArchivioSezione titolo="PNG" dati={filtraDati(png, "png")} categoria="png" collegamenti={collegamenti} />
       <hr className="archivio" />
       <ArchivioSezione titolo="Mostri" dati={filtraDati(mostri)} categoria="mostri" collegamenti={collegamenti} />
       <hr className="archivio" />

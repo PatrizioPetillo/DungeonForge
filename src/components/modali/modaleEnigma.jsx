@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import { toast } from "react-toastify";
-import { generaHookEnigma, generaFraseEnigma } from "../../utils/narrativeGenerator";
+import { generaHookEnigma, generaFraseEnigma } from "../../utils/narrativeGenerators";
 import "../../styles/enigmaWidget.css";
 
 const modelliEnigma = [
