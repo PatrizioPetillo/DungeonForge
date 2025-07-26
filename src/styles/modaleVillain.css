@@ -254,6 +254,52 @@
   background: #3d3d3d;
 }
 
+.ai-section {
+  margin-top: 20px;
+  background: #2d2d2d;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #444;
+}
+
+.ai-section h4 {
+  color: #d4af37;
+  margin-bottom: 8px;
+}
+
+.ai-hint {
+  font-size: 0.9rem;
+  color: #b2b9c3;
+  margin-bottom: 10px;
+}
+
+.ai-textarea {
+  width: 100%;
+  min-height: 70px;
+  background: #1a1f2b;
+  color: #f2f2f0;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.btn-ai {
+  background: #6e4f9e;
+  color: #fff;
+  padding: 8px 14px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-ai:hover {
+  background: #553a7c;
+}
+
 /* ========================
    TABELLE
    ======================== */

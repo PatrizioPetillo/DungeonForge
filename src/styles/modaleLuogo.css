@@ -75,8 +75,8 @@
   display: flex;
   background: #2d2d2d;
   border-bottom: 1px solid #444;
-  height: 145px;
-    align-items: flex-start;
+  height: 42px;
+  align-items: flex-start;
 }
 
 .tabs button {

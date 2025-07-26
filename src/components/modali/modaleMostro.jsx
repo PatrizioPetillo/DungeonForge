@@ -69,14 +69,16 @@ const ModaleMostro = ({ onClose }) => {
     });
   }, [campagnaAttiva]);
 
-  const handleSalva = async () => {
-    const ok = await salvaInArchivio("mostri", mostro);
-    if (ok) {
-      alert("Mostro salvato nell'Archivio!");
-      onClose();
-    }
-  };
-
+  const handleSalvaMostro = async () => {
+  const data = { ...mostro, tipo: "Mostro" }; // Aggiungi eventuali campi extra
+  const ok = await salvaInArchivio("mostri", data);
+  if (ok) {
+    alert("Mostro salvato nell'Archivio!");
+    onClose();
+  } else {
+    alert("Errore nel salvataggio del mostro");
+  }
+};
 
   const generaMostroCasuale = async () => {
     try {
@@ -153,7 +155,7 @@ const ModaleMostro = ({ onClose }) => {
         <div className="modale-header">
           <h2>🧟‍♂️ Mostro</h2>
           <div className="icone-header">
-            <button onClick={salvaMostro} title="Salva">
+            <button onClick={handleSalvaMostro} title="Salva">
               💾
             </button>
             <button onClick={generaMostroCasuale} title="Genera">
