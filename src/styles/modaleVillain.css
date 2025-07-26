@@ -99,6 +99,60 @@
   border-bottom: 2px solid #d4af37;
 }
 
+.tab-narrativa {
+  background: #1a1f2b;
+  padding: 15px;
+  border-radius: 8px;
+  color: #f2f2f0;
+}
+
+.tab-narrativa h4 {
+  color: #d4af37;
+  margin-top: 10px;
+}
+
+.narrativa-test {
+  font-style: italic;
+  color: #b2b9c3;
+  margin-bottom: 15px;
+}
+
+.hook-dialogo {
+  margin-top: 20px;
+}
+
+.hook-dialogo ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.hook-dialogo li {
+  background: #2d2d2d;
+  padding: 6px 10px;
+  margin: 5px 0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.hook-dialogo li:hover {
+  background: #3d3d3d;
+}
+
+.btn-secondary {
+  background: #6e4f9e;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.btn-secondary:hover {
+  background: #553a7c;
+}
+
 /* ========================
    BODY
    ======================== */
@@ -106,11 +160,6 @@
   flex: 1;
   overflow-y: auto;
   padding: 1rem;
-}
-
-.villain-layout {
-  display: flex;
-  gap: 20px;
 }
 
 /* Immagine Villain */
@@ -159,6 +208,50 @@
 .stat-box p {
   font-size: 0.85rem;
   margin-top: 4px;
+}
+
+.tab-magia {
+  background: #1a1f2b;
+  padding: 15px;
+  border-radius: 8px;
+  color: #f2f2f0;
+}
+
+.tab-magia h4 {
+  color: #d4af37;
+  margin-top: 15px;
+}
+
+.slot-container {
+  margin-bottom: 10px;
+}
+
+.slot-pill {
+  display: inline-block;
+  background: #6e4f9e;
+  color: #fff;
+  padding: 5px 10px;
+  margin: 4px;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+.spell-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.spell-item {
+  background: #2d2d2d;
+  padding: 8px 10px;
+  margin: 6px 0;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+  cursor: help;
+}
+
+.spell-item:hover {
+  background: #3d3d3d;
 }
 
 /* ========================
