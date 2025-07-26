@@ -1,15 +1,16 @@
 import React, { useState } from "react";
-import { addDoc, collection, serverTimestamp, doc, setDoc } from "firebase/firestore";
-import { firestore } from "../../firebase/firebaseConfig";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import { generaVillainCompleto } from "../../utils/generatoreVillain";
 import { classes } from "../../utils/classes";
 import { spells } from "../../utils/spells";
 import { armi } from "../../utils/armi";
 import { armature } from "../../utils/armature";
-import { generateBackground } from "../../utils/backgrounds";
-import { generaHook } from "../../utils/narrativeGenerators";
-import { generaDialogo } from "../../utils/narrativeGenerators";
+import {
+  generaHookVillain,
+  generaDialogoVillain,
+  genera3HookVillain,
+  genera3DialoghiVillain
+} from "../../utils/narrativeGenerators";
 import "../../styles/modaleVillain.css";
 
 const ModaleVillain = ({ onClose, onSave, villain: initialVillain }) => {
