@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import { generaLuogo } from "../../utils/generatoreLuogo"; // Nuovo generatore
-import { generaHookLuogo, generaFraseLuogo } from "../../utils/narrativeGenerators";
+import {
+  generaHookLuogo,
+  generaFraseLuogo,
+  genera3HookLuogo,
+  genera3FrasiLuogo
+} from "../../utils/narrativeGenerators";
 
 import "../../styles/modaleLuogo.css";
 
@@ -33,6 +38,9 @@ const ModaleLuogo = ({ onClose, onSave, luogo: initialLuogo }) => {
 
   const [tab, setTab] = useState("Generale");
   const [loading, setLoading] = useState(false);
+  const [opzioniHook, setOpzioniHook] = useState([]);
+const [opzioniFrasi, setOpzioniFrasi] = useState([]);
+
 
   // GENERAZIONE CASUALE
   const handleGenera = () => {
@@ -253,29 +261,40 @@ const ModaleLuogo = ({ onClose, onSave, luogo: initialLuogo }) => {
                   onChange={(e) => setLuogo({ ...luogo, hook: e.target.value })}
                 />
               </div>
-
-              <div className="narrative-tools">
-  <button
-    onClick={() =>
-      setLuogo({
-        ...luogo,
-        narrativa: { ...luogo.narrativa, hook: generaHookLuogo() }
-      })
-    }
-  >
-    🎭 Genera Hook
-  </button>
-  <button
-    onClick={() =>
-      setLuogo({
-        ...luogo,
-        narrativa: { ...luogo.narrativa, frase: generaFraseLuogo() }
-      })
-    }
-  >
-    💬 Genera Frase
-  </button>
+<div className="narrative-tools">
+  <button onClick={() => setLuogo({ ...luogo, narrativa: { ...luogo.narrativa, hook: generaHookLuogo() } })}>🎭 Genera Hook</button>
+  <button onClick={() => setLuogo({ ...luogo, narrativa: { ...luogo.narrativa, frase: generaFraseLuogo() } })}>💬 Genera Frase</button>
+  <button onClick={() => setOpzioniHook(genera3HookLuogo())}>🎲 3 Hook</button>
+  <button onClick={() => setOpzioniFrasi(genera3FrasiLuogo())}>🎲 3 Frasi</button>
 </div>
+
+{opzioniHook.length > 0 && (
+  <div className="varianti-container">
+    <h4>Scegli un Hook:</h4>
+    {opzioniHook.map((h, i) => (
+      <button key={i} onClick={() => {
+        setLuogo({ ...luogo, narrativa: { ...luogo.narrativa, hook: h } });
+        setOpzioniHook([]);
+      }}>
+        {h}
+      </button>
+    ))}
+  </div>
+)}
+
+{opzioniFrasi.length > 0 && (
+  <div className="varianti-container">
+    <h4>Scegli una Frase:</h4>
+    {opzioniFrasi.map((f, i) => (
+      <button key={i} onClick={() => {
+        setLuogo({ ...luogo, narrativa: { ...luogo.narrativa, frase: f } });
+        setOpzioniFrasi([]);
+      }}>
+        {f}
+      </button>
+    ))}
+  </div>
+)}
 
 <div className="narrative-results">
   <p><strong>Hook:</strong> {luogo.narrativa?.hook || "Nessun hook generato"}</p>

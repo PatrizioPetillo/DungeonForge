@@ -1,40 +1,53 @@
 import { casuale } from "./generators";
 
+// =========================
+// HOOK & DIALOGHI VILLAIN
+// =========================
 const hookVillain = [
   "Il villain è il mentore segreto di un PNG chiave.",
-  "Il villain controlla il luogo in cui i PG si rifugeranno.",
-  "Il villain ha un accordo segreto con una divinità oscura.",
-  "Il villain è il vero erede di un antico potere.",
-  "Il villain ha un oggetto che i PG devono recuperare.",
-  "Il villain è stato tradito da un alleato fidato.",
-  "Il villain ha un piano che coinvolge un evento catastrofico.",
-  "Il villain è in possesso di un artefatto che può cambiare le sorti della campagna."
-];
-
-const hookPNG = [
-  "Questo PNG è in debito con il villain.",
-  "Il PNG nasconde un oggetto leggendario in un luogo remoto.",
-  "Il PNG conosce un rituale che il villain vuole eseguire.",
-    "Il PNG è l'unico in grado di decifrare un antico testo.",
-    "Il PNG è un ex alleato del villain, ora pentito.",
-    "Il PNG ha una connessione con un luogo chiave della campagna.",
-    "Il PNG è stato maledetto dal villain e cerca aiuto.",
-    "Il PNG è un agente sotto copertura inviato dal villain.",
-    "Il PNG ha un segreto che può rovesciare le sorti della campagna.",
-    "Il PNG è il custode di un portale verso un altro piano."
+  "Il villain controlla un luogo in cui i PG cercheranno rifugio.",
+  "Il villain ha stretto un patto con una divinità oscura.",
+  "Un antico debito lega il villain a una potente fazione.",
+  "Il villain è maledetto e ha bisogno dei PG per spezzare la maledizione.",
+  "Il villain ha un oggetto che i PG devono recuperare per salvare il mondo.",
+  "Il villain è in realtà un ex eroe caduto in disgrazia.",
+  "Il villain ha un legame misterioso con uno dei PG.",
 ];
 
 const dialoghiVillain = [
   "«Non sono io il male. Sono la cura di questo mondo malato.»",
   "«Tutto ciò che amate cadrà in cenere. E vi ringrazierete di avermi conosciuto.»",
   "«La luce è solo un’ombra in ritardo.»",
-  "«Il potere non è un dono, è una maledizione che pochi possono gestire.»",
-  "«La tua lealtà è un lusso che non posso permettermi.»",
-  "«La tua morte sarà solo l'inizio della mia grande opera.»",
-    "«Non c'è redenzione per chi ha scelto il lato sbagliato.»",
-    "«La tua speranza è la mia arma più potente.»",
-    "«Ogni eroe ha un prezzo. E io sono qui per riscuoterlo.»",
-    "«La tua paura è il mio carburante. E brucerà tutto ciò che ami.»"
+  "«Non potete fermare l’inevitabile. Potete solo affrettarlo.»",
+  "«Ogni eroe ha un prezzo. E io sono qui per riscuoterlo.»",
+  "«La vostra speranza è la mia forza. E io sono il vostro incubo.»",
+  "«Il destino non è scritto. È scolpito nel sangue.»",
+  "«La verità è un’arma, e io sono il suo maestro.»",
+  "«La paura è il mio alleato. E voi siete i miei burattini.»",
+  "«Ogni passo che fate mi avvicina al mio trionfo.»",
+];
+
+export function generaHookVillain() {
+  return casuale(hookVillain);
+}
+
+export function generaDialogoVillain() {
+  return casuale(dialoghiVillain);
+}
+
+// =========================
+// HOOK & DIALOGHI PNG
+// =========================
+const hookPNG = [
+  "Questo PNG conosce un segreto sul villain principale.",
+  "Il PNG custodisce una chiave per accedere a un luogo proibito.",
+  "Il PNG è in debito con una fazione oscura.",
+  "Il PNG è l'unico a sapere dove si trova un oggetto leggendario.",
+  "Il PNG ha un passato oscuro che lo lega al villain.",
+  "Il PNG è un traditore infiltrato tra i PG.",
+  "Il PNG ha un potere nascosto che può cambiare le sorti della storia.",
+  "Il PNG è un testimone chiave di un evento cruciale.",
+  "Il PNG è in possesso di un artefatto che può distruggere il villain.",
 ];
 
 const dialoghiPNG = [
@@ -42,36 +55,20 @@ const dialoghiPNG = [
   "«Ho visto cose che preferirei dimenticare.»",
   "«Avete monete? Ho storie che valgono oro.»",
   "«Il silenzio è il miglior alleato... finché non vi tradisce.»",
-  "«Non chiedetemi da dove vengo, e non vi chiederò dove andate.»",
-  "«La mia vita è un labirinto, e voi siete solo visitatori.»",
-  "«Non sono un eroe, ma un sopravvissuto. E voi dovreste imparare a esserlo.»",
-  "«La mia lealtà è a chi mi paga di più. E voi non avete monete.»",
-  "«La mia storia è un segreto. E voi non siete pronti a sentirla.»",
+  "«Non tutte le ferite sono visibili, e non tutti i segreti sono nascosti.»",
+  "«La mia lealtà ha un prezzo, e voi non potete permettervelo.»",
+  "«Le mie parole sono come le ombre: possono nascondere o rivelare.»",
+  "«Non sono qui per aiutarvi, ma per osservare.»",
+  "«Ogni scelta ha un prezzo, e io sono il vostro esattore.»",
+  "«La verità è un lusso che pochi possono permettersi.»",
 ];
+
+export function generaHookPNG() {
+  return casuale(hookPNG);
+}
 
 export function generaDialogoPNG() {
   return casuale(dialoghiPNG);
-}
-
-export function generaHook(tipo) {
-  if (tipo === "villain") return casuale(hookVillain);
-  if (tipo === "png") return casuale(hookPNG);
-  return "Un mistero lega questi elementi...";
-}
-
-export function generaDialogo(tipo) {
-  if (tipo === "villain") return casuale(dialoghiVillain);
-  if (tipo === "png") return casuale([
-    "«Posso fidarmi di voi? Non ho altra scelta…. »",
-    "«Un uomo deve mangiare. E voi dovreste correre.»",
-    "«Loro non vi diranno la verità. Io sì.»",
-    "«La mia vita è un labirinto. E voi siete perduti.»",
-    "«Non sono un eroe. Sono un sopravvissuto.»",
-    "«La mia lealtà è a chi mi paga di più. E voi non avete monete.»",
-    "«La mia storia è un segreto. E voi non siete pronti a sentirla.»",
-    "«Non sono qui per salvare il mondo. Sono qui per salvarmi.»",
-  ]);
-  return "Silenzio eloquente...";
 }
 
 // =========================
@@ -81,16 +78,25 @@ const hookLuogo = [
   "Il luogo nasconde un passaggio verso un piano dimenticato.",
   "Una maledizione permea queste mura, e pochi conoscono il motivo.",
   "La taverna è un punto d’incontro per spie e traditori.",
-  "Sotto la città c’è un tempio dedicato a un dio proibito.",
-  "Il villaggio ospita un PNG che è la chiave di un’antica profezia."
+  "Il luogo è stato teatro di un antico rituale che ha cambiato il corso della storia.",
+  "Questo luogo è un crocevia di destini, dove ogni scelta ha conseguenze impreviste.",
+  "Il luogo è protetto da un guardiano che non dorme mai.",
+  "Le leggende narrano che questo luogo sia stato costruito su un antico cimitero di eroi dimenticati.",
+  "Il luogo è avvolto da un’aura di mistero, e chi vi entra non ne esce mai lo stesso.",
+  "Questo luogo è un rifugio per coloro che cercano risposte, ma le risposte sono spesso più pericolose delle domande.",
 ];
 
 const frasiLuogo = [
   "«Qui inizia e qui finisce il cerchio eterno.»",
   "«Chi osa varcare questa soglia non tornerà mai lo stesso.»",
   "«Il tempo qui non scorre, ma attende.»",
-  "«Solo chi non ha paura dell’oscurità vedrà la luce.»",
-  "«La verità giace sotto tre ombre e un silenzio eterno.»"
+  "«Le ombre di questo luogo raccontano storie che nessuno osa ascoltare.»",
+  "«Ogni pietra di questo luogo ha un segreto, e ogni segreto ha un prezzo.»",
+  "«Questo luogo è un labirinto di verità e menzogne, e pochi ne escono indenni.»",
+  "«Le leggende di questo luogo sono scritte nel sangue degli audaci.»",
+  "«Qui, il passato e il futuro si intrecciano in un eterno presente.»",
+  "«Questo luogo è un eco di ciò che è stato e di ciò che sarà.»",
+  "«Le risposte che cercate sono qui, ma il prezzo da pagare è alto.»"
 ];
 
 export function generaHookLuogo() {
@@ -108,16 +114,22 @@ const hookEnigma = [
   "La soluzione dell’enigma è scritta in un luogo insospettabile.",
   "Chi risolve l’enigma ottiene una visione del futuro.",
   "L’enigma cela un patto con un’entità extradimensionale.",
-  "Un fallimento scatena una maledizione che si estende alla regione.",
-  "L’enigma è collegato a un artefatto che il villain desidera."
+  "La risposta all’enigma è legata a un antico rituale.",
+  "L’enigma è un test per dimostrare la vera natura dei PG.",
+  "La soluzione dell’enigma è nascosta in un oggetto comune.",
+  "L’enigma è un messaggio criptato che rivela un segreto oscuro.",
 ];
 
 const frasiEnigma = [
   "«La risposta è nascosta dove il silenzio grida.»",
   "«Tre passi nell’ombra e la verità si rivelerà.»",
   "«Chi sa leggere il vento conosce la chiave.»",
-  "«Non cercare fuori ciò che è inciso dentro.»",
-  "«Solo il vuoto completa il cerchio.»"
+  "«Il tempo è un inganno, e la risposta è eterna.»",
+  "«Non tutto ciò che brilla è oro, ma la verità è sempre preziosa.»",
+  "«La mente è un labirinto, e la soluzione è il suo centro.»",
+  "«La risposta è un eco del passato, risuona nel presente.»",
+  "«Solo chi guarda oltre il velo vede la luce.»",
+  "«Le parole sono come le ombre: possono nascondere o rivelare.»",
 ];
 
 export function generaHookEnigma() {
@@ -126,4 +138,48 @@ export function generaHookEnigma() {
 
 export function generaFraseEnigma() {
   return casuale(frasiEnigma);
+}
+// =========================
+// GENERA 3 VARIANTI
+// =========================
+function generaVarianti(array, num = 3) {
+  const copie = [...array];
+  const varianti = [];
+  while (varianti.length < num && copie.length > 0) {
+    const index = Math.floor(Math.random() * copie.length);
+    varianti.push(copie.splice(index, 1)[0]);
+  }
+  return varianti;
+}
+
+// Varianti Villain
+export function genera3HookVillain() {
+  return generaVarianti(hookVillain);
+}
+export function genera3DialoghiVillain() {
+  return generaVarianti(dialoghiVillain);
+}
+
+// Varianti PNG
+export function genera3HookPNG() {
+  return generaVarianti(hookPNG);
+}
+export function genera3DialoghiPNG() {
+  return generaVarianti(dialoghiPNG);
+}
+
+// Varianti Luoghi
+export function genera3HookLuogo() {
+  return generaVarianti(hookLuogo);
+}
+export function genera3FrasiLuogo() {
+  return generaVarianti(frasiLuogo);
+}
+
+// Varianti Enigmi
+export function genera3HookEnigma() {
+  return generaVarianti(hookEnigma);
+}
+export function genera3FrasiEnigma() {
+  return generaVarianti(frasiEnigma);
 }

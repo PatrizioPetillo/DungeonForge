@@ -3,7 +3,13 @@ import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import { generaPNGNonComuneCompleto } from "../../utils/generatorePNGNonComune";
 import { armi } from "../../utils/armi";
 import { armature } from "../../utils/armature";
-import { generaHookPNG, generaDialogoPNG } from "../../utils/narrativeGenerators";
+import {
+  generaHookPNG,
+  generaDialogoPNG,
+  genera3HookPNG,
+  genera3DialoghiPNG
+} from "../../utils/narrativeGenerators";
+
 import "../../styles/modalePNG.css";
 
 const abilitaPerStat = {
@@ -20,6 +26,9 @@ export default function ModalePNGNonComune({ onClose }) {
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState("Generali");
   const [spellSuggeriti, setSpellSuggeriti] = useState([]);
+  const [opzioniHook, setOpzioniHook] = useState([]);
+const [opzioniDialogo, setOpzioniDialogo] = useState([]);
+
 
   const tabs = [
     "Generali",
@@ -1038,28 +1047,50 @@ const removeSpell = (index) => {
                 />
               </div>
               <hr />
-              <div className="narrative-tools">
+  <div className="narrative-tools">
   <button
-    onClick={() =>
-      setPng({
-        ...png,
-        narrativa: { ...png.narrativa, hook: generaHookPNG() }
-      })
-    }
+    onClick={() => setPng({ ...png, narrativa: { ...png.narrativa, hook: generaHookPNG() } })}
   >
     🎭 Genera Hook
   </button>
   <button
-    onClick={() =>
-      setPng({
-        ...png,
-        narrativa: { ...png.narrativa, dialogo: generaDialogoPNG() }
-      })
-    }
+    onClick={() => setPng({ ...png, narrativa: { ...png.narrativa, dialogo: generaDialogoPNG() } })}
   >
     💬 Genera Dialogo
   </button>
+  <button onClick={() => setOpzioniHook(genera3HookPNG())}>🎲 3 Hook</button>
+  <button onClick={() => setOpzioniDialogo(genera3DialoghiPNG())}>🎲 3 Dialoghi</button>
 </div>
+
+
+{opzioniHook.length > 0 && (
+  <div className="varianti-container">
+    <h4>Scegli un Hook:</h4>
+    {opzioniHook.map((h, i) => (
+      <button key={i} onClick={() => {
+        setPng({ ...png, narrativa: { ...png.narrativa, hook: h } });
+        setOpzioniHook([]);
+      }}>
+        {h}
+      </button>
+    ))}
+  </div>
+)}
+
+{opzioniDialogo.length > 0 && (
+  <div className="varianti-container">
+    <h4>Scegli un Dialogo:</h4>
+    {opzioniDialogo.map((d, i) => (
+      <button key={i} onClick={() => {
+        setPng({ ...png, narrativa: { ...png.narrativa, dialogo: d } });
+        setOpzioniDialogo([]);
+      }}>
+        {d}
+      </button>
+    ))}
+  </div>
+)}
+
 
 <div className="narrative-results">
   <p><strong>Hook:</strong> {png.narrativa?.hook || "Nessun hook generato"}</p>

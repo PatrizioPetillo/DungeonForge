@@ -48,6 +48,9 @@ const ModaleVillain = ({ onClose, onSave, villain: initialVillain }) => {
   const [tab, setTab] = useState("Generale");
   const [loading, setLoading] = useState(false);
   const [spellSuggeriti, setSpellSuggeriti] = useState([]);
+  const [opzioniHook, setOpzioniHook] = useState([]);
+const [opzioniDialogo, setOpzioniDialogo] = useState([]);
+
 
   // ✅ GENERAZIONE CASUALE
   const handleGenera = () => {
@@ -820,17 +823,71 @@ const ModaleVillain = ({ onClose, onSave, villain: initialVillain }) => {
                   />
                   <hr />
                   <div className="narrative-tools">
-                    <button
-                      onClick={() => setVillain({ ...villain, narrativa: { ...villain.narrativa, hook: generaHook("villain") } })}
-                    >
-                      🎭 Genera Hook
-                    </button>
-                    <button
-                      onClick={() => setVillain({ ...villain, narrativa: { ...villain.narrativa, dialogo: generaDialogo("villain") } })}
-                    >
-                      💬 Genera Dialogo
-                    </button>
-                  </div>
+  <button
+    onClick={() =>
+      setVillain({
+        ...villain,
+        narrativa: { ...villain.narrativa, hook: generaHookVillain() }
+      })
+    }
+  >
+    🎭 Genera Hook
+  </button>
+  <button
+    onClick={() =>
+      setVillain({
+        ...villain,
+        narrativa: { ...villain.narrativa, dialogo: generaDialogoVillain() }
+      })
+    }
+  >
+    💬 Genera Dialogo
+  </button>
+  <button
+    onClick={() => {
+      const varianti = genera3HookVillain();
+      setOpzioniHook(varianti); // nuovo state
+    }}
+  >
+    🎲 3 Hook
+  </button>
+  <button
+    onClick={() => {
+      const varianti = genera3DialoghiVillain();
+      setOpzioniDialogo(varianti);
+    }}
+  >
+    🎲 3 Dialoghi
+  </button>
+</div>
+{opzioniHook.length > 0 && (
+  <div className="varianti-container">
+    <h4>Scegli un Hook:</h4>
+    {opzioniHook.map((h, i) => (
+      <button key={i} onClick={() => {
+        setVillain({ ...villain, narrativa: { ...villain.narrativa, hook: h } });
+        setOpzioniHook([]);
+      }}>
+        {h}
+      </button>
+    ))}
+  </div>
+)}
+
+{opzioniDialogo.length > 0 && (
+  <div className="varianti-container">
+    <h4>Scegli un Dialogo:</h4>
+    {opzioniDialogo.map((d, i) => (
+      <button key={i} onClick={() => {
+        setVillain({ ...villain, narrativa: { ...villain.narrativa, dialogo: d } });
+        setOpzioniDialogo([]);
+      }}>
+        {d}
+      </button>
+    ))}
+  </div>
+)}
+
                   <p><strong>Hook:</strong> {villain.narrativa.hook || "Nessun hook generato"}</p>
                   <p><strong>Dialogo:</strong> {villain.narrativa.dialogo || "Nessun dialogo generato"}</p>
                 </div>

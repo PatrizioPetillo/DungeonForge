@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import { toast } from "react-toastify";
-import { generaHookEnigma, generaFraseEnigma } from "../../utils/narrativeGenerators";
+import {
+  generaHookEnigma,
+  generaFraseEnigma,
+  genera3HookEnigma,
+  genera3FrasiEnigma
+} from "../../utils/narrativeGenerators";
+
 import "../../styles/enigmaWidget.css";
 
 const modelliEnigma = [
@@ -45,6 +51,9 @@ const ModaleEnigma = ({ onClose }) => {
   effettoFallimento: "",
     creareTrappola: false,
   });
+  const [opzioniHook, setOpzioniHook] = useState([]);
+const [opzioniFrasi, setOpzioniFrasi] = useState([]);
+
   
   const prove = [
   { abilita: "Intelligenza (Enigmi)", cd: 13 },
@@ -60,7 +69,7 @@ const ModaleEnigma = ({ onClose }) => {
 const effetti = [
   "1d6 danni da fuoco",
   "Perdita temporanea della vista per 1 minuto",
-  "Allarme attivato: mostri in arrivo",
+  "Allarme attivato: un basso vibrare sembra provenire dalle pareti. In lontananza, ruggiti e versi si avvicinano",
   "Trappola esplosiva (2d8 danni da forza)",
   "Caduta in una fossa (CD 15 Destrezza per evitarla)",
   "Inizio di un combattimento con un mostro nascosto",
@@ -141,42 +150,40 @@ const effetti = [
               </div>
               <hr />
               <div className="narrative-tools">
-  <button
-    onClick={() =>
-      setEnigma({
-        ...enigma,
-        narrativa: { ...enigma.narrativa, hook: generaHookEnigma() }
-      })
-    }
-  >
-    🎭 Genera Hook
-  </button>
-  <button
-    onClick={() =>
-      setEnigma({
-        ...enigma,
-        narrativa: { ...enigma.narrativa, frase: generaFraseEnigma() }
-      })
-    }
-  >
-    💬 Genera Frase
-  </button>
+  <button onClick={() => setEnigma({ ...enigma, narrativa: { ...enigma.narrativa, hook: generaHookEnigma() } })}>🎭 Genera Hook</button>
+  <button onClick={() => setEnigma({ ...enigma, narrativa: { ...enigma.narrativa, frase: generaFraseEnigma() } })}>💬 Genera Frase</button>
+  <button onClick={() => setOpzioniHook(genera3HookEnigma())}>🎲 3 Hook</button>
+  <button onClick={() => setOpzioniFrasi(genera3FrasiEnigma())}>🎲 3 Frasi</button>
 </div>
 
-<div className="narrative-results">
-  <p><strong>Hook:</strong> {enigma.narrativa?.hook || "Nessun hook generato"}</p>
-  <p><strong>Frase evocativa:</strong> {enigma.narrativa?.frase || "Nessuna frase generata"}</p>
-</div>
+{opzioniHook.length > 0 && (
+  <div className="varianti-container">
+    <h4>Scegli un Hook:</h4>
+    {opzioniHook.map((h, i) => (
+      <button key={i} onClick={() => {
+        setEnigma({ ...enigma, narrativa: { ...enigma.narrativa, hook: h } });
+        setOpzioniHook([]);
+      }}>
+        {h}
+      </button>
+    ))}
+  </div>
+)}
 
-              <hr />
-              <div className="field-group">
-  <label>Prova richiesta:</label>
-  <input
-    value={enigma.prova}
-    onChange={(e) => setEnigma((prev) => ({ ...prev, prova: e.target.value }))}
-    placeholder="Es: Intelligenza (Enigmi)"
-  />
-</div>
+{opzioniFrasi.length > 0 && (
+  <div className="varianti-container">
+    <h4>Scegli una Frase:</h4>
+    {opzioniFrasi.map((f, i) => (
+      <button key={i} onClick={() => {
+        setEnigma({ ...enigma, narrativa: { ...enigma.narrativa, frase: f } });
+        setOpzioniFrasi([]);
+      }}>
+        {f}
+      </button>
+    ))}
+  </div>
+)}
+
 <div className="field-group">
   <label>CD (Classe Difficoltà):</label>
   <input

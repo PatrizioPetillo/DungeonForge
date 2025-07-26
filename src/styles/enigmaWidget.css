@@ -74,7 +74,36 @@
   border: 1px solid #444;
   font-size: 0.95rem;
 }
+.varianti-container {
+  margin-top: 12px;
+  background: #2d2d2d;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #444;
+}
 
+.varianti-container h4 {
+  color: #d4af37;
+  margin-bottom: 8px;
+}
+
+.varianti-container button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: #1a1f2b;
+  color: #f2f2f0;
+  border: 1px solid #555;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.varianti-container button:hover {
+  background: #6e4f9e;
+  color: #fff;
+}
 @media (max-width: 768px) {
   .widget-enigma {
     width: 95%;
