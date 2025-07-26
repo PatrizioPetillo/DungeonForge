@@ -6,7 +6,7 @@ const VillainWidget = ({ villain, onOpen }) => {
     <div className="villain-widget" onClick={onOpen}>
       
           <h3>🧿 Villain</h3>
-          <p>Crea il tuo antagonista principale</p>
+          <p>Genera o crea manualmente un antagonista memorabile per la tua campagna.</p>
         
     </div>
   );

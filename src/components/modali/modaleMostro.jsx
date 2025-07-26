@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/modaleMostro.css";
 import { toast } from "react-toastify";
-import { serverTimestamp } from "firebase/firestore";
-import { addDoc, collection } from "firebase/firestore";
+import { salvaInArchivio } from "../../utils/salvataggi";
+import { collection } from "firebase/firestore";
 import { firestore } from "../../firebase/firebaseConfig";
 import LootBox from "../generatori/lootBox";
 import CompendioMostri from "../compendioMostri";
@@ -69,30 +69,14 @@ const ModaleMostro = ({ onClose }) => {
     });
   }, [campagnaAttiva]);
 
-
-
-  const salvaMostro = async () => {
-    try {
-      const doc = {
-        ...mostro,
-        sceneCollegate,
-        attacchi: mostro.attacchi || [],
-        azioniLeggendarie: mostro.azioniLeggendarie || [],
-        incontriCollegati: incontriCollegati || [],
-        createdAt: serverTimestamp(),
-      };
-
-      // Salvataggio su Firestore (se abilitato)
-      await addDoc(collection(firestore, "mostri"), doc);
-
-      console.log("Mostro salvato:", doc);
-      toast.success("Mostro salvato con successo!");
+  const handleSalva = async () => {
+    const ok = await salvaInArchivio("mostri", mostro);
+    if (ok) {
+      alert("Mostro salvato nell'Archivio!");
       onClose();
-    } catch (err) {
-      console.error("Errore salvataggio:", err);
-      toast.error("Errore durante il salvataggio del mostro.");
     }
   };
+
 
   const generaMostroCasuale = async () => {
     try {
@@ -184,7 +168,7 @@ const ModaleMostro = ({ onClose }) => {
           </div>
         </div>
 
-        <div className="tab-bar">
+        <div className="tabs">
           {tabList.map((t) => (
             <button
               key={t}

@@ -16,13 +16,13 @@
   background: #1a1f2b;
   color: #f2f2f0;
   width: 900px;
-  max-height: 90vh;
+  max-height: 110vh;
   display: flex;
   flex-direction: column;
   border-radius: 10px;
   overflow: hidden;
-  border: 2px solid #d4af37;
-  box-shadow: 0 0 25px rgba(212, 175, 55, 0.4);
+  border: 2px solid none;
+  box-shadow: 0 0 25px rgba(212, 175, 55, 0.222);
 }
 
 /* HEADER */
@@ -143,8 +143,9 @@
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 3fr));
+  gap: 15px;
+  margin-bottom: 15px;
 }
 
 .stat-box {
@@ -165,6 +166,7 @@
    ======================== */
 .combat-table, .armor-table, .spell-table {
   width: 100%;
+  width: 800px;
   border-collapse: collapse;
   margin-top: 10px;
   display: block;
@@ -174,12 +176,14 @@
 
 .combat-table th, .armor-table th, .spell-table th {
   background: #2d2d2d;
+  width: 850px;
   color: #d4af37;
   padding: 6px;
 }
 
 .combat-table td, .armor-table td, .spell-table td {
   padding: 6px;
+  width: 850px;
   border: 1px solid #3d3d3d;
   text-align: center;
 }
@@ -209,6 +213,29 @@
   visibility: visible;
   opacity: 1;
 }
+
+.narrative-tools {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.narrative-tools button {
+  background: #6e4f9e;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.narrative-tools button:hover {
+  background: #d4af37;
+  color: #1a1f2b;
+}
+
 
 /* ========================
    SEZIONE EQUIPAGGIAMENTO

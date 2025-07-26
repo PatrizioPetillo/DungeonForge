@@ -2,8 +2,21 @@ import React, { useState } from "react";
 import CardElemento from "./cardElemento";
 import "../styles/archivioSezione.css";
 
-const ArchivioSezione = ({ titolo, dati, categoria }) => {
+const ArchivioSezione = ({ titolo, dati, categoria, collegamenti }) => {
   const [espanso, setEspanso] = useState(false);
+
+  const filtraDati = (lista) => {
+  return lista.filter((item) => {
+    const nome = (item.nome || item.titolo || "").toLowerCase();
+    const matchSearch = nome.includes(searchTerm.toLowerCase());
+
+    const isCollegato = collegamenti[item.id] !== undefined;
+    if (filtro === "collegati" && !isCollegato) return false;
+    if (filtro === "non-collegati" && isCollegato) return false;
+
+    return matchSearch;
+  });
+};
 
   return (
     <div className={`archivio-section ${espanso ? "expanded" : "collapsed"}`}>
@@ -14,7 +27,8 @@ const ArchivioSezione = ({ titolo, dati, categoria }) => {
 
       <div className="card-grid">
         {dati.map((item) => (
-          <CardElemento key={item.id} item={item} categoria={categoria} />
+          <CardElemento key={item.id} item={item} categoria={categoria} collegamenti={collegamenti} />
+
         ))}
       </div>
 

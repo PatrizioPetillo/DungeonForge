@@ -1,128 +1,176 @@
-import React, { useState, useEffect } from "react";
-import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import { deleteDoc, doc, getDoc, collection, getDocs, setDoc, } from "firebase/firestore";
 import { firestore } from "../../firebase/firebaseConfig";
-
 import "../../styles/modaleDettaglioArchivio.css";
 
-const ModaleDettaglioArchivio = ({ item, onClose }) => {
+export default function ModaleDettaglioArchivio({ id, tipo, collegamentoInfo, onClose, onCollega }) {
+  const [dettaglio, setDettaglio] = useState(null);
   const [campagne, setCampagne] = useState([]);
-  const [campagnaSelezionata, setCampagnaSelezionata] = useState("");
-  const [capitoloSelezionato, setCapitoloSelezionato] = useState("");
-  const [scenaSelezionata, setScenaSelezionata] = useState("");
+  const [capitoli, setCapitoli] = useState([]);
+  const [scene, setScene] = useState([]);
+  const [selectedCampagna, setSelectedCampagna] = useState("");
+  const [selectedCapitolo, setSelectedCapitolo] = useState("");
+  const [selectedScena, setSelectedScena] = useState("");
+  const [showCollegaForm, setShowCollegaForm] = useState(false);
 
-  const [editItem, setEditItem] = useState(item);
 
-  // Carica campagne disponibili
   useEffect(() => {
+    const fetchDettaglio = async () => {
+      const ref = doc(firestore, `archivio/${tipo}`, id);
+      const snap = await getDoc(ref);
+      if (snap.exists()) {
+        setDettaglio(snap.data());
+      }
+    };
     const fetchCampagne = async () => {
       const snap = await getDocs(collection(firestore, "campagne"));
-      setCampagne(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setCampagne(data);
     };
+    
     fetchCampagne();
-  }, []);
+    fetchDettaglio();
+  }, [id, tipo]);
 
-  const handleAggiungi = async () => {
-    if (!campagnaSelezionata) {
-      alert("Seleziona una campagna");
-      return;
-    }
-    try {
-      const ref = doc(firestore, `campagne/${campagnaSelezionata}`);
-      const subcoll = collection(ref, `${item.tipoArchivio || "elementi"}`);
-      await addDoc(subcoll, {
-        ...item,
-        collegatoA: {
-          capitolo: capitoloSelezionato || null,
-          scena: scenaSelezionata || null,
-        },
-        aggiuntoIl: new Date(),
-      });
-      alert("Elemento aggiunto alla campagna!");
-      onClose();
-    } catch (err) {
-      console.error("Errore aggiunta elemento:", err);
-    }
-  };
+  const caricaCapitoli = async (idCampagna) => {
+      const snap = await getDocs(collection(firestore, `campagne/${idCampagna}/capitoli`));
+      const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setCapitoli(data);
+    };
 
-  const handleSalva = async () => {
-    try {
-      const docRef = doc(firestore, `archivio/${item.categoria}/${item.id}`);
-      await updateDoc(docRef, editItem);
-      alert("Elemento aggiornato!");
-      onClose();
-    } catch (err) {
-      console.error("Errore salvataggio:", err);
-    }
-  };
+    const caricaScene = async (idCampagna, idCapitolo) => {
+      const snap = await getDocs(collection(firestore, `campagne/${idCampagna}/capitoli/${idCapitolo}/scene`));
+      const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setScene(data);
+    };
+
+  const confermaCollegamento = async () => {
+  if (!selectedCampagna || !selectedCapitolo || !selectedScena) {
+    alert("Seleziona campagna, capitolo e scena.");
+    return;
+  }
+  const ref = doc(
+    firestore,
+    `campagne/${selectedCampagna}/capitoli/${selectedCapitolo}/scene/${selectedScena}/collegamenti/${tipo}`,
+    dettaglio.id
+  );
+  await setDoc(ref, dettaglio);
+  alert(`Elemento collegato alla scena con successo!`);
+  setShowCollegaForm(false);
+  onClose();
+};
 
   const handleElimina = async () => {
-    if (!window.confirm("Sei sicuro di voler eliminare questo elemento?")) return;
-    try {
-      const docRef = doc(firestore, `archivio/${item.categoria}/${item.id}`);
-      await deleteDoc(docRef);
-      alert("Elemento eliminato!");
+    if (window.confirm("Sei sicuro di voler eliminare questo elemento dall'Archivio?")) {
+      await deleteDoc(doc(firestore, `archivio/${tipo}`, id));
+      alert("Elemento eliminato dall'Archivio!");
       onClose();
-    } catch (err) {
-      console.error("Errore eliminazione:", err);
     }
   };
+
+  const handleCollega = () => {
+    if (onCollega) {
+      onCollega(dettaglio);
+    }
+    onClose();
+  };
+
+  if (!dettaglio) return null;
 
   return (
     <div className="modale-overlay">
-      <div className="modale-dettaglio">
-        <button className="btn-close" onClick={onClose}>❌</button>
-        
-        <h2>{item.nome}</h2>
-        <img
-          src={item.immagine || "/img/default.jpg"}
-          alt={item.nome}
-          className="modale-img"
-        />
-
-        <div className="info-blocco">
-          <p><strong>Classe:</strong> {item.classe || "-"}</p>
-          <p><strong>Livello:</strong> {item.livello || "-"}</p>
-          <p><strong>Descrizione:</strong> {item.descrizione || "Nessuna descrizione"}</p>
+      <div className="modale-archivio">
+        <div className="modale-header">
+          <h3>{dettaglio.nome || dettaglio.titolo || "Dettaglio Archivio"}</h3>
+          <button onClick={onClose}>✖</button>
         </div>
 
-        {/* Aggiungi alla campagna */}
-        <div className="aggiungi-blocco">
-          <h3>Aggiungi alla Campagna</h3>
-          <select value={campagnaSelezionata} onChange={(e) => setCampagnaSelezionata(e.target.value)}>
-            <option value="">— Seleziona Campagna —</option>
-            {campagne.map((c) => (
-              <option key={c.id} value={c.id}>{c.titolo}</option>
-            ))}
-          </select>
-
-          {campagnaSelezionata && (
-            <>
-              <input
-                type="text"
-                placeholder="Capitolo (opzionale)"
-                value={capitoloSelezionato}
-                onChange={(e) => setCapitoloSelezionato(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Scena (opzionale)"
-                value={scenaSelezionata}
-                onChange={(e) => setScenaSelezionata(e.target.value)}
-              />
-            </>
+        <div className="modale-body">
+          {/* Immagine */}
+          {dettaglio.immagine && (
+            <div className="image-container">
+              <img src={dettaglio.immagine} alt="preview" />
+            </div>
           )}
 
-          <button className="btn-primary" onClick={handleAggiungi}>✅ Aggiungi</button>
+          {/* Dettagli principali */}
+          <div className="details-container">
+            <p><strong>Tipo:</strong> {tipo}</p>
+            {dettaglio.classe && <p><strong>Classe:</strong> {dettaglio.classe}</p>}
+            {dettaglio.razza && <p><strong>Razza:</strong> {dettaglio.razza}</p>}
+            {dettaglio.livello && <p><strong>Livello:</strong> {dettaglio.livello}</p>}
+            {dettaglio.allineamento && <p><strong>Allineamento:</strong> {dettaglio.allineamento}</p>}
+
+            {dettaglio.narrativa && (
+              <div className="narrativa-box">
+                <h4>Narrativa</h4>
+                <p>{dettaglio.narrativa.obiettivo && `Obiettivo: ${dettaglio.narrativa.obiettivo}`}</p>
+                <p>{dettaglio.narrativa.motivazione && `Motivazione: ${dettaglio.narrativa.motivazione}`}</p>
+                <p>{dettaglio.narrativa.origine && `Origine: ${dettaglio.narrativa.origine}`}</p>
+                {dettaglio.narrativa.hook && <p><strong>Hook:</strong> {dettaglio.narrativa.hook}</p>}
+                {dettaglio.narrativa.dialogo && <p><strong>Dialogo:</strong> “{dettaglio.narrativa.dialogo}”</p>}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Pulsanti gestione */}
-        <div className="pulsanti-modale">
-          <button onClick={handleSalva}>💾 Modifica & Salva</button>
-          <button className="btn-danger" onClick={handleElimina}>🗑 Elimina</button>
+        {/* Azioni */}
+        <div className="modale-actions">
+          <button className="btn-collega" onClick={() => setShowCollegaForm(!showCollegaForm)}>
+  🔗 Collega a Scena
+</button>
+          <button className="btn-elimina" onClick={handleElimina}>❌ Elimina</button>
         </div>
+        {showCollegaForm && (
+  <div className="collega-form">
+    <h4>Collega a Scena</h4>
+    <select
+      value={selectedCampagna}
+      onChange={(e) => {
+        setSelectedCampagna(e.target.value);
+        caricaCapitoli(e.target.value);
+      }}
+    >
+      <option value="">-- Seleziona Campagna --</option>
+      {campagne.map((c) => (
+        <option key={c.id} value={c.id}>{c.nome || c.titolo}</option>
+      ))}
+    </select>
+
+    <select
+      value={selectedCapitolo}
+      onChange={(e) => {
+        setSelectedCapitolo(e.target.value);
+        caricaScene(selectedCampagna, e.target.value);
+      }}
+      disabled={!selectedCampagna}
+    >
+      <option value="">-- Seleziona Capitolo --</option>
+      {capitoli.map((cap) => (
+        <option key={cap.id} value={cap.id}>{cap.titolo}</option>
+      ))}
+    </select>
+
+    <select
+      value={selectedScena}
+      onChange={(e) => setSelectedScena(e.target.value)}
+      disabled={!selectedCapitolo}
+    >
+      <option value="">-- Seleziona Scena --</option>
+      {scene.map((s) => (
+        <option key={s.id} value={s.id}>{s.titolo}</option>
+      ))}
+    </select>
+
+    <button className="btn-conferma" onClick={confermaCollegamento}>Conferma</button>
+  </div>
+)}
+{collegamentoInfo && (
+  <p className="info-collegamento">
+    Collegato a: {collegamentoInfo.scena} ({collegamentoInfo.capitolo})
+  </p>
+)}
       </div>
     </div>
   );
-};
-
-export default ModaleDettaglioArchivio;
+}

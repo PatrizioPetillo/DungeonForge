@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { firestore } from "../../firebase/firebaseConfig";
+import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import { generaLuogo } from "../../utils/generatoreLuogo"; // Nuovo generatore
+import { generaHookLuogo, generaFraseLuogo } from "../../utils/narrativeGenerator";
+
 import "../../styles/modaleLuogo.css";
 
 const ModaleLuogo = ({ onClose, onSave, luogo: initialLuogo }) => {
@@ -41,28 +42,13 @@ const ModaleLuogo = ({ onClose, onSave, luogo: initialLuogo }) => {
 
   // SALVATAGGIO FIRESTORE
   const handleSalva = async () => {
-    if (!luogo.nome) {
-      alert("Inserisci almeno il nome del luogo!");
-      return;
-    }
-    setLoading(true);
-    try {
-      const dataToSave = {
-        ...luogo,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      };
-      await addDoc(collection(firestore, "luoghi"), dataToSave);
-      alert("✅ Luogo salvato con successo!");
-      setLoading(false);
-      if (onSave) onSave(dataToSave);
+    const ok = await salvaInArchivio("luoghi", luogo);
+    if (ok) {
+      alert("Luogo salvato nell'Archivio!");
       onClose();
-    } catch (err) {
-      console.error("Errore salvataggio luogo:", err);
-      setLoading(false);
-      alert("❌ Errore durante il salvataggio.");
     }
   };
+
 
   return (
     <div className="modale-overlay">
@@ -267,6 +253,36 @@ const ModaleLuogo = ({ onClose, onSave, luogo: initialLuogo }) => {
                   onChange={(e) => setLuogo({ ...luogo, hook: e.target.value })}
                 />
               </div>
+
+              <div className="narrative-tools">
+  <button
+    onClick={() =>
+      setLuogo({
+        ...luogo,
+        narrativa: { ...luogo.narrativa, hook: generaHookLuogo() }
+      })
+    }
+  >
+    🎭 Genera Hook
+  </button>
+  <button
+    onClick={() =>
+      setLuogo({
+        ...luogo,
+        narrativa: { ...luogo.narrativa, frase: generaFraseLuogo() }
+      })
+    }
+  >
+    💬 Genera Frase
+  </button>
+</div>
+
+<div className="narrative-results">
+  <p><strong>Hook:</strong> {luogo.narrativa?.hook || "Nessun hook generato"}</p>
+  <p><strong>Frase evocativa:</strong> {luogo.narrativa?.frase || "Nessuna frase generata"}</p>
+</div>
+
+<hr />
 
               <div className="form-group">
                 <label>Leggende</label>

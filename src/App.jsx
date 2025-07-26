@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from "react-toastify";
+import packageJson from '../package.json';
 import "react-toastify/dist/ReactToastify.css";
 import 'react-tooltip/dist/react-tooltip.css';
 import AuthPage from './pages/authPage';
@@ -32,6 +33,9 @@ function App() {
         <Route path="/archivio-sezione" element={<ArchivioSezione />} />
         <Route path="/suggerimento-del-giorno" element={<SuggerimentoDelGiorno />} />
       </Routes>
+      <footer>
+        <small>Versione: {packageJson.version}</small>
+      </footer>
     </BrowserRouter>
   );
 }

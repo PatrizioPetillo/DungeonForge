@@ -1,9 +1,15 @@
 import React, { useState } from "react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp, doc, setDoc } from "firebase/firestore";
 import { firestore } from "../../firebase/firebaseConfig";
+import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import { generaVillainCompleto } from "../../utils/generatoreVillain";
 import { classes } from "../../utils/classes";
 import { spells } from "../../utils/spells";
+import { armi } from "../../utils/armi";
+import { armature } from "../../utils/armature";
+import { generateBackground } from "../../utils/backgrounds";
+import { generaHook } from "../../utils/narrativeGenerators";
+import { generaDialogo } from "../../utils/narrativeGenerators";
 import "../../styles/modaleVillain.css";
 
 const ModaleVillain = ({ onClose, onSave, villain: initialVillain }) => {
@@ -51,26 +57,10 @@ const ModaleVillain = ({ onClose, onSave, villain: initialVillain }) => {
 
   // ✅ SALVATAGGIO FIRESTORE
   const handleSalva = async () => {
-    if (!villain.nome) {
-      alert("Inserisci almeno il nome del Villain!");
-      return;
-    }
-    setLoading(true);
-    try {
-      const villainData = {
-        ...villain,
-        updatedAt: serverTimestamp(),
-        createdAt: initialVillain ? villain.createdAt : serverTimestamp(),
-      };
-      await addDoc(collection(firestore, "villains"), villainData);
-      alert("✅ Villain salvato con successo!");
-      if (onSave) onSave(villainData);
+    const ok = await salvaInArchivio("villain", villain);
+    if (ok) {
+      alert("Villain salvato nell'Archivio!");
       onClose();
-    } catch (err) {
-      console.error("Errore salvataggio:", err);
-      alert("❌ Errore durante il salvataggio.");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -828,6 +818,21 @@ const ModaleVillain = ({ onClose, onSave, villain: initialVillain }) => {
                       setVillain({ ...villain, narrativa: { ...villain.narrativa, origine: e.target.value } })
                     }
                   />
+                  <hr />
+                  <div className="narrative-tools">
+                    <button
+                      onClick={() => setVillain({ ...villain, narrativa: { ...villain.narrativa, hook: generaHook("villain") } })}
+                    >
+                      🎭 Genera Hook
+                    </button>
+                    <button
+                      onClick={() => setVillain({ ...villain, narrativa: { ...villain.narrativa, dialogo: generaDialogo("villain") } })}
+                    >
+                      💬 Genera Dialogo
+                    </button>
+                  </div>
+                  <p><strong>Hook:</strong> {villain.narrativa.hook || "Nessun hook generato"}</p>
+                  <p><strong>Dialogo:</strong> {villain.narrativa.dialogo || "Nessun dialogo generato"}</p>
                 </div>
               )}
             </div>

@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { firestore } from "../../firebase/firebaseConfig";
+import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import { generaPNGNonComuneCompleto } from "../../utils/generatorePNGNonComune";
 import { armi } from "../../utils/armi";
 import { armature } from "../../utils/armature";
+import { generaHookPNG, generaDialogoPNG } from "../../utils/narrativeGenerator";
 import "../../styles/modalePNG.css";
 
 const abilitaPerStat = {
@@ -110,78 +110,14 @@ const removeSpell = (index) => {
   };
 
   const handleSalva = async () => {
-  if (!png.nome) {
-    alert("Devi generare un PNG prima di salvarlo!");
-    return;
-  }
+    const data = { ...png, tipo: "Non Comune" };
+    const ok = await salvaInArchivio("png", data);
+    if (ok) {
+      alert("PNG salvato nell'Archivio!");
+      onClose();
+    }
+  };
 
-  setLoading(true);
-  try {
-    const docData = {
-      nome: png.nome,
-      razza: png.razza,
-      classe: png.classe,
-      livello: png.livello,
-      pf: png.pf,
-      ca: png.ca,
-      velocita: png.velocita,
-      dadoVita: png.dadoVita,
-      linguaggi: png.linguaggi || [],
-      stats: png.stats || {},
-      armiEquippate: (png.armiEquippate || []).map(a => ({
-        nome: a.name,
-        danno: `${a.damage.damage_dice} ${a.damage.damage_type.name}`,
-        proprieta: a.properties.map(p => p.name),
-        bonusAttacco: a.bonusAttacco || "",
-        munizioni: a.munizioni || null
-      })),
-      armatureIndossate: (png.armatureIndossate || []).map(a => ({
-        nome: a.name,
-        caBase: a.armor_class.base,
-        tipo: a.armor_category,
-        svantaggio: a.stealth_disadvantage || false,
-        peso: a.weight || 0
-      })),
-      equipVari: png.equipVari || [],
-      magia: png.magia
-        ? {
-            caratteristica: png.magia.caratteristica,
-            cd: png.magia.cd,
-            bonusAttacco: png.magia.bonusAttacco,
-            focus: png.magia.focus,
-            slot: png.slotIncantesimi || [],
-            incantesimi: (png.incantesimi || []).map(sp => ({
-              nome: sp.nome,
-              livello: sp.livello,
-              scuola: sp.scuola,
-              gittata: sp.gittata,
-              componenti: sp.componenti,
-              durata: sp.durata,
-              descrizione: sp.descrizione
-            }))
-          }
-        : null,
-      narrativa: {
-        descrizione: png.descrizione || "",
-        origine: png.origine || "",
-        ruolo: png.ruolo || ""
-      },
-      immagine: png.immagine || null,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    };
-
-    await addDoc(collection(firestore, "png"), docData);
-
-    setLoading(false);
-    alert("✅ PNG salvato con successo!");
-    onClose();
-  } catch (err) {
-    console.error("Errore salvataggio PNG:", err);
-    setLoading(false);
-    alert("❌ Errore durante il salvataggio. Riprova.");
-  }
-};
 
   return (
     <div className="modale-overlay">
@@ -199,7 +135,7 @@ const removeSpell = (index) => {
         {loading && <p>Generazione in corso...</p>}
 
         {/* Tabs */}
-        <div className="tab-selector">
+        <div className="tabs">
           {tabs.map((t) => (
             <button key={t} className={tab === t ? "active" : ""} onClick={() => setTab(t)}>
               {t}
@@ -1101,6 +1037,35 @@ const removeSpell = (index) => {
                   onChange={(e) => setPng({ ...png, ruolo: e.target.value })}
                 />
               </div>
+              <hr />
+              <div className="narrative-tools">
+  <button
+    onClick={() =>
+      setPng({
+        ...png,
+        narrativa: { ...png.narrativa, hook: generaHookPNG() }
+      })
+    }
+  >
+    🎭 Genera Hook
+  </button>
+  <button
+    onClick={() =>
+      setPng({
+        ...png,
+        narrativa: { ...png.narrativa, dialogo: generaDialogoPNG() }
+      })
+    }
+  >
+    💬 Genera Dialogo
+  </button>
+</div>
+
+<div className="narrative-results">
+  <p><strong>Hook:</strong> {png.narrativa?.hook || "Nessun hook generato"}</p>
+  <p><strong>Dialogo:</strong> {png.narrativa?.dialogo || "Nessun dialogo generato"}</p>
+</div>
+
             </div>
           )}
         </div>

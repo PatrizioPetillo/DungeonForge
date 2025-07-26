@@ -1,10 +1,7 @@
 import React, { useState } from "react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { firestore } from "../../firebase/firebaseConfig";
+import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import { toast } from "react-toastify";
-import { generaNomeCasuale } from "../../utils/generators";
-
-
+import { generaHookEnigma, generaFraseEnigma } from "../../utils/narrativeGenerator";
 import "../../styles/enigmaWidget.css";
 
 const modelliEnigma = [
@@ -89,20 +86,14 @@ const effetti = [
   toast.info(`Enigma generato: ${random.titolo}`);
 };
 
-  const salvaEnigma = async () => {
-    try {
-      await addDoc(collection(firestore, "enigmi"), {
-        ...enigma,
-        createdAt: serverTimestamp(),
-      });
-      toast.success("Enigma salvato!");
+ const handleSalva = async () => {
+    const ok = await salvaInArchivio("enigmi", enigma);
+    if (ok) {
+      alert("Enigma salvato nell'Archivio!");
       onClose();
-    } catch (err) {
-      console.error(err);
-      toast.error("Errore salvataggio.");
     }
   };
-
+  
   return (
     <div className="modal-overlay">
       <div className="modale-enigma">
@@ -110,12 +101,12 @@ const effetti = [
           <h2>🧠 Enigma / Trappola</h2>
           <div className="icone-header">
             <button onClick={generaEnigmaCasuale} title="Genera casuale">🎲</button>
-            <button onClick={salvaEnigma} title="Salva">💾</button>
+            <button onClick={handleSalva} title="Salva">💾</button>
             <button onClick={onClose} title="Chiudi">✖️</button>
           </div>
         </div>
 
-        <div className="tab-bar">
+        <div className="tabs">
           {["Dettagli", "Soluzione"].map((t) => (
             <button key={t} className={t === (enigma.tab || "Dettagli") ? "active" : ""} onClick={() => setEnigma((e) => ({ ...e, tab: t }))}>
               {t}
@@ -148,6 +139,35 @@ const effetti = [
                   onChange={(e) => setEnigma((prev) => ({ ...prev, descrizione: e.target.value }))}
                 />
               </div>
+              <hr />
+              <div className="narrative-tools">
+  <button
+    onClick={() =>
+      setEnigma({
+        ...enigma,
+        narrativa: { ...enigma.narrativa, hook: generaHookEnigma() }
+      })
+    }
+  >
+    🎭 Genera Hook
+  </button>
+  <button
+    onClick={() =>
+      setEnigma({
+        ...enigma,
+        narrativa: { ...enigma.narrativa, frase: generaFraseEnigma() }
+      })
+    }
+  >
+    💬 Genera Frase
+  </button>
+</div>
+
+<div className="narrative-results">
+  <p><strong>Hook:</strong> {enigma.narrativa?.hook || "Nessun hook generato"}</p>
+  <p><strong>Frase evocativa:</strong> {enigma.narrativa?.frase || "Nessuna frase generata"}</p>
+</div>
+
               <hr />
               <div className="field-group">
   <label>Prova richiesta:</label>

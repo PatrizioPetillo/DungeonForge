@@ -35,6 +35,18 @@
   text-align: center;
   font-size: 0.9rem;
 }
+
+.badge-collegato {
+  display: inline-block;
+  background: #2d6b4f;
+  color: #fff;
+  font-size: 0.8rem;
+  padding: 4px 6px;
+  border-radius: 4px;
+  margin-top: 6px;
+  font-weight: bold;
+}
+
 @media (max-width: 768px) {
   .card-elemento {
     height: 180px;

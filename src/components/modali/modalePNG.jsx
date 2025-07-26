@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { completaPNGComune } from "../../utils/generators";
-import { firestore } from "../../firebase/firebaseConfig";
+import { salvaInArchivio } from "../../utils/firestoreArchivio";
+import { generaHookPNG, generaDialogoPNG } from "../../utils/narrativeGenerator";
+
 import "../../styles/modalePNG.css";
 
 export default function ModalePNGComune({ onClose }) {
@@ -19,19 +21,14 @@ export default function ModalePNGComune({ onClose }) {
   };
 
   const handleSalva = async () => {
-    try {
-      const doc = {
-        ...png,
-        tipo: "Comune",
-        createdAt: serverTimestamp(),
-      };
-      await addDoc(collection(firestore, "png"), doc);
-      alert("PNG salvato con successo!");
-    } catch (err) {
-      console.error("Errore salvataggio PNG:", err);
-      alert("Errore durante il salvataggio.");
+    const data = { ...png, tipo: "Comune" };
+    const ok = await salvaInArchivio("png", data);
+    if (ok) {
+      alert("PNG salvato nell'Archivio!");
+      onClose();
     }
   };
+
 
   return (
     <div className="modale-overlay">
@@ -47,7 +44,7 @@ export default function ModalePNGComune({ onClose }) {
 
         {loading && <p>Generazione in corso...</p>}
 
-        <div className="tab-selector">
+        <div className="tabs">
           {tabs.map((t) => (
             <button
               key={t}
@@ -172,6 +169,35 @@ export default function ModalePNGComune({ onClose }) {
                   onChange={(e) => setPng({ ...png, ruolo: e.target.value })}
                 />
               </div>
+             <hr />
+             <div className="narrative-tools">
+  <button
+    onClick={() =>
+      setPng({
+        ...png,
+        narrativa: { ...png.narrativa, hook: generaHookPNG() }
+      })
+    }
+  >
+    🎭 Genera Hook
+  </button>
+  <button
+    onClick={() =>
+      setPng({
+        ...png,
+        narrativa: { ...png.narrativa, dialogo: generaDialogoPNG() }
+      })
+    }
+  >
+    💬 Genera Dialogo
+  </button>
+</div>
+
+<div className="narrative-results">
+  <p><strong>Hook:</strong> {png.narrativa?.hook || "Nessun hook generato"}</p>
+  <p><strong>Dialogo:</strong> {png.narrativa?.dialogo || "Nessun dialogo generato"}</p>
+</div>
+ 
             </div>
           )}
 

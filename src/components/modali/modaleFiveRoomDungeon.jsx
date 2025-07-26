@@ -7,7 +7,7 @@ import {
   generaContenutoCasuale,
   generaHookCasuale
 } from "../../utils/generators";
-
+import { esempiStanze } from "../../utils/esempiStanze";
 import "../../styles/modaleFiveRoomDungeon.css";
 
 const ModaleFiveRoomDungeon = ({ onClose }) => {
@@ -54,7 +54,7 @@ const ModaleFiveRoomDungeon = ({ onClose }) => {
       enigmi: [],
     },
   ]);
-
+const [esempioCorrente, setEsempioCorrente] = useState("Clicca il dado per generare un esempio.");
   const [sceneDisponibili, setSceneDisponibili] = useState([]);
   const [pngDisponibili, setPngDisponibili] = useState([]);
   const [villainDisponibili, setVillainDisponibili] = useState([]);
@@ -181,11 +181,26 @@ const ModaleFiveRoomDungeon = ({ onClose }) => {
               aggiornaStanza(tabAttiva, { descrizione: e.target.value })
             }
           />
-          <div className="esempio-box">
-            <p>
-              <strong>Esempio:</strong> {esempiStanze[tabAttiva]}
-            </p>
+          <div className="esempio-container">
+            <p><strong>Esempio:</strong> {esempioCorrente}</p>
+            <button
+              onClick={() => {
+                let lista;
+                switch (tabAttiva) {
+                  case 0: lista = esempiStanze.ingresso; break;
+                  case 1: lista = esempiStanze.enigma; break;
+                  case 2: lista = esempiStanze.twist; break;
+                  case 3: lista = esempiStanze.climax; break;
+                  case 4: lista = esempiStanze.ricompensa; break;
+                  default: lista = [];
+                }
+                setEsempioCorrente(lista[Math.floor(Math.random() * lista.length)]);
+              }}
+            >
+              🎲 Genera esempio
+            </button>
           </div>
+
           <label>Ostacolo / Trappola:</label>
           <select
             value={stanze[tabAttiva].trappola || ""}
