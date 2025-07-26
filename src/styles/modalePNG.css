@@ -324,6 +324,7 @@ textarea {
 
 /* === EQUIPAGGIAMENTO === */
 .tab-equipaggiamento {
+  width: auto;
   display: flex;
   width: 850px;
   flex-direction: column;
@@ -613,6 +614,7 @@ textarea {
 .tab-magia,
 .tab-combattimento {
   background: rgba(45, 45, 45, 0.8);
+  width: auto;
   padding: 1rem;
   border-radius: 10px;
   border: 1px solid #3d3d3d;
