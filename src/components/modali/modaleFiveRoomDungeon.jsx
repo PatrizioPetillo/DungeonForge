@@ -63,6 +63,7 @@ const [esempioCorrente, setEsempioCorrente] = useState("Clicca il dado per gener
   const [tabAttiva, setTabAttiva] = useState(0);
 
   const generaAvventura = () => {
+    
   const idee = stanzeTemplate.map((nome, i) => ({
     titolo: generaTitoloCasuale(),
     scopo: stanze[i]?.scopo || "",
@@ -127,39 +128,32 @@ const [esempioCorrente, setEsempioCorrente] = useState("Clicca il dado per gener
 
   const handleSalva = async () => {
   try {
-    if (!avventura.titolo || avventura.stanze.length === 0) {
+    if (!titolo || stanze.length === 0) {
       toast.error("❌ Inserisci almeno il titolo e una stanza!");
       return;
     }
 
-    // Aggiungi timestamp e metadati
-    const avventuraData = {
-      ...avventura,
+    const avventura = {
+      titolo,
+      stanze,
+      tema: "Five Room Dungeon",
       createdAt: serverTimestamp(),
       tipo: "fiveRoomDungeon"
     };
 
-    // 🔹 1. Salva in Archivio
-    const docRef = await addDoc(collection(firestore, "avventure"), avventuraData);
-    avventuraData.id = docRef.id;
-
+    // 🔹 Salva in Archivio
+    const docRef = await addDoc(collection(firestore, "avventure"), avventura);
+    avventura.id = docRef.id;
     toast.success("✅ Avventura salvata in Archivio!");
 
-    // 🔹 2. Se collegata alla campagna → salva nella sotto-collezione
-    if (collegaAllaCampagna && campagnaId) {
-      const campagnaRef = collection(firestore, "campagne", campagnaId, "avventure");
-      await addDoc(campagnaRef, {
-        ...avventuraData,
-        collegataCampagna: true
-      });
+    // 🔹 Se collegata alla campagna
+    if (typeof collegaAllaCampagna !== "undefined" && collegaAllaCampagna && campagnaId) {
+      const campagnaRef = collection(firestore, `campagne/${campagnaId}/avventure`);
+      await addDoc(campagnaRef, { ...avventura, collegataCampagna: true });
       toast.success("📌 Avventura collegata alla campagna!");
     }
 
-    // 🔹 3. Callback per aggiornare lo stato nella modale Crea Campagna
-    if (onSave) {
-      onSave(avventuraData);
-    }
-
+    if (onSave) onSave(avventura);
     onClose();
   } catch (err) {
     console.error("Errore salvataggio FRD:", err);

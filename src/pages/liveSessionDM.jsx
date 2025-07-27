@@ -22,7 +22,7 @@ const LiveSessionDM = () => {
   const [loading, setLoading] = useState(true);
   const [eventiLog, setEventiLog] = useState([]);
   const [scenaIndex, setScenaIndex] = useState(0);
-
+  const [mostraModaleAvventura, setMostraModaleAvventura] = useState(false);
   const [mostraAttaccoLibero, setMostraAttaccoLibero] = useState(false);
   const [ignoraIniziativa, setIgnoraIniziativa] = useState(false);
   const [ignoraTurni, setIgnoraTurni] = useState(false);
@@ -99,6 +99,9 @@ const onLog = (descrizione) => {
 
   return (
     <div className="live-session">
+      <h1>Sessione DM - {campagna.nome}</h1>
+      <p className="descrizione-campagna">{campagna.descrizione}</p>
+      <hr className="divider" />
       <button
         className="hamburger"
         onClick={() => setSidebarVisibile(!sidebarVisibile)}
@@ -115,6 +118,35 @@ const onLog = (descrizione) => {
         <button onClick={() => setMostraAttaccoLibero(true)}>
           ⚔️ Attacco Libero
         </button>
+        <hr />
+        {campagna.avventure && campagna.avventure.length > 0 && (
+  <>
+    <button
+      className="btn-avventura"
+      onClick={() => setMostraModaleAvventura(true)}
+    >
+      📖 Apri Avventura
+    </button>
+
+    {mostraModaleAvventura && (
+      <ModaleDettaglioFRD
+        avventura={campagna.avventure[0]}
+        onClose={() => setMostraModaleAvventura(false)}
+        onSetScena={(stanza) => {
+          const index = campagna.capitoli[0].scene.findIndex(s => s.titolo === stanza.titolo);
+          if (index >= 0) {
+            setScenaIndex(index);
+            onLog(`✅ Scena attiva impostata su: ${stanza.titolo}`);
+          } else {
+            onLog(`⚠️ Scena non trovata: ${stanza.titolo}`);
+          }
+          setMostraModaleAvventura(false);
+        }}
+      />
+    )}
+  </>
+)}
+
 
         <SceneViewer scena={scenaAttiva} />
         <div className="nav-scene">
