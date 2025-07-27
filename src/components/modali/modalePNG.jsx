@@ -8,7 +8,6 @@ import {
   genera3DialoghiPNG
 } from "../../utils/narrativeGenerators";
 
-
 import "../../styles/modalePNG.css";
 
 export default function ModalePNGComune({ onClose }) {
@@ -52,7 +51,7 @@ const [opzioniDialogo, setOpzioniDialogo] = useState([]);
 
         {loading && <p>Generazione in corso...</p>}
 
-        <div className="tabs">
+        <div className="tabs-comune">
           {tabs.map((t) => (
             <button
               key={t}

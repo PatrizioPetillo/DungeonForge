@@ -1,41 +1,45 @@
 import { casuale, rand, tiraStats, generaNomeCasuale, generaCognomeCasuale, generaDescrizioneEvocativa } from "./generators";
-import { classes } from "./classes"; 
-import { razze } from "./races";     
+import { classes } from "./classes"; // API locale
+import { razze } from "./races";     // API locale 
 import { spells } from "./spells";
 import { armi } from "./armi";
 import { armature } from "./armature";
+import { backgrounds } from "./backgrounds";
 
-// ✅ Equipaggiamento base per classe
-const equipBasePerClasse = {
-  barbaro: { armi: ["battleaxe"], armature: ["leather-armor"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"] },
-  bardo: { armi: ["dagger"], armature: ["leather-armor"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni", "Liuto di quercia bianca"], focusArcano: generaFocusArcano("bardo") },
-  chierico: { armi: ["warhammer"], armature: ["chain-mail", "shield"], equipaggiamento: ["Abiti comuni", "Libro di preghiere", "Razioni"], focusArcano: generaFocusArcano("cleric") },
-  druido: { armi: ["dagger"], armature: ["leather-armor"], equipaggiamento: ["Abiti comuni", "Razioni"], focusArcano: generaFocusArcano("druid") },
-  guerriero: { armi: ["longsword"], armature: ["chain-mail", "shield"], equipaggiamento: ["Abiti comuni", "Razioni"] },
-  ladro: { armi: ["shortsword"], armature: ["leather-armor"], equipaggiamento: ["Abiti comuni", "Razioni"] },
-  mago: { armi: ["dagger"], armature: [], equipaggiamento: ["Abiti comuni", "Razioni"], focusArcano: generaFocusArcano("wizard") },
-  monaco: { armi: ["shortsword"], armature: [], equipaggiamento: ["Abiti comuni", "Razioni"] },
-  paladino: { armi: ["longsword"], armature: ["chain-mail", "shield"], equipaggiamento: ["Abiti comuni", "Razioni"], focusArcano: generaFocusArcano("paladin") },
-  ranger: { armi: ["longbow", "shortsword"], armature: ["leather-armor"], equipaggiamento: ["Abiti comuni", "Razioni"] },
-  stregone: { armi: ["dagger"], armature: [], equipaggiamento: ["Abiti comuni", "Razioni"], focusArcano: generaFocusArcano("sorcerer") },
-  warlock: { armi: ["dagger"], armature: [], equipaggiamento: ["Abiti comuni", "Razioni"], focusArcano: generaFocusArcano("warlock") }
+const statMagicaPerClasse = {
+  mago: "intelligenza",
+  stregone: "carisma",
+  warlock: "carisma",
+  bardo: "carisma",
+  chierico: "saggezza",
+  druido: "saggezza",
+  paladino: "carisma",
+  ranger: "saggezza",
+  monaco: "saggezza"
+};
+const abilitaPerStat = {
+  forza: ["Atletica"],
+  destrezza: ["Acrobazia", "Furtività", "Rapidità di mano"],
+  costituzione: [],
+  intelligenza: ["Arcano", "Indagare", "Storia", "Natura", "Religione"],
+  saggezza: ["Percezione", "Intuizione", "Medicina", "Sopravvivenza", "Addestrare Animali"],
+  carisma: ["Persuasione", "Inganno", "Intrattenere", "Intimidire"]
 };
 
-const equipVariBase = [
-  "Corda di canapa (15m)", "Otre d’acqua", "10 torce", "Pozione di guarigione", "Zaino", "Kit da esploratore"
-];
-
-const lootVillain = [
-  "Gemma Insanguinata", "Talismano Maledetto", "Anello Oscuro", "Reliquia Antica", "Pergamena Proibita", "Pugnale Cerimoniale"
-];
-
-const frasiLoot = [
-  "Avvolto in una foschia oscura che sussurra segreti.",
-  "Le rune pulsano come vene incandescenti.",
-  "Un oggetto che sembra assorbire la luce stessa.",
-  "Un sigillo antico incide la sua superficie.",
-  "Oscura energia sprigiona calore sinistro."
-];
+  const equipBasePerClasse = {
+  barbaro: { armi: ["battleaxe"], armature: ["leather-armor"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"] },
+  bardo: { armi: ["dagger"], armature: ["leather-armor"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni", "Liuto di quercia bianca"], focusArcano: generaFocusArcano("bard") },
+  chierico: { armi: ["warhammer"], armature: ["chain-mail", "shield"], equipaggiamento: ["Abiti comuni", "Giaciglio", "Libro di preghiere", "Zaino", "Razioni"], focusArcano: generaFocusArcano("cleric") },
+  druido: { armi: ["dagger"], armature: ["leather-armor"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"], focusArcano: generaFocusArcano("druid") },
+  guerriero: { armi: ["longsword"], armature: ["chain-mail", "shield"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"] },
+  ladro: { armi: ["shortsword"], armature: ["leather-armor"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"] },
+  mago: { armi: ["dagger"], armature: [], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"], focusArcano: generaFocusArcano("wizard") },
+  monaco: { armi: ["shortsword"], armature: [], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"] },
+  paladino: { armi: ["longsword"], armature: ["chain-mail", "shield"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"], focusArcano: generaFocusArcano("paladin") },
+  ranger: { armi: ["longbow", "shortsword"], armature: ["leather-armor"], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"] },
+  stregone: { armi: ["dagger"], armature: [], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"], focusArcano: generaFocusArcano("sorcerer") },
+  warlock: { armi: ["dagger"], armature: [], equipaggiamento: ["Abiti comuni", "Zaino", "Razioni"], focusArcano: generaFocusArcano("warlock") }
+};
 
 function generaFocusArcano(classe) {
   const focusPerClasse = {
@@ -55,98 +59,309 @@ function generaFocusArcano(classe) {
 function calcolaCA(stats, armatureEquip) {
   let baseCA = 10 + Math.floor((stats.destrezza - 10) / 2);
   armatureEquip.forEach(a => {
-    if (a.armor_category === "Shield") baseCA += a.armor_class.base;
-    else {
+    if (a.armor_category === "Shield") {
+      baseCA += a.armor_class.base;
+    } else {
       baseCA = a.armor_class.base;
       if (a.armor_class.dex_bonus) {
         const modDex = Math.floor((stats.destrezza - 10) / 2);
-        baseCA += a.armor_class.max_bonus ? Math.min(modDex, a.armor_class.max_bonus) : modDex;
+        baseCA += a.armor_class.max_bonus
+          ? Math.min(modDex, a.armor_class.max_bonus)
+          : modDex;
       }
     }
   });
   return baseCA;
 }
 
-function getEquipFromIds(ids, lista) {
+  function getEquipFromIds(ids, lista) {
   return lista.filter(item => ids.includes(item.index));
 }
 
-export function generaVillainCompleto() {
+export function generaVillain(opzioni = {}) {
   const villain = {};
-  villain.livello = rand(5, 12);
+
+  // 1. Livello
+  villain.livello = opzioni.livello || rand(3, 10);
   const proficienza = Math.ceil(villain.livello / 4) + 2;
 
-  // Razza e classe
+  // 2. Razza e Classe (da API locali)
   const razzaKey = casuale(Object.keys(razze));
   const classeKey = casuale(classes.map(c => c.index));
+
   const razzaData = razze[razzaKey];
   const classeData = classes.find(c => c.index === classeKey);
 
-  villain.classe = classeData.name;
   villain.razza = razzaData.name;
-
-  // Classe evocativa
-  villain.classeEvocativa = `${classeData.name} ${casuale(["Oscuro", "del Sangue", "Empio", "delle Ombre"])}`;
-
-  // Linguaggi e privilegi razza
   villain.linguaggi = razzaData.languages || [];
-  villain.privilegiRazza = (razzaData.traits || []).map(t => ({ nome: t.name, descrizione: t.desc || "" }));
+  // Privilegi e talenti razziali
+  villain.privilegiRazza = (razzaData.traits || []).map(trait => ({
+    nome: trait.name,
+    descrizione: trait.desc || ""
+  }));
+  villain.velocita = razzaData.speed || 9; // in metri
+  villain.classe = classeData.name;
+  villain.dadoVita = classeData.hit_die || 8;
 
-  // Nome e allineamento
+  // 3. Sottoclasse
+  villain.sottoclasse = casuale(classeData.subclasses)?.name || "";
+
+  // 4. Nome villain
   villain.nome = `${generaNomeCasuale()} ${generaCognomeCasuale()}`;
-  villain.allineamento = casuale(["Legale Malvagio", "Neutrale Malvagio", "Caotico Malvagio"]);
 
-  // Stats
-  const rolls = tiraStats().sort((a, b) => b - a);
-  const statsOrder = ["forza", "destrezza", "costituzione", "intelligenza", "saggezza", "carisma"];
-  villain.stats = {};
-  statsOrder.forEach((s, i) => villain.stats[s] = rolls[i]);
-  razzaData.ability_bonuses.forEach(b => villain.stats[b.ability_score] += b.bonus);
+  // 5. Stats
+const prioritaStat = {
+  barbaro: ["forza", "costituzione"],
+  bardo: ["carisma", "destrezza"],
+  chierico: ["saggezza", "costituzione"],
+  druido: ["saggezza", "costituzione"],
+  guerriero: ["forza", "costituzione"],
+  ladro: ["destrezza", "intelligenza"],
+  mago: ["intelligenza", "costituzione"],
+  monaco: ["destrezza", "saggezza"],
+  paladino: ["forza", "carisma"],
+  ranger: ["destrezza", "saggezza"],
+  stregone: ["carisma", "costituzione"],
+  warlock: ["carisma", "costituzione"]
+};
+
+// Tiro delle stats e ordinamento
+const rolls = tiraStats().sort((a, b) => b - a); // valori decrescenti
+const ordine = ["forza", "destrezza", "costituzione", "intelligenza", "saggezza", "carisma"];
+const priorita = prioritaStat[classeKey] || ordine;
+
+// Reset stats
+villain.stats = {};
+
+// 1. Stat principale (es. INT per mago)
+const statPrincipale = priorita[0];
+villain.stats[statPrincipale] = rolls.shift(); // assegna il più alto alla stat chiave
+
+// 2. Stat secondaria (es. Cos per mago)
+const statSecondaria = priorita[1];
+villain.stats[statSecondaria] = rolls.shift();
+
+// 3. Le restanti stat in ordine casuale
+ordine.forEach(stat => {
+  if (!villain.stats[stat]) {
+    villain.stats[stat] = rolls.shift();
+  }
+});
+
+// Aggiunta bonus razziali
+razzaData.ability_bonuses.forEach((bonus) => {
+  if (villain.stats[bonus.ability_score] !== undefined) {
+    villain.stats[bonus.ability_score] += bonus.bonus;
+  }
+});
+
+  // 6. Bonus razziali
   villain.bonusRaziali = razzaData.ability_bonuses.map(b => `${b.ability_score}: +${b.bonus}`).join(", ") || "Nessuno";
 
-  // PF e CA
+  // Recupera Tiri Salvezza della classe
+villain.tiriSalvezza = [];
+classeData.saving_throws.forEach(ts => {
+  const stat = ts.name.toLowerCase();
+  const mod = Math.floor((villain.stats[stat] - 10) / 2);
+  const bonus = mod + proficienza; // Aggiunge bonus competenza
+  villain.tiriSalvezza.push({ stat, bonus });
+});
+
+  // 7. Competenze e abilità a scelta
+  villain.privilegiClasse = classeData.proficiencies;
+  villain.competenzeScelte = classeData.proficiency_choices[0]?.from || [];
+  const sceltaAbilita = classeData.proficiency_choices[0];
+const abilitaScelte = [];
+if (sceltaAbilita) {
+  const opzioni = sceltaAbilita.from;
+  for (let i = 0; i < sceltaAbilita.choose; i++) {
+    const scelta = casuale(opzioni);
+    if (!abilitaScelte.includes(scelta)) abilitaScelte.push(scelta);
+  }
+}
+villain.abilitaClasse = abilitaScelte;
+
+
+  // 8. Privilegi filtrati per livello
+  villain.privilegiDettagliati = classeData.features.filter(f => f.level <= villain.livello);
+
+  // 9. PF e CA
   const modCos = Math.floor((villain.stats.costituzione - 10) / 2);
   villain.pf = (classeData.hit_die || 8) + (villain.livello - 1) * ((classeData.hit_die || 8) / 2 + modCos);
+  villain.ca = 10 + Math.floor((villain.stats.destrezza - 10) / 2);
 
-  // Equip base
-  const equipBase = equipBasePerClasse[classeKey] || { armi: ["dagger"], armature: [], equipaggiamento: ["Abiti comuni"] };
-  villain.armiEquippate = getEquipFromIds(equipBase.armi, armi);
-  villain.armatureIndossate = getEquipFromIds(equipBase.armature, armature);
-  villain.equipVari = [...equipBase.equipaggiamento, ...equipVariBase, casuale(lootVillain)];
-  if (!villain.armiEquippate.length) villain.armiEquippate.push(armi.find(a => a.index === "dagger"));
-  if (!villain.armatureIndossate.length) villain.armatureIndossate.push(armature.find(a => a.index === "leather-armor"));
-  villain.ca = calcolaCA(villain.stats, villain.armatureIndossate);
+  // 10. Tiri salvezza
+  villain.savingThrowsClasse = classeData.saving_throws || [];
+villain.tiriSalvezza = {};
+ordine.forEach((stat) => {
+  const mod = Math.floor((villain.stats[stat] - 10) / 2);
+  villain.tiriSalvezza[stat] = mod + (villain.savingThrowsClasse.includes(stat) ? proficienza : 0);
+});
 
-  // Magia
-  const classiMagiche = ["wizard", "sorcerer", "warlock", "cleric", "druid", "bard", "paladin"];
-  if (classiMagiche.includes(classeKey)) {
-    const statMagica = classeKey === "wizard" ? "intelligenza" : "carisma";
+  // 11. Equipaggiamento
+  const equipBase = equipBasePerClasse[classeKey] || { armi: [], armature: [] };
+villain.armiEquippate = getEquipFromIds(equipBase.armi, armi);
+villain.armatureIndossate = getEquipFromIds(equipBase.armature, armature);
+// Ricalcolo CA dinamica
+villain.ca = calcolaCA(villain.stats, villain.armatureIndossate);
+villain.equipVari = [
+  ...(equipBase.equipaggiamento || []),
+  "10 torce",
+  "Corda di canapa (15 m)",
+  "Razions da viaggio (5 giorni)",
+  "Otre d’acqua",
+  "Acciarino e pietra focaia"
+];
+// Focus arcano se presente
+if (equipBase.focusArcano) {
+  villain.focusArcano = equipBase.focusArcano;
+}
+
+
+// Penalità se indossa armatura pesante senza forza minima
+villain.armatureIndossate.forEach(a => {
+  if (a.armor_category === "Heavy" && a.strength_minimum && villain.stats.forza < a.strength_minimum) {
+    villain.velocita -= 3; // riduzione di 3 metri
+  }
+});
+
+  // 12. Magia
+  // Tabella slot per full caster (wizard, cleric, sorcerer, bard, druid)
+const slotFullCaster = {
+  1: [2],
+  2: [3],
+  3: [4, 2],
+  4: [4, 3],
+  5: [4, 3, 2],
+  6: [4, 3, 3],
+  7: [4, 3, 3, 1],
+  8: [4, 3, 3, 2],
+  9: [4, 3, 3, 3, 1],
+  10: [4, 3, 3, 3, 2]
+};
+
+// Tabella slot per half caster (paladin, ranger)
+const slotHalfCaster = {
+  1: [],
+  2: [2],
+  3: [3],
+  4: [3],
+  5: [4, 2],
+  6: [4, 2],
+  7: [4, 3],
+  8: [4, 3],
+  9: [4, 3, 2],
+  10: [4, 3, 3]
+};
+const classiFullCaster = ["wizard", "sorcerer", "warlock", "bard", "cleric", "druid"];
+const classiHalfCaster = ["paladin", "ranger"];
+   
+  // Se la classe è magica, aggiungiamo le statistiche magiche
+  if (classiFullCaster.includes(classeKey) || classiHalfCaster.includes(classeKey)) {
+    const statMagica = statMagicaPerClasse[classeKey] || "intelligenza";
     const modMagia = Math.floor((villain.stats[statMagica] - 10) / 2);
+
     villain.magia = {
       caratteristica: statMagica,
       cd: 8 + modMagia + proficienza,
       bonusAttacco: modMagia + proficienza,
-      focus: equipBase.focusArcano || generaFocusArcano(classeKey)
+      focus: generaFocusArcano(classeKey.toLowerCase())
     };
-    villain.incantesimi = (spells[classeKey]?.cantrips || []).slice(0, 3).map(sp => ({
-      nome: sp.name, livello: sp.level, scuola: sp.school, descrizione: sp.desc
-    }));
-  }
 
-  // Narrativa
-  villain.descrizione = generaDescrizioneEvocativa(villain);
+    villain.slotIncantesimi = classiFullCaster.includes(classeKey)
+    ? slotFullCaster[villain.livello] || []
+    : slotHalfCaster[villain.livello] || [];
+
+  const spellData = spells[classeKey];
+  villain.incantesimi = [];
+
+  if (spellData) {
+    // Cantrips
+    const maxCantrips = Math.min(3 + Math.floor(villain.livello / 4), spellData.cantrips?.length || 0);
+    villain.incantesimi.push(
+      ...spellData.cantrips.slice(0, maxCantrips).map(sp => ({
+        nome: sp.name,
+        livello: sp.level,
+        scuola: sp.school,
+        gittata: sp.range,
+        componenti: sp.components,
+        durata: sp.duration,
+        descrizione: sp.desc
+      }))
+    );
+
+
+    // Incantesimi per livello
+    for (let lvl = 1; lvl <= villain.livello && lvl <= 5; lvl++) {
+      const key = `level${lvl}`;
+      if (spellData[key]) {
+        const numSpells = Math.min(2, spellData[key].length);
+        villain.incantesimi.push(
+          ...spellData[key].slice(0, numSpells).map(sp => ({
+            nome: sp.name,
+            livello: sp.level,
+            scuola: sp.school,
+            gittata: sp.range,
+            componenti: sp.components,
+            durata: sp.duration,
+            descrizione: sp.desc
+          }))
+        );
+      }
+    }
+  }
+}  
+  
+    // 13. Narrativa
+  villain.descrizione = casuale([
+    `Un ${villain.razza} dall'aspetto inquietante. Alt, per la propria razza, con occhi che brillano di una luce sinistra. La sua voce è profonda e carismatica, capace di incantare o terrorizzare chiunque la ascolti. Il viso è segnato da cicatrici, segno di una vita di battaglie e tradimenti.
+    Indossa vesti prettamente scure, decorate con simboli arcani, e brandisce un'arma che sembra pulsare di energia oscura. La sua presenza è opprimente, come se l'aria stessa si piegasse alla sua volontà.`,
+    `Un ${villain.razza} di bassa statura, ma con una presenza che riempie la stanza. I suoi occhi sono freddi e calcolatori, e il suo sorriso è più un ghigno che un gesto amichevole. Indossa abiti eleganti ma logori, e porta con sé un bastone intarsiato che sembra avere una vita propria.
+    La sua voce è melodiosa, ma le sue parole sono velenose. Si muove con grazia felina, e ogni suo gesto è calcolato per impressionare o intimidire. La sua aura è quella di un maestro della manipolazione, capace di piegare gli altri alla sua volontà senza sforzo.`,
+    `Un ${villain.razza} alto e muscoloso, con una cicatrice che gli attraversa il volto. I suoi occhi sono di un blu profondo, e la sua voce è roca e potente. La pelle di un leggero color bronzo è segnata da cicatrici e tatuaggi che raccontano storie di battaglie passate. Indossa un'armatura pesante, segnata da numerose battaglie, e brandisce un'enorme spada che sembra essere stata forgiata in un altro mondo.
+    La sua presenza è imponente, e il suo sguardo è quello di un guerriero esperto, pronto a combattere fino alla morte. La sua pelle è segnata da tatuaggi tribali che raccontano storie di vittorie e onore, e il suo atteggiamento è quello di un leader nato, capace di ispirare paura e rispetto in egual misura.`,
+    `Un ${villain.razza} di aspetto fragile, ma con un'intelligenza acuta. I suoi occhi sono di un verde brillante, e la sua voce è calma e misurata. Indossa abiti semplici, ma eleganti, e porta con sé un libro di incantesimi che sembra emanare un'aura di potere. La sua presenza è quella di un intellettuale, capace di risolvere enigmi e problemi complessi con facilità.
+    La sua mente è un labirinto di conoscenze arcane, e ogni parola che pronuncia è carica di significato. La sua voce è melodiosa, e il suo sguardo è quello di un maestro della magia, capace di incantare o distruggere con un semplice gesto.`,
+    `Un ${villain.razza} di aspetto inquietante, con una pelle pallida e occhi che sembrano scrutare l'anima. La sua voce è bassa e sussurrante, capace di incutere timore in chiunque la ascolti. Indossa abiti scuri, decorati con simboli arcani, e porta con sé un libro di incantesimi che sembra pulsare di energia oscura.
+    La sua presenza è opprimente, come se l'aria stessa si piegasse alla sua volontà. La sua pelle è segnata da cicatrici e tatuaggi che raccontano storie di oscurità e potere, e il suo sguardo è quello di un maestro della magia oscura, capace di evocare creature terribili e incantesimi proibiti.`,
+    `Un ${villain.razza} di aspetto elegante, con un sorriso che può incantare o ingannare. I suoi occhi sono di un grigio profondo, e la sua voce è melodiosa e persuasiva. Indossa abiti raffinati, decorati con gemme preziose, e porta con sé un bastone intarsiato che sembra avere una vita propria.
+    La sua presenza è quella di un maestro della manipolazione, capace di piegare gli altri alla sua volontà con un semplice sguardo. La sua mente è un labirinto di inganni e strategie, e ogni parola che pronuncia è carica di significato. Il suo sorriso è quello di un maestro del gioco, capace di muovere le pedine sullo scacchiere della vita con abilità e astuzia.`,
+    `Un ${villain.razza} di aspetto minaccioso, con una cicatrice che gli attraversa il volto e occhi che brillano di una luce sinistra. La sua voce è profonda e carismatica, capace di incutere timore in chiunque la ascolti. Indossa un'armatura pesante, segnata da numerose battaglie, e brandisce un'enorme spada che sembra essere stata forgiata in un altro mondo.
+    La sua presenza è imponente, e il suo sguardo è quello di un guerriero esperto, pronto a combattere fino alla morte. La sua pelle è segnata da cicatrici e tatuaggi che raccontano storie di vittorie e onore, e il suo atteggiamento è quello di un leader nato, capace di ispirare paura e rispetto in egual misura.`,
+    `Un ${villain.razza} dall'aspetto elegante, con una pelle pallida e occhi che sembrano scrutare l'anima. La sua voce è bassa e sussurrante, capace di incutere timore in chiunque la ascolti. Indossa abiti scuri, decorati con simboli arcani, e porta con sé un libro di incantesimi che sembra pulsare di energia oscura.
+    La sua presenza è opprimente, come se l'aria stessa si piegasse alla sua volontà. La sua pelle è segnata da cicatrici e tatuaggi che raccontano storie di oscurità e potere, e il suo sguardo è quello di un maestro della magia oscura, capace di evocare creature terribili e incantesimi proibiti.`,
+    `Un ${villain.razza} di aspetto inquietante, con una pelle pallida e occhi che brillano di una luce sinistra. La sua voce è profonda e carismatica, capace di incutere timore in chiunque la ascolti. Indossa vesti prettamente scure, decorate con simboli arcani, e brandisce un'arma che sembra pulsare di energia oscura. Indossa un'armatura leggera, ma resistente, che gli consente di muoversi agilmente sul campo di battaglia.
+    Ha una presenza leggera e agile, capace di muoversi con grazia felina. La sua voce è melodiosa, ma le sue parole sono velenose. Si muove con grazia felina, e ogni suo gesto è calcolato per impressionare o intimidire. La sua aura è quella di un maestro della manipolazione, capace di piegare gli altri alla sua volontà senza sforzo.`,
+  ]);
+  villain.origine = casuale([
+  "Un tempo un eroe, ora corrotto da un potere antico che lo ha trasformato in ciò che odiava. Determinato a dimostrare la propria superiorità, cerca di sconfiggere chiunque lo sfidi.",
+  "Figlio di un culto oscuro, allevato per essere il prescelto di un dio dimenticato. La sua vita è un susseguirsi di rituali e sacrifici, e ora cerca di risvegliare il potere del suo dio per dominare il mondo.",
+  "Un mago brillante caduto in disgrazia, ossessionato dalla conoscenza proibita. Ha trascorso anni a studiare antichi tomi e a praticare rituali oscuri, e ora cerca di risvegliare un potere antico per dominare il mondo.",
+  "Un ex campione della luce che ha giurato vendetta dopo il tradimento del suo ordine. Ora si è unito a un culto oscuro, cercando di risvegliare un potente spirito maligno per scatenare il caos nel mondo.",
+  "Un nobile decaduto che trama per riprendersi il potere con ogni mezzo. La sua vita è un susseguirsi di intrighi e tradimenti, e ora cerca di sottomettere un antico ordine di cavalieri per usarne le risorse e l'influenza.",
+  "Un guerriero sopravvissuto a mille battaglie, deciso a imporre un nuovo ordine con il ferro e il sangue. La sua vita è un susseguirsi di battaglie e conquiste, e ora cerca di conquistare un regno caduto in rovina e riportarlo alla gloria passata.",
+  "Creato da un rituale proibito, è la fusione di carne, ombra e follia. La sua esistenza è un tormento, e ora cerca di liberarsi dalla maledizione che lo affligge.",
+  "Una vittima del fato che ora cerca di piegare il destino alla propria volontà. La sua vita è un susseguirsi di eventi tragici e oscuri, e ora cerca di creare un nuovo ordine mondiale, dove solo i più forti sopravvivono.",
+  "Un servo devoto di un’entità cosmica che brama il caos eterno. La sua vita è un susseguirsi di rituali e sacrifici, e ora cerca di liberare un potente spirito maligno per scatenare il caos nel mondo.",
+  "Il portatore di una maledizione millenaria, costretto a distruggere tutto ciò che ama. La sua vita è un susseguirsi di tragedie e distruzioni, e ora cerca di fuggire da un passato traumatico, cercando di ricostruire la propria identità.",
+  "Un assassino leggendario, la cui fama è superata solo dalla sua sete di sangue. La sua vita è un susseguirsi di omicidi e tradimenti, e ora cerca di dimostrare la propria superiorità, cercando di sconfiggere chiunque lo sfidi.",
+  "Un ex eroe caduto in disgrazia, ora un simbolo di terrore per coloro che un tempo proteggeva. La sua vita è un susseguirsi di battaglie e tradimenti, e ora cerca di vendicarsi dei traditori che hanno distrutto la sua vita.",
+]);
   villain.narrativa = {
-    obiettivo: casuale(["Conquistare un regno caduto in rovina e riportarlo alla gloria passata", 
-    "Vendicarsi dei traditori che hanno distrutto la sua vita", 
-    "Risvegliare un potere antico per dominare il mondo",
-    "Recuperare un artefatto perduto che gli conferisce poteri divini",
-    "Proteggere un antico santuario dedicato a Bane, il dio della guerra e della conquista",
-    "Soggiogare un antico drago cosi che possa usarne il potere per i suoi scopi",
-    "Sconfiggere un antico demone e prenderne il posto come suo successore",
-    "Liberare un potente spirito maligno per scatenare il caos nel mondo",
-    "Diventare il campione di un'entità oscura e diffondere la sua influenza",
-    "Sottomettere un antico ordine di cavalieri per usarne le risorse e l'influenza",]),
-    motivazione: casuale(["Ossessione per il potere e il dominio, determinato a sottomettere chiunque osi opporsi",
+  obiettivo: casuale([
+    "Conquistare un regno caduto in rovina e riportarlo alla gloria passata con la forza e l'inganno.",
+    "Vendicarsi dei traditori che hanno distrutto la sua vita e della sua reputazione, distruggendo chiunque osi opporsi.",
+    "Risvegliare un potere antico per dominare il mondo e piegare le forze oscure alla sua volontà.",
+    "Recuperare un artefatto perduto che gli conferisce poteri divini e lo rende invincibile.",
+    "Proteggere un antico santuario dedicato a Bane, il dio della guerra e della conquista , e usarne il potere per i suoi scopi.",
+    "Soggiogare un antico drago cosi che possa usarne il potere per i suoi scopi e diventare il suo campione.",
+    "Sconfiggere un antico demone e prenderne il posto come suo successore e campione.",
+    "Liberare un potente spirito maligno per scatenare il caos nel mondo e piegare le forze oscure alla sua volontà.",
+    "Diventare il campione di un'entità oscura e diffondere la sua influenza nel mondo, seminando il caos e la distruzione.",
+    "Sottomettere un antico ordine di cavalieri per usarne le risorse e l'influenza per i suoi scopi.",
+  ]),
+  motivazione: casuale([
+    "Ossessione per il potere e il dominio, determinato a sottomettere chiunque osi opporsi",
     "Desiderio di vendetta per un torto subito, disposto a tutto pur di ottenere giustizia",
     "Servizio a un'entità oscura che gli ha conferito poteri proibiti in cambio della sua anima",
     "Ricerca di conoscenza proibita, disposto a sacrificare tutto per scoprire i segreti dell'universo",
@@ -155,24 +370,9 @@ export function generaVillainCompleto() {
     "Volontà di dimostrare la propria superiorità, cercando di sconfiggere chiunque lo sfidi",
     "Ricerca di un senso di appartenenza, ma attraverso mezzi distruttivi che lo allontanano da chi ama",
     "Desiderio di creare un nuovo ordine mondiale, dove solo i più forti sopravvivono",
-    "Fuga da un passato traumatico, cercando di ricostruire la propria identità"]),
-    origine: casuale([
-       "Un tempo un eroe, ora corrotto da un potere antico che lo ha trasformato in ciò che odiava.",
-  "Figlio di un culto oscuro, allevato per essere il prescelto di un dio dimenticato.",
-  "Un mago brillante caduto in disgrazia, ossessionato dalla conoscenza proibita.",
-  "Un ex campione della luce che ha giurato vendetta dopo il tradimento del suo ordine.",
-  "Un nobile decaduto che trama per riprendersi il potere con ogni mezzo.",
-  "Un guerriero sopravvissuto a mille battaglie, deciso a imporre un nuovo ordine con il ferro e il sangue.",
-  "Creato da un rituale proibito, è la fusione di carne, ombra e follia.",
-  "Una vittima del fato che ora cerca di piegare il destino alla propria volontà.",
-  "Un servo devoto di un’entità cosmica che brama il caos eterno.",
-  "Il portatore di una maledizione millenaria, costretto a distruggere tutto ciò che ama.",
-  "Un assassino leggendario, la cui fama è superata solo dalla sua sete di sangue.",
-  "Un ex eroe caduto in disgrazia, ora un simbolo di terrore per coloro che un tempo proteggeva."
-    ])
-  };
-
-  villain.loot = [`${casuale(lootVillain)} — ${casuale(frasiLoot)}`];
-
-  return villain;
+    "Fuga da un passato traumatico, cercando di ricostruire la propria identità"
+  ]),
+  origine: villain.origine // già generata
+};
+return villain;
 }

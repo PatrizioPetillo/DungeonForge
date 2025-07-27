@@ -127,7 +127,6 @@ const removeSpell = (index) => {
     }
   };
 
-
   return (
     <div className="modale-overlay">
       <div className="modale-png">
@@ -144,7 +143,7 @@ const removeSpell = (index) => {
         {loading && <p>Generazione in corso...</p>}
 
         {/* Tabs */}
-        <div className="tabs">
+        <div className="tabs-noncomune">
           {tabs.map((t) => (
             <button key={t} className={tab === t ? "active" : ""} onClick={() => setTab(t)}>
               {t}
