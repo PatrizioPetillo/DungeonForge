@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import { generaVillain } from "../../utils/generatoreVillain";
+import { eliminaDaArchivio } from "../utils/firestoreArchivio";
 import { armi, getTooltipProprieta } from "../../utils/armi";
 import { armature } from "../../utils/armature";
 import {
@@ -125,12 +126,28 @@ const handleSalva = async () => {
   }
 };
 
+const rimuoviVillain = async (index) => {
+  const updated = [...campagna.villain];
+  const villainToRemove = updated[index];
+
+  // Elimina dall'archivio se ha ID
+  if (villainToRemove.id) {
+    const result = await eliminaDaArchivio("villain", villainToRemove.id);
+    if (!result.success) {
+      console.error("Errore eliminazione villain dall'archivio");
+    }
+  }
+
+  // Rimuovi da stato locale
+  updated.splice(index, 1);
+  setCampagna({ ...campagna, villain: updated });
+};
+
 useEffect(() => {
   if (villain) {
     setvillain(villain); // o setPNG(...)
   }
 }, [villain]);
-
 
   return (
     <div className="modale-overlay">

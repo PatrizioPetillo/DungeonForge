@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
+import { eliminaDaArchivio } from "../../utils/firestoreArchivio";
 import { toast } from "react-toastify";
 import {
   generaHookEnigma,
@@ -102,6 +103,22 @@ const effetti = [
       onClose();
     }
   };
+
+  const rimuoviEnigma = async (index) => {
+  const updated = [...campagna.enigmi];
+  const enigmaToRemove = updated[index];
+
+  if (enigmaToRemove.id) {
+    const result = await eliminaDaArchivio("enigmi", enigmaToRemove.id);
+    if (!result.success) {
+      console.error("Errore eliminazione Enigma dall'archivio");
+    }
+  }
+
+  updated.splice(index, 1);
+  setCampagna({ ...campagna, enigmi: updated });
+};
+
   
   useEffect(() => {
   if (enigma) {

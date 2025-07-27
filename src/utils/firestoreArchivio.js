@@ -1,4 +1,4 @@
-import { collection, doc, setDoc } from "firebase/firestore";
+import { collection, doc, setDoc, deleteDoc } from "firebase/firestore";
 import { firestore } from "../firebase/firebaseConfig";
 
 export async function salvaInArchivio(tipo, dato) {
@@ -19,3 +19,18 @@ export async function salvaInArchivio(tipo, dato) {
     return { success: false, error };
   }
 }
+/**
+ * Elimina un elemento dall'archivio Firestore.
+ * @param {string} tipo - Es. "villain", "png", "mostri", "luoghi".
+ * @param {string} id - ID del documento Firestore.
+ */
+
+export const eliminaDaArchivio = async (tipo, id) => {
+  try {
+    await deleteDoc(doc(firestore, `archivio/${tipo}/${id}`));
+    return { success: true };
+  } catch (err) {
+    console.error("Errore eliminazione archivio:", err);
+    return { success: false, error: err };
+  }
+};

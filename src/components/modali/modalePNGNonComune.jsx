@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
+import { eliminaDaArchivio } from "../../utils/firestoreArchivio";
 import { generaPNGNonComuneCompleto } from "../../utils/generatorePNGNonComune";
 import { armi } from "../../utils/armi";
 import { armature } from "../../utils/armature";
@@ -170,6 +171,22 @@ const initialData = {
   descrizione: "",
   note: "",
 };
+
+const rimuoviPNG = async (index) => {
+  const updated = [...campagna.png];
+  const pngToRemove = updated[index];
+
+  if (pngToRemove.id) {
+    const result = await eliminaDaArchivio("png", pngToRemove.id);
+    if (!result.success) {
+      console.error("Errore eliminazione PNG dall'archivio");
+    }
+  }
+
+  updated.splice(index, 1);
+  setCampagna({ ...campagna, png: updated });
+};
+
   useEffect(() => {
   if (pngNonComune) {
     setPNGNonComune(pngNonComune); // o setPNG(...)

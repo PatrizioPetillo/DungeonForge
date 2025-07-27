@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
+import { eliminaDaArchivio}
 import { generaLuogo } from "../../utils/generatoreLuogo"; // Nuovo generatore
 import {
   generaHookLuogo,
@@ -64,6 +65,21 @@ const [elementoId, setElementoId] = useState(null);
     toast.error("❌ Errore nel salvataggio!");
   }
       };
+
+      const rimuoviLuogo = async (index) => {
+  const updated = [...campagna.luoghi];
+  const luogoToRemove = updated[index];
+
+  if (luogoToRemove.id) {
+    const result = await eliminaDaArchivio("luoghi", luogoToRemove.id);
+    if (!result.success) {
+      console.error("Errore eliminazione luogo dall'archivio");
+    }
+  }
+
+  updated.splice(index, 1);
+  setCampagna({ ...campagna, luoghi: updated });
+};
 
       useEffect(() => {
   if (luogo) {

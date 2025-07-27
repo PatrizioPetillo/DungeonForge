@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { completaPNGComune } from "../../utils/generators";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
+import { eliminaDaArchivio } from "../../utils/firestoreArchivio";
 import {
   generaHookPNG,
   generaDialogoPNG,
@@ -42,6 +43,22 @@ const [elementoId, setElementoId] = useState(null);
     toast.error("❌ Errore nel salvataggio!");
   }
     };
+
+    const rimuoviPNG = async (index) => {
+  const updated = [...campagna.png];
+  const pngToRemove = updated[index];
+
+  if (pngToRemove.id) {
+    const result = await eliminaDaArchivio("png", pngToRemove.id);
+    if (!result.success) {
+      console.error("Errore eliminazione PNG dall'archivio");
+    }
+  }
+
+  updated.splice(index, 1);
+  setCampagna({ ...campagna, png: updated });
+};
+
 
     const initialData = {
   nome: "",

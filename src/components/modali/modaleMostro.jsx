@@ -3,6 +3,7 @@ import "../../styles/modaleMostro.css";
 import { toast } from "react-toastify";
 import ModaleCollegamento from "../modali/modaleCollegamento";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
+import { eliminaDaArchivio } from "../../utils/firestoreArchivio";
 import { collection } from "firebase/firestore";
 import { firestore } from "../../firebase/firebaseConfig";
 import LootBox from "../generatori/lootBox";
@@ -84,6 +85,21 @@ const ModaleMostro = ({ onClose }) => {
     toast.error("❌ Errore nel salvataggio!");
   }
     };
+
+    const rimuoviMostro = async (index) => {
+  const updated = [...campagna.mostri];
+  const mostroToRemove = updated[index];
+
+  if (mostroToRemove.id) {
+    const result = await eliminaDaArchivio("mostri", mostroToRemove.id);
+    if (!result.success) {
+      console.error("Errore eliminazione mostro dall'archivio");
+    }
+  }
+
+  updated.splice(index, 1);
+  setCampagna({ ...campagna, mostri: updated });
+};
 
     useEffect(() => {
   if (initialData) {
