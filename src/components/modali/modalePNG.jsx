@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { completaPNGComune } from "../../utils/generators";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import {
@@ -43,11 +43,20 @@ const [elementoId, setElementoId] = useState(null);
   }
     };
 
+    const initialData = {
+  nome: "",
+  cognome: "",
+  razza: "",
+  mestiere: "",
+  descrizione: "",
+  note: "",
+};
+
     useEffect(() => {
-  if (initialData) {
-    setPNG(initialData); // o setPNG(...)
+  if (png) {
+    setPng(png); // o setPNG(...)
   }
-}, [initialData]);
+}, [png]);
 
 
   return (

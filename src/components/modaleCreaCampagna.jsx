@@ -4,28 +4,19 @@ import MostroAPISelector from "./mostroAPISelector";
 import MostroManualeForm from "./mostroManualeForm";
 import ModaleVillain from "../components/modali/modaleVillain";
 import ModalePNG from "../components/modali/modalePNG";
+import ModalePNGNonComune from "../components/modali/modalePNGNonComune";
 import ModaleLuogo from "../components/modali/modaleLuogo";
 import ModaleEnigma from "../components/modali/modaleEnigma";
 import ModaleIncontro from "../components/modali/modaleIncontro";
 import {
   generaNomeCasuale,
-  generaCognomeCasuale,
   generaTitoloCasuale,
   generaHookCasuale,
   generaBlurbCasuale,
   generaLootCasuale,
-  generaTesoroIncontro,
-  generaTesoroCampagna,
-  generaObiettivoScena,
-  generaNomeLuogo,
-  generaEquipBase,
-  tiraStats,
   rand,
   casuale,
-  shuffle
 } from "../utils/generators";
-
-
 import { collection, doc, setDoc, addDoc, serverTimestamp } from "firebase/firestore";
 import { firestore } from "../firebase/firebaseConfig";
 import { generateId } from "../utils/idUtils";
@@ -62,6 +53,7 @@ function ModaleCreaCampagna({ onClose }) {
   const [villainArchivio, setVillainArchivio] = useState([]);
   const [luoghi, setLuoghi] = useState([]);
   const [modalePNGAperta, setModalePNGAperta] = useState(false);
+  const [modalePNGNonComuneAperta, setModalePNGNonComuneAperta] = useState(false);
   const [pngAttivo, setPngAttivo] = useState(null);
   const [loading, setLoading] = useState(false);
   const [modaleArchivioPNGAperta, setModaleArchivioPNGAperta] = useState(false);
@@ -94,6 +86,7 @@ const [incontri, setIncontri] = useState([]);
 const [modaleEnigmaAperta, setModaleEnigmaAperta] = useState(false);
 const [enigmiCampagna, setEnigmiCampagna] = useState([]);
 const [campagneGenerate, setCampagneGenerate] = useState([]);
+const [modaleEnigma, setModaleEnigma] = useState(null);
 
 // Cache per le API
 let racesCache = [];
@@ -312,8 +305,8 @@ const generaCampagneComplete = async () => {
     { tipo: "One-Shot", capitoli: 1, villain: 1, png: 3, mostri: 3 }
   ];
   const obiettivi = [
-  "Recuperare l'artefatto", "Scoprire il traditore", "Proteggere un PNG chiave", "Sconfiggere il villain principale",
-  "Esplorare la rovina antica", "Negoziare una tregua", "Scoprire un segreto nascosto", "Salvare una città in pericolo"
+  "Recuperare l'artefatto 'La Clessidra di Gunthar', in grado di fermare il tempo per pochi minuti", "Scoprire il traditore", "Proteggere un PNG chiave", "Sconfiggere il villain principale",
+  "Esplorare le antiche rovine della Torre di NorthUlia", "Negoziare una tregua tra le fila del clan barbarico dei 'Berber'", "Scoprire un segreto nascosto", "Salvare una città in pericolo"
 ];
 
 scene: [
@@ -962,11 +955,9 @@ const generaIncontri = (capitoli, villain, png, mostri) => {
             <h3>👿 Villain della Campagna</h3>
 
             {/* Pulsanti azione */}
-            <div style={{ marginBottom: "1rem", display: "flex", gap: "1rem" }}>
-              <button onClick={apriGeneratoreVillain}>+ Genera Villain</button>
-              <button onClick={apriArchivioVillain}>
-                + Scegli dall’Archivio
-              </button>
+            <div style={{ display: "flex", gap: "1rem" }}>
+              <button onClick={apriGeneratoreVillain}>+ Crea Villain</button>
+              <button onClick={apriArchivioVillain}>+ Scegli dall’Archivio</button>
             </div>
 
             {/* Lista Villain collegati */}
@@ -1119,17 +1110,19 @@ const generaIncontri = (capitoli, villain, png, mostri) => {
                     </li>
                   ))}
                 </ul>
-                <button onClick={() => setModaleArchivioAperta(false)}>
-                  Chiudi
-                </button>
+                <button onClick={() => setModaleArchivioAperta(false)}>Chiudi</button>
               </div>
             )}
-            <button onClick={() => setModaleVillainAperta(true)}>
-              + Aggiungi Villain
-            </button>
-            {showVillainModal && (
-  <ModaleVillain onClose={() => setShowVillainModal(false)} />
-)}
+
+            {modaleVillainAperta && (
+              <ModaleVillain
+                isOpen={modaleVillainAperta}
+                onClose={() => setModaleVillainAperta(false)}
+                villain={villainAttivo}
+                onSave={salvaVillainInCampagna}
+                collegaAllaCampagna={true}
+              />
+            )}
           </div>
         );
 
@@ -1138,8 +1131,9 @@ const generaIncontri = (capitoli, villain, png, mostri) => {
           <div className="tab-content">
             <h3>👤 Personaggi Non Giocanti</h3>
 
-            <div style={{ marginBottom: "1rem", display: "flex", gap: "1rem" }}>
-              <button onClick={apriGeneratorePNG}>+ Genera PNG</button>
+            <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
+              <button onClick={apriGeneratorePNG}>+ Genera PNG Comune</button>
+              <button onClick={() => setModalePNGNonComuneAperta(true)}>+ Genera PNG Non Comune</button>
               <button onClick={apriArchivioPNG}>+ Scegli dall’Archivio</button>
             </div>
 
@@ -1224,10 +1218,10 @@ const generaIncontri = (capitoli, villain, png, mostri) => {
             <h3>🏰 Luoghi Chiave della Campagna</h3>
 
             <div style={{ marginBottom: "1rem", display: "flex", gap: "1rem" }}>
-              <button onClick={apriModaleLuogo}>+ Aggiungi luogo</button>
-              <button onClick={apriArchivioLuogo}>
+             <button onClick={apriModaleLuogo}>+ Aggiungi luogo</button>
+               {/*<button onClick={apriArchivioLuogo}>
                 + Scegli dall’Archivio
-              </button>
+              </button>*/}
             </div>
 
             {(campagna.luoghi || []).map((l, i) => (
@@ -1411,7 +1405,7 @@ const generaIncontri = (capitoli, villain, png, mostri) => {
     </div>
   );
 
-  case "Enigmi":
+      case "Enigmi":
   return (
     <div className="tab-content">
       <h3>🧠 Enigmi, Trappole e Ostacoli</h3>
@@ -1517,6 +1511,20 @@ const generaIncontri = (capitoli, villain, png, mostri) => {
         />
       )}
 
+      {modalePNGNonComuneAperta && (
+  <ModalePNGNonComune
+    isOpen={modalePNGNonComuneAperta}
+    onClose={() => setModalePNGNonComuneAperta(false)}
+    collegaAllaCampagna={true}
+    onSave={(nuovoPNG) => {
+      setCampagna({
+        ...campagna,
+        png: [...(campagna.png || []), nuovoPNG],
+      });
+      setModalePNGNonComuneAperta(false);
+    }}
+  />
+)}
       {modaleLuogoAperta && (
   <ModaleLuogo
     onClose={() => setModaleLuogoAperta(false)}

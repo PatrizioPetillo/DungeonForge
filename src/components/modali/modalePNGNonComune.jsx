@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import { generaPNGNonComuneCompleto } from "../../utils/generatorePNGNonComune";
 import { armi } from "../../utils/armi";
@@ -24,6 +24,21 @@ const abilitaPerStat = {
 
 export default function ModalePNGNonComune({ onClose }) {
   const [png, setPng] = useState({});
+  const [pngNonComune, setPNGNonComune] = useState({
+    nome: "",
+    descrizione: "",
+    immagine: "",
+    statistiche: {
+      forza: 0,
+      destrezza: 0,
+      costituzione: 0,
+      intelligenza: 0,
+      saggezza: 0,
+      carisma: 0
+    },
+    abilita: [],
+    incantesimi: []
+  });
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState("Generali");
   const [spellSuggeriti, setSpellSuggeriti] = useState([]);
@@ -31,6 +46,8 @@ export default function ModalePNGNonComune({ onClose }) {
 const [opzioniDialogo, setOpzioniDialogo] = useState([]);
 const [showCollegamento, setShowCollegamento] = useState(false);
 const [elementoId, setElementoId] = useState(null);
+const [modalePNGNonComuneAperta, setModalePNGNonComuneAperta] = useState(false);
+
 
   const tabs = [
     "Generali",
@@ -134,11 +151,30 @@ const removeSpell = (index) => {
   }
   };
 
+const initialData = {
+  nome: "",
+  cognome: "",
+  razza: "",
+  origine: "",
+  classe: "",
+  sottoclasse: "",
+  livello: "",
+  velocita: "",
+  pf: "",
+  ca: "",
+  dadoVita: "",
+  bonusRaziali: "",
+  bonusCompetenza: "",
+  abilitaClasse: [],
+  tiriSalvezza: {},
+  descrizione: "",
+  note: "",
+};
   useEffect(() => {
-  if (initialData) {
-    setPNG(initialData); // o setPNG(...)
+  if (pngNonComune) {
+    setPNGNonComune(pngNonComune); // o setPNG(...)
   }
-}, [initialData]);
+}, [pngNonComune]);
 
 
   return (

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import { generaLuogo } from "../../utils/generatoreLuogo"; // Nuovo generatore
 import {
@@ -66,10 +66,10 @@ const [elementoId, setElementoId] = useState(null);
       };
 
       useEffect(() => {
-  if (initialData) {
-    setLuogo(initialData); // o setPNG(...)
+  if (luogo) {
+    setLuogo(luogo); // o setPNG(...)
   }
-}, [initialData]);
+}, [luogo]);
 
 
   return (

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import { generaVillain } from "../../utils/generatoreVillain";
 import { armi, getTooltipProprieta } from "../../utils/armi";
@@ -126,10 +126,10 @@ const handleSalva = async () => {
 };
 
 useEffect(() => {
-  if (initialData) {
-    setvillain(initialData); // o setPNG(...)
+  if (villain) {
+    setvillain(villain); // o setPNG(...)
   }
-}, [initialData]);
+}, [villain]);
 
 
   return (

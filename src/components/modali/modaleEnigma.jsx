@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import { toast } from "react-toastify";
 import {
@@ -103,6 +103,12 @@ const effetti = [
     }
   };
   
+  useEffect(() => {
+  if (enigma) {
+    setEnigma(enigma);
+  }
+}, [enigma]);
+
   return (
     <div className="modal-overlay">
       <div className="modale-enigma">
