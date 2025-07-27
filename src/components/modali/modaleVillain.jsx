@@ -407,198 +407,150 @@ const removeSpell = (index) => {
             <div className="tab-magia">
               <h4>Gestione Magia</h4>
 
-              {/* Info base */}
-              <div className="magia-info-grid">
-                <div className="form-group">
-                  <label>Stat Magica</label>
-                  <input type="text" value={villain.magia.caratteristica} readOnly />
-                </div>
-                <div className="form-group">
-                  <label>CD Incantesimi</label>
-                  <input type="text" value={villain.magia.cd} readOnly />
-                </div>
-                <div className="form-group">
-                  <label>Bonus Attacco</label>
-                  <input type="text" value={`+${villain.magia.bonusAttacco}`} readOnly />
-                </div>
-                <div className="form-group">
-                  <label>Focus Arcano</label>
-                  <input
-                    type="text"
-                    value={villain.magia.focus || ""}
-                    onChange={(e) => setvillain({ ...villain, magia: { ...villain.magia, focus: e.target.value } })}
-                  />
-                </div>
-              </div>
+              {/* Info Magia */}
+<div className="magia-info-grid">
+  <p><strong>Stat Magica:</strong> {villain.magia.statPrincipale.toUpperCase()} </p>
+  <p><strong>CD Incantesimi:</strong> {villain.magia.cd}</p>
+  <p><strong>Bonus Attacco:</strong> +{villain.magia.bonusAttacco}</p>
+  <p><strong>Focus Arcano:</strong> {villain.magia.focus}</p>
+</div>
 
-              <hr />
+<hr />
 
-              {/* Tabella Slot */}
-              <h5>Slot Incantesimi</h5>
-              {villain.slotIncantesimi.length > 0 ? (
-                <table className="slot-table">
-                  <thead>
-                    <tr>
-                      <th>Nome</th>
-                      <th>Livello</th>
-                      <th>Scuola</th>
-                      <th>Gittata</th>
-                      <th>Componenti</th>
-                      <th>Durata</th>
-                      <th>Descrizione</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {villain.incantesimi?.map((spell, i) => (
-                      <tr key={i}>
-                        <td className="tooltip-spell">
-                          <span title={spell.descrizione || "Nessuna descrizione"}>{spell.nome}</span>
-                        </td>
-                        <td><input type="number" value={spell.livello} onChange={(e) => updateSpell(i, "livello", e.target.value)} /></td>
-                        <td><input type="text" value={spell.scuola} onChange={(e) => updateSpell(i, "scuola", e.target.value)} /></td>
-                        <td><input type="text" value={spell.gittata} onChange={(e) => updateSpell(i, "gittata", e.target.value)} /></td>
-                        <td><input type="text" value={spell.componenti} onChange={(e) => updateSpell(i, "componenti", e.target.value)} /></td>
-                        <td><input type="text" value={spell.durata} onChange={(e) => updateSpell(i, "durata", e.target.value)} /></td>
-                        <td>
-                          <textarea value={spell.descrizione} onChange={(e) => updateSpell(i, "descrizione", e.target.value)} />
-                        </td>
-                        <td><button onClick={() => removeSpell(i)}>❌</button></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : <p>Nessuno slot disponibile</p>}
+{/* Tabella Slot */}
+<h4>Slot Incantesimi</h4>
+{villain.slotIncantesimi && villain.slotIncantesimi.length > 0 ? (
+  <table className="slot-table">
+    <thead>
+      <tr>
+        <th>Livello</th>
+        <th>Slots Disponibili</th>
+      </tr>
+    </thead>
+    <tbody>
+      {villain.slotIncantesimi.map((sl, idx) => (
+        <tr key={idx}>
+          <td>{sl.livello}</td>
+          <td>{sl.slots}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+) : (
+  <p>Nessuno slot disponibile</p>
+)}
 
-              <hr />
+<hr />
 
-              {/* Tabella Incantesimi */}
-              <h5>Incantesimi Conosciuti</h5>
-              <table className="spell-table">
-                <thead>
-                  <tr>
-                    <th>Nome</th>
-                    <th>Livello</th>
-                    <th>Scuola</th>
-                    <th>Descrizione</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {villain.incantesimi?.length > 0 ? (
-                    villain.incantesimi.map((spell, i) => (
-                      <tr key={i}>
-                        <td>
-                          <input
-                            type="text"
-                            value={spell.nome}
-                            onChange={(e) => {
-                              const updated = [...villain.incantesimi];
-                              updated[i].nome = e.target.value;
-                              setvillain({ ...villain, incantesimi: updated });
-                            }}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="number"
-                            value={spell.livello}
-                            onChange={(e) => {
-                              const updated = [...villain.incantesimi];
-                              updated[i].livello = parseInt(e.target.value);
-                              setvillain({ ...villain, incantesimi: updated });
-                            }}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="text"
-                            value={spell.scuola}
-                            onChange={(e) => {
-                              const updated = [...villain.incantesimi];
-                              updated[i].scuola = e.target.value;
-                              setvillain({ ...villain, incantesimi: updated });
-                            }}
-                          />
-                        </td>
-                        <td>
-                          <textarea
-                            value={spell.descrizione}
-                            onChange={(e) => {
-                              const updated = [...villain.incantesimi];
-                              updated[i].descrizione = e.target.value;
-                              setvillain({ ...villain, incantesimi: updated });
-                            }}
-                          />
-                        </td>
-                        <td>
-                          <button onClick={() => {
-                            const updated = villain.incantesimi.filter((_, idx) => idx !== i);
-                            setvillain({ ...villain, incantesimi: updated });
-                          }}>❌</button>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr><td colSpan="5">Nessun incantesimo inserito</td></tr>
-                  )}
-                </tbody>
-              </table>
+{/* Tabella Trucchetti */}
+<h4>Trucchetti</h4>
+<table className="spell-table">
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Scuola</th>
+      <th>Durata</th>
+      <th>Gittata</th>
+      <th>Descrizione</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {villain.incantesimi?.trucchetti?.length > 0 ? (
+      villain.incantesimi.trucchetti.map((spell, i) => (
+        <tr key={i}>
+          <td>{spell.nome}</td>
+          <td>{spell.scuola}</td>
+          <td>{spell.durata}</td>
+          <td>{spell.gittata}</td>
+          <td>
+            <span title={spell.descrizione}>
+              {spell.descrizione.slice(0, 40)}...
+            </span>
+          </td>
+          <td>
+            <button onClick={() => {
+              const updated = villain.incantesimi.trucchetti.filter((_, idx) => idx !== i);
+              setvillain({
+                ...villain,
+                incantesimi: { ...villain.incantesimi, trucchetti: updated }
+              });
+            }}>❌</button>
+          </td>
+        </tr>
+      ))
+    ) : (
+      <tr><td colSpan="6">Nessun trucchetto</td></tr>
+    )}
+  </tbody>
+</table>
 
-              {/* Aggiunta manuale */}
-              <div className="form-group add-spell">
-                <input
-                  type="text"
-                  placeholder="Cerca incantesimo..."
-                  onChange={(e) => filtraIncantesimi(e.target.value)}
-                />
-                {spellSuggeriti.length > 0 && (
-                  <ul className="suggestions">
-                    {spellSuggeriti.map((sp, idx) => (
-                      <li key={idx} onClick={() => {
-                        const nuovoInc = {
-                          nome: sp.name,
-                          livello: sp.level,
-                          scuola: sp.school,
-                          gittata: sp.range,
-                          componenti: sp.components,
-                          durata: sp.duration,
-                          descrizione: sp.desc
-                        };
-                        setvillain({ ...villain, incantesimi: [...(villain.incantesimi || []), nuovoInc] });
-                        setSpellSuggeriti([]);
-                      }}>
-                        {sp.name} (Liv. {sp.level})
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              <div className="quick-add">
-                {[0, 1, 2, 3].map(lv => (
-                  <button key={lv} onClick={() => {
-                    const classeKey = villain.classe?.toLowerCase();
-                    if (!classeKey || !spells[classeKey]) return;
+<hr />
 
-                    const disponibili = lv === 0 ? spells[classeKey].cantrips : spells[classeKey][`level${lv}`];
-                    if (!disponibili || disponibili.length === 0) return;
+{/* Incantesimi per livello */}
+{villain.incantesimi?.livelli?.map((lvl, idx) => (
+  <div key={idx} className="spell-section">
+    <h4>Livello {lvl.livello} (Slots: {lvl.slots})</h4>
+    <table className="spell-table">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Scuola</th>
+          <th>Durata</th>
+          <th>Gittata</th>
+          <th>Descrizione</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {lvl.lista.length > 0 ? (
+          lvl.lista.map((spell, i) => (
+            <tr key={i}>
+              <td>{spell.nome}</td>
+              <td>{spell.scuola}</td>
+              <td>{spell.durata}</td>
+              <td>{spell.gittata}</td>
+              <td>
+                <span title={spell.descrizione}>
+                  {spell.descrizione.slice(0, 40)}...
+                </span>
+              </td>
+              <td>
+                <button onClick={() => {
+                  const newLivelli = [...villain.incantesimi.livelli];
+                  newLivelli[idx].lista.splice(i, 1);
+                  setvillain({
+                    ...villain,
+                    incantesimi: { ...villain.incantesimi, livelli: newLivelli }
+                  });
+                }}>❌</button>
+              </td>
+            </tr>
+          ))
+        ) : (
+          <tr><td colSpan="6">Nessun incantesimo</td></tr>
+        )}
+      </tbody>
+    </table>
+    <button onClick={() => {
+      const nuovoInc = {
+        nome: "Nuovo Incantesimo",
+        scuola: "?",
+        durata: "—",
+        gittata: "—",
+        descrizione: "Descrizione breve"
+      };
+      const newLivelli = [...villain.incantesimi.livelli];
+      newLivelli[idx].lista = [...lvl.lista, nuovoInc];
+      setvillain({
+        ...villain,
+        incantesimi: { ...villain.incantesimi, livelli: newLivelli }
+      });
+    }}>+ Aggiungi Incantesimo</button>
+  </div>
+))}
 
-                    const scelto = casuale(disponibili);
-                    const nuovoInc = {
-                      nome: scelto.name,
-                      livello: scelto.level,
-                      scuola: scelto.school,
-                      gittata: scelto.range,
-                      componenti: scelto.components,
-                      durata: scelto.duration,
-                      descrizione: scelto.desc
-                    };
-                    setvillain({ ...villain, incantesimi: [...(villain.incantesimi || []), nuovoInc] });
-                  }}>
-                    + Liv {lv === 0 ? "Trucchetto" : lv}
-                  </button>
-                ))}
-              </div>
+
             </div>
           )}
 
@@ -642,32 +594,69 @@ const removeSpell = (index) => {
               </select>
 
               <hr />
-              <h4>Armature Indossate</h4>
-              <ul className="equip-list">
-                {villain.armatureIndossate?.length > 0 ? (
-                  villain.armatureIndossate.map((armor, i) => (
-                    <li key={i} className="equip-item">
-                      <strong>{armor.name}</strong> – CA base: {armor.armor_class.base}
-                      <br />
-                      <small>
-                        Tipo: {armor.armor_category} • Peso: {armor.weight || 0} lb
-                      </small>
-                      <button onClick={() => {
-                        const updated = villain.armatureIndossate.filter((_, idx) => idx !== i);
-                        setvillain({ ...villain, armatureIndossate: updated });
-                      }}>❌</button>
-                    </li>
-                  ))
-                ) : (
-                  <p>Nessuna armatura indossata.</p>
-                )}
-              </ul>
+              <h4>🛡️ Armature </h4>
+<table className="combat-table">
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Tipo</th>
+      <th>CA Base</th>
+      <th>Proprietà</th>
+      <th>Equipaggia</th>
+    </tr>
+  </thead>
+  <tbody>
+    {villain.armatureDisponibili?.map((armor, i) => (
+      <tr key={i} style={{ background: armor.index === villain.armaturaEquipaggiata?.index ? "#d4af37" : "transparent" }}>
+        <td>{armor.name}</td>
+        <td>{armor.categorie[0]}</td>
+        <td>{armor.armor_class.base}</td>
+        <td>{armor.proprieta?.join(", ") || "-"}</td>
+        <td>
+          <button onClick={() => {
+            // Ricalcolo CA
+            const modDex = Math.floor((villain.stats.destrezza - 10) / 2);
+            let nuovaCA = armor.armor_class.base;
+            if (armor.armor_class.dex_bonus) {
+              nuovaCA += armor.armor_class.max_bonus
+                ? Math.min(modDex, armor.armor_class.max_bonus)
+                : modDex;
+            }
+            if (villain.scudoEquipaggiato) {
+              nuovaCA += villain.scudoEquipaggiato.armor_class.base;
+            }
+
+            setvillain({
+              ...villain,
+              armaturaEquipaggiata: armor,
+              ca: nuovaCA
+            });
+          }}>
+            {armor.index === villain.armaturaEquipaggiata?.index ? "Equipaggiata" : "Equipaggia"}
+          </button>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+<p><strong>CA Totale:</strong> {villain.ca}</p>
+
 
               <select
                 onChange={(e) => {
                   const armorSelezionata = armature.find(a => a.index === e.target.value);
                   if (armorSelezionata) {
                     const updated = [...(villain.armatureIndossate || []), armorSelezionata];
+                    const miglioreArmatura = updated
+  .filter(a => !a.categorie.includes("Scudo"))
+  .sort((a, b) => b.armor_class.base - a.armor_class.base)[0] || null;
+
+setvillain({ 
+  ...villain, 
+  armatureIndossate: updated, 
+  armaturaEquipaggiata: miglioreArmatura, 
+  ca: nuovaCA 
+});
 
                     // Ricalcolo CA dinamicamente
                     const modDex = Math.floor((villain.stats.destrezza - 10) / 2);
@@ -784,120 +773,119 @@ const removeSpell = (index) => {
 
               {/* --- TABELLA ARMI DA MISCHIA --- */}
               <div>
-<h4>⚔️ Arma da Mischia</h4>
-{villain.armaMischia ? (
-  <table className="combat-table">
-    <thead>
-      <tr>
-        <th>Arma</th>
-        <th>Bonus Attacco</th>
-        <th>Danno</th>
-        <th>Proprietà</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>{villain.armaMischia.name}</td>
-        <td>
-          {(() => {
-            const isFinesse = villain.armaMischia.properties?.some(p => p.name.toLowerCase() === "finesse");
-            const modFor = Math.floor((villain.stats.forza - 10) / 2);
-            const modDes = Math.floor((villain.stats.destrezza - 10) / 2);
-            const modBase = isFinesse ? Math.max(modFor, modDes) : modFor;
-            const prof = villain.armiDiCompetenza.some(a => a.index === villain.armaMischia.index)
-              ? Math.ceil(villain.livello / 4) + 2
-              : 0;
-            const bonus = modBase + prof;
-            return bonus >= 0 ? `+${bonus}` : bonus;
-          })()}
-        </td>
-        <td>{villain.armaMischia.damage.damage_dice} {villain.armaMischia.damage.damage_type.name}</td>
-        <td>
-          {villain.armaMischia.properties?.map((p, i) => (
-            <span key={i} title={getTooltipProprieta(p.name)}>
-              {p.name}{i < villain.armaMischia.properties.length - 1 ? ", " : ""}
-            </span>
-          ))}
-        </td>
-      </tr>
-    </tbody>
-  </table>
-) : <p>Nessuna arma da mischia</p>}
+                <h4>⚔️ Arma da Mischia</h4>
+                {villain.armaMischia ? (
+                  <table className="combat-table">
+                    <thead>
+                      <tr>
+                        <th>Arma</th>
+                        <th>Bonus Attacco</th>
+                        <th>Danno</th>
+                        <th>Proprietà</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>{villain.armaMischia.name}</td>
+                        <td>
+                          {(() => {
+                            const isFinesse = villain.armaMischia.properties?.some(p => p.name.toLowerCase() === "finesse");
+                            const modFor = Math.floor((villain.stats.forza - 10) / 2);
+                            const modDes = Math.floor((villain.stats.destrezza - 10) / 2);
+                            const modBase = isFinesse ? Math.max(modFor, modDes) : modFor;
+                            const prof = villain.armiDiCompetenza.some(a => a.index === villain.armaMischia.index)
+                              ? Math.ceil(villain.livello / 4) + 2
+                              : 0;
+                            const bonus = modBase + prof;
+                            return bonus >= 0 ? `+${bonus}` : bonus;
+                          })()}
+                        </td>
+                        <td>{villain.armaMischia.damage.damage_dice} {villain.armaMischia.damage.damage_type.name}</td>
+                        <td>
+                          {villain.armaMischia.properties?.map((p, i) => (
+                            <span key={i} title={getTooltipProprieta(p.name)}>
+                              {p.name}{i < villain.armaMischia.properties.length - 1 ? ", " : ""}
+                            </span>
+                          ))}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                ) : <p>Nessuna arma da mischia</p>}
 
-<h4>🏹 Arma a Distanza</h4>
-{villain.armaDistanza ? (
-  <table className="combat-table">
-    <thead>
-      <tr>
-        <th>Arma</th>
-        <th>Bonus Attacco</th>
-        <th>Danno</th>
-        <th>Proprietà</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>{villain.armaDistanza.name}</td>
-        <td>
-          {(() => {
-            const modDes = Math.floor((villain.stats.destrezza - 10) / 2);
-            const prof = villain.armiDiCompetenza.some(a => a.index === villain.armaDistanza.index)
-              ? Math.ceil(villain.livello / 4) + 2
-              : 0;
-            const bonus = modDes + prof;
-            return bonus >= 0 ? `+${bonus}` : bonus;
-          })()}
-        </td>
-        <td>{villain.armaDistanza.damage.damage_dice} {villain.armaDistanza.damage.damage_type.name}</td>
-        <td>
-          {villain.armaDistanza.properties?.map((p, i) => (
-            <span key={i} title={getTooltipProprieta(p.name)}>
-              {p.name}{i < villain.armaDistanza.properties.length - 1 ? ", " : ""}
-            </span>
-          ))}
-        </td>
-      </tr>
-    </tbody>
-  </table>
-) : <p>Nessuna arma a distanza</p>}
+                <h4>🏹 Arma a Distanza</h4>
+                {villain.armaDistanza ? (
+                  <table className="combat-table">
+                    <thead>
+                      <tr>
+                        <th>Arma</th>
+                        <th>Bonus Attacco</th>
+                        <th>Danno</th>
+                        <th>Proprietà</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>{villain.armaDistanza.name}</td>
+                        <td>
+                          {(() => {
+                            const modDes = Math.floor((villain.stats.destrezza - 10) / 2);
+                            const prof = villain.armiDiCompetenza.some(a => a.index === villain.armaDistanza.index)
+                              ? Math.ceil(villain.livello / 4) + 2
+                              : 0;
+                            const bonus = modDes + prof;
+                            return bonus >= 0 ? `+${bonus}` : bonus;
+                          })()}
+                        </td>
+                        <td>{villain.armaDistanza.damage.damage_dice} {villain.armaDistanza.damage.damage_type.name}</td>
+                        <td>
+                          {villain.armaDistanza.properties?.map((p, i) => (
+                            <span key={i} title={getTooltipProprieta(p.name)}>
+                              {p.name}{i < villain.armaDistanza.properties.length - 1 ? ", " : ""}
+                            </span>
+                          ))}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                ) : <p>Nessuna arma a distanza</p>}
 
-<hr />
+                <hr />
 
-  <h4>🛡️ Armatura Equipaggiata</h4>
-<table className="combat-table">
-  <thead>
-    <tr>
-      <th>Nome</th>
-      <th>Tipo</th>
-      <th>CA Base</th>
-      <th>Svantaggio</th>
-    </tr>
-  </thead>
-  <tbody>
-    {villain.armaturaEquipaggiata && (
-      <tr>
-        <td>{villain.armaturaEquipaggiata.name}</td>
-        <td>{villain.armaturaEquipaggiata.categorie[0]}</td>
-        <td>{villain.armaturaEquipaggiata.armor_class.base}</td>
-        <td>
-          {villain.armaturaEquipaggiata.proprieta?.includes("Svantaggio su Furtività") ? "Sì" : "No"}
-        </td>
-      </tr>
-    )}
-    {villain.scudoEquipaggiato && (
-      <tr>
-        <td>{villain.scudoEquipaggiato.name}</td>
-        <td>Scudo</td>
-        <td>+{villain.scudoEquipaggiato.armor_class.base}</td>
-        <td>-</td>
-      </tr>
-    )}
-  </tbody>
-</table>
-
-<p><strong>CA Totale:</strong> {villain.ca}</p>
-</div>           
-
+                <h4>🛡️ Armatura Equipaggiata</h4>
+                {villain.armaturaEquipaggiata ? (
+                  <table className="combat-table">
+                    <thead>
+                      <tr>
+                        <th>Nome</th>
+                        <th>Tipo</th>
+                        <th>CA Base</th>
+                        <th>Proprietà</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>{villain.armaturaEquipaggiata.name}</td>
+                        <td>{villain.armaturaEquipaggiata.categorie[0]}</td>
+                        <td>{villain.armaturaEquipaggiata.armor_class.base}</td>
+                        <td>{villain.armaturaEquipaggiata.proprieta?.join(", ") || "-"}</td>
+                      </tr>
+                      {villain.scudoEquipaggiato && (
+                        <tr>
+                          <td>{villain.scudoEquipaggiato.name}</td>
+                          <td>Scudo</td>
+                          <td>+{villain.scudoEquipaggiato.armor_class.base}</td>
+                          <td>-</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p>Nessuna armatura equipaggiata (CA: 10 + Mod Destrezza)</p>
+                )}
+                <p><strong>CA Totale:</strong> {villain.ca}</p>
+              </div>
+              
               {/* Selettori per aggiungere nuove armi/armature */}
               <div className="add-equip-section">
                 <select
@@ -925,8 +913,16 @@ const removeSpell = (index) => {
                     if (armorSelezionata) {
                       const updated = [...(villain.armatureIndossate || []), armorSelezionata];
                       const nuovaCA = calcolaCA(villain.stats, updated);
+                      const miglioreArmatura = updated
+  .filter(a => !a.categorie.includes("Scudo"))
+  .sort((a, b) => b.armor_class.base - a.armor_class.base)[0] || null;
 
-                      setvillain({ ...villain, armatureIndossate: updated, ca: nuovaCA });
+setvillain({ 
+  ...villain, 
+  armatureIndossate: updated, 
+  armaturaEquipaggiata: miglioreArmatura, 
+  ca: nuovaCA 
+});
                     }
                     e.target.value = "";
                   }}

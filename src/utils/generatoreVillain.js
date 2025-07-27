@@ -219,26 +219,40 @@ villain.armaDistanza = armiDistanza.length > 0
   ? casuale(armiDistanza)
   : null;
 
-// 3. Seleziona un'armatura coerente (preferendo la più protettiva possibile)
-const armatureOrdinate = villain.armatureDiCompetenza.sort((a, b) => (b.armor_class.base) - (a.armor_class.base));
-villain.armaturaEquipaggiata = armatureOrdinate.length > 0
-  ? armatureOrdinate[0]
-  : armature.find(a => a.index === "leather-armor");
+// Armature disponibili per la classe
+villain.armatureDiCompetenza = armature.filter(a =>
+  a.categorie.some(cat => classeData.proficiencies.includes(cat))
+);
 
-// 4. Controlla se lo scudo è tra le competenze e aggiungilo
+// Ordina dalla migliore alla peggiore
+const armatureOrdinate = villain.armatureDiCompetenza
+  .filter(a => !a.categorie.includes("Scudo"))
+  .sort((a, b) => b.armor_class.base - a.armor_class.base);
+
+villain.armaturaEquipaggiata = armatureOrdinate[0] || null;
+
+// Scudo se competente
 villain.scudoEquipaggiato = villain.armatureDiCompetenza.find(a => a.categorie.includes("Scudo")) || null;
 
-// 5. Calcola CA dinamica
+// Calcolo CA
 const modDex = Math.floor((villain.stats.destrezza - 10) / 2);
-let caBase = villain.armaturaEquipaggiata.armor_class.base;
-if (villain.armaturaEquipaggiata.armor_class.dex_bonus) {
-  caBase += villain.armaturaEquipaggiata.armor_class.max_bonus
-    ? Math.min(modDex, villain.armaturaEquipaggiata.armor_class.max_bonus)
-    : modDex;
+let caBase = 10 + modDex;
+if (villain.armaturaEquipaggiata) {
+  caBase = villain.armaturaEquipaggiata.armor_class.base;
+  if (villain.armaturaEquipaggiata.armor_class.dex_bonus) {
+    caBase += villain.armaturaEquipaggiata.armor_class.max_bonus
+      ? Math.min(modDex, villain.armaturaEquipaggiata.armor_class.max_bonus)
+      : modDex;
+  }
 }
-if (villain.scudoEquipaggiato) caBase += villain.scudoEquipaggiato.armor_class.base;
-
+if (villain.scudoEquipaggiato) {
+  caBase += villain.scudoEquipaggiato.armor_class.base;
+}
 villain.ca = caBase;
+
+// Salviamo anche per UI
+villain.armatureDisponibili = villain.armatureDiCompetenza;
+
 
 villain.equipVari = [
   ...(equipBase.equipaggiamento || []),
@@ -262,91 +276,81 @@ villain.armatureIndossate.forEach(a => {
 });
 
   // 12. Magia
-  // Tabella slot per full caster (wizard, cleric, sorcerer, bard, druid)
-const slotFullCaster = {
-  1: [2],
-  2: [3],
-  3: [4, 2],
-  4: [4, 3],
-  5: [4, 3, 2],
-  6: [4, 3, 3],
-  7: [4, 3, 3, 1],
-  8: [4, 3, 3, 2],
-  9: [4, 3, 3, 3, 1],
-  10: [4, 3, 3, 3, 2]
-};
+   // Classi magiche e stat principale coerente con le index italiane
+// Classi magiche (in italiano)
+const classiMagiche = ["wizard", "sorcerer", "warlock", "cleric", "druid", "bard", "paladin", "ranger"];
+if (classiMagiche.includes(classeKey)) {
+  const statMagicheMap = {
+    wizard: "intelligenza",
+    sorcerer: "carisma",
+    warlock: "carisma",
+    cleric: "saggezza",
+    druid: "saggezza",
+    bard: "carisma",
+    paladin: "carisma",
+    ranger: "saggezza"
+  };
 
-// Tabella slot per half caster (paladin, ranger)
-const slotHalfCaster = {
-  1: [],
-  2: [2],
-  3: [3],
-  4: [3],
-  5: [4, 2],
-  6: [4, 2],
-  7: [4, 3],
-  8: [4, 3],
-  9: [4, 3, 2],
-  10: [4, 3, 3]
-};
-const classiFullCaster = ["wizard", "sorcerer", "warlock", "bard", "cleric", "druid"];
-const classiHalfCaster = ["paladin", "ranger"];
-   
-  // Se la classe è magica, aggiungiamo le statistiche magiche
-  if (classiFullCaster.includes(classeKey) || classiHalfCaster.includes(classeKey)) {
-    const statMagica = statMagicaPerClasse[classeKey] || "intelligenza";
-    const modMagia = Math.floor((villain.stats[statMagica] - 10) / 2);
+  const statMagica = statMagicheMap[classeKey] || "carisma";
+  const modMagia = Math.floor((villain.stats[statMagica] - 10) / 2);
 
-    villain.magia = {
-      caratteristica: statMagica,
-      cd: 8 + modMagia + proficienza,
-      bonusAttacco: modMagia + proficienza,
-      focus: generaFocusArcano(classeKey.toLowerCase())
-    };
+  villain.magia = {
+    statPrincipale: statMagica,
+    cd: 8 + modMagia + proficienza,
+    bonusAttacco: modMagia + proficienza,
+    focus: equipBase.focusArcano || generaFocusArcano(classeKey)
+  };
 
-    villain.slotIncantesimi = classiFullCaster.includes(classeKey)
-    ? slotFullCaster[villain.livello] || []
-    : slotHalfCaster[villain.livello] || [];
+  // Slot incantesimi per classi magiche
+const fullCasters = ["wizard", "sorcerer", "warlock", "cleric", "druid", "bard"];
+const halfCasters = ["paladin", "ranger"];
 
-  const spellData = spells[classeKey];
-  villain.incantesimi = [];
-
-  if (spellData) {
-    // Cantrips
-    const maxCantrips = Math.min(3 + Math.floor(villain.livello / 4), spellData.cantrips?.length || 0);
-    villain.incantesimi.push(
-      ...spellData.cantrips.slice(0, maxCantrips).map(sp => ({
-        nome: sp.name,
-        livello: sp.level,
-        scuola: sp.school,
-        gittata: sp.range,
-        componenti: sp.components,
-        durata: sp.duration,
-        descrizione: sp.desc
-      }))
-    );
-
-
-    // Incantesimi per livello
-    for (let lvl = 1; lvl <= villain.livello && lvl <= 5; lvl++) {
-      const key = `level${lvl}`;
-      if (spellData[key]) {
-        const numSpells = Math.min(2, spellData[key].length);
-        villain.incantesimi.push(
-          ...spellData[key].slice(0, numSpells).map(sp => ({
-            nome: sp.name,
-            livello: sp.level,
-            scuola: sp.school,
-            gittata: sp.range,
-            componenti: sp.components,
-            durata: sp.duration,
-            descrizione: sp.desc
-          }))
-        );
-      }
-    }
+// Funzione per tabella slot (semplificata)
+function calcolaSlotIncantesimi(livello, tipo) {
+  // Tabella base semplificata per livelli 1-9
+  const fullCasterSlots = {
+    1: [2], 2: [3], 3: [4, 2], 4: [4, 3], 5: [4, 3, 2], 6: [4, 3, 3], 7: [4, 3, 3, 1],
+    8: [4, 3, 3, 2], 9: [4, 3, 3, 3, 1], 10: [4, 3, 3, 3, 2],
+    11: [4, 3, 3, 3, 2, 1], 12: [4, 3, 3, 3, 2, 1], 13: [4, 3, 3, 3, 2, 1, 1],
+    14: [4, 3, 3, 3, 2, 1, 1], 15: [4, 3, 3, 3, 2, 1, 1, 1], 16: [4, 3, 3, 3, 2, 1, 1, 1],
+    17: [4, 3, 3, 3, 2, 1, 1, 1, 1], 18: [4, 3, 3, 3, 3, 1, 1, 1, 1], 19: [4, 3, 3, 3, 3, 2, 1, 1, 1],
+    20: [4, 3, 3, 3, 3, 2, 2, 1, 1]
+  };
+  const slots = fullCasterSlots[livello] || [];
+  if (tipo === "half") {
+    // Approssimazione: metà caster ottiene slot come full caster di livello /2 (arrotondato per eccesso)
+    const halfLevel = Math.ceil(livello / 2);
+    return fullCasterSlots[halfLevel] || [];
   }
-}  
+  return slots;
+}
+
+// Determina tipo caster
+const casterType = fullCasters.includes(classeKey) ? "full" : halfCasters.includes(classeKey) ? "half" : null;
+
+if (casterType) {
+  villain.slotIncantesimi = calcolaSlotIncantesimi(villain.livello, casterType)
+    .map((num, idx) => ({ livello: idx + 1, slots: num }));
+
+  villain.incantesimi = {
+    trucchetti: (spells[classeKey]?.cantrips || []).slice(0, 2).map(sp => ({
+      nome: sp.name,
+      livello: 0,
+      scuola: sp.school,
+      durata: sp.duration,
+      gittata: sp.range,
+      descrizione: Array.isArray(sp.desc) ? sp.desc.join(" ") : sp.desc
+    })),
+    livelli: villain.slotIncantesimi.map(sl => ({
+      livello: sl.livello,
+      slots: sl.slots,
+      lista: [] // inizialmente vuota, DM li aggiunge o li pesca dall'elenco
+    }))
+  };
+}
+
+}
+
   
     // 13. Narrativa
   villain.descrizione = casuale([
