@@ -4,7 +4,7 @@ import { firestore } from "../firebase/firebaseConfig";
 import ArchivioSezione from "../components/archivioSezione";
 import ModaleDettaglioArchivio from "../components/modali/modaleDettaglioArchivio";
 import ModaleCollegamento from "../components/modali/modaleCollegamento";
-import "../styles/Archivio.css";
+import "../styles/archivio.css";
 
 const Archivio = () => {
   const [png, setPng] = useState([]);
