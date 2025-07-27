@@ -4,7 +4,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AuthPage from './pages/authPage';
 import DashboardDM from './pages/dashboardDM';
-import ModaleCreaCampagna from './components/modali/modaleCreaCampagna';
+import ModaleCreaCampagna from './components/modaleCreaCampagna';
 import CampagnaCard from './components/campagnaCard';
 import SuggerimentoDelGiorno from './components/suggerimentoDelGiorno';
 import ModaleDettagliCampagna from './components/modaleDettagliCampagna';
