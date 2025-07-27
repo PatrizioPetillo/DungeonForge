@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { toast } from "react-toastify";
 import { addDoc, collection, serverTimestamp, getDocs } from "firebase/firestore";
 import { firestore } from "../../firebase/firebaseConfig";
 import { toast } from "react-toastify";
@@ -83,27 +82,37 @@ const [esempioCorrente, setEsempioCorrente] = useState("Clicca il dado per gener
 
   useEffect(() => {
     const fetchDati = async () => {
-      const [sceneSnap, pngSnap, enigmaSnap] = await Promise.all([
-        getDocs(collection(firestore, `campagne/${campagnaId}/scenes`)),
-        getDocs(collection(firestore, "png")),
-        getDocs(collection(firestore, "enigmi")),
-      ]);
-      setSceneDisponibili(
-        sceneSnap.docs.map((d) => ({ id: d.id, ...d.data() }))
-      );
-      const villainSnap = await getDocs(collection(firestore, "villain"));
-      setVillainDisponibili(
-        villainSnap.docs.map((d) => ({ id: d.id, ...d.data() }))
-      );
-      const mostroSnap = await getDocs(collection(firestore, "mostri"));
-      setMostroDisponibili(
-        mostroSnap.docs.map((d) => ({ id: d.id, ...d.data() }))
-      );
-      setPngDisponibili(pngSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
-      setEnigmiDisponibili(
-        enigmaSnap.docs.map((d) => ({ id: d.id, ...d.data() }))
-      );
-    };
+  try {
+    const promises = [];
+
+    // Se abbiamo campagnaId, fetch delle scene
+    if (campagnaId) {
+      promises.push(getDocs(collection(firestore, `campagne/${campagnaId}/scenes`)));
+    } else {
+      promises.push(Promise.resolve({ docs: [] })); // placeholder
+    }
+
+    // Fetch globali
+    promises.push(getDocs(collection(firestore, "png")));
+    promises.push(getDocs(collection(firestore, "enigmi")));
+
+    const [sceneSnap, pngSnap, enigmaSnap] = await Promise.all(promises);
+
+    setSceneDisponibili(sceneSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    setPngDisponibili(pngSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    setEnigmiDisponibili(enigmaSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+
+    // Villain e mostri
+    const villainSnap = await getDocs(collection(firestore, "villain"));
+    const mostroSnap = await getDocs(collection(firestore, "mostri"));
+
+    setVillainDisponibili(villainSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    setMostroDisponibili(mostroSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+
+  } catch (err) {
+    console.error("Errore fetch dati:", err);
+  }
+};
 
     fetchDati();
   }, []);

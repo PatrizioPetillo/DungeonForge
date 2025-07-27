@@ -12,6 +12,7 @@ import ModaleEnigma from "../components/modali/modaleEnigma";
 import EnigmaWidget from "../components/widget/enigmaWidget";
 import ModaleAvventura from "../components/modali/modaleFiveRoomDungeon";
 import AvventuraWidget from "../components/widget/avventuraWidget";
+import AvventuraArchivio from "../components/widget/avventuraArchivio";
 import ModaleCreaCampagna from "../components/modaleCreaCampagna";
 import ModaleDettagliCampagna from "../components/modaleDettagliCampagna";
 import CampagnaCard from "../components/campagnaCard";
@@ -28,6 +29,7 @@ function DashboardDM() {
     stato: "bozza",
   });
   const [campagnaSelezionata, setCampagnaSelezionata] = useState(null);
+  const [campagnaAttiva, setCampagnaAttiva] = useState(null);
   const [isVillainModalOpen, setIsVillainModalOpen] = useState(false);
     const [villain, setVillain] = useState(null);
   const [showMostroModal, setShowMostroModal] = useState(false);
@@ -100,7 +102,7 @@ function DashboardDM() {
   <MostroWidget onClick={() => setShowMostroModal(true)} />
   <LuogoWidget onClick={() => setShowLuogoModal(true)} />
   <EnigmaWidget onClick={() => setMostraModaleEnigma(true)} />
-  <AvventuraWidget campagnaId={campagnaAttiva?.id || null} />
+  <AvventuraWidget onClick={() => setMostraModaleAvventura(true)} />
 </div>
 <hr />
 {isVillainModalOpen && (
@@ -120,7 +122,8 @@ function DashboardDM() {
       </section>
 
       {/* Recap Sessione */}
-      <section className="dashboard-section">
+      <section className="recap-FRD-section">
+      <section className="recap-section">
         <h2>🪶 Recap Sessione</h2>
         <div className="recap-box">
           <p>
@@ -133,11 +136,11 @@ function DashboardDM() {
         </div>
       </section>
 
-      <section className="dashboard-section">
+      <section className="FRD-section">
   <h2>📚 Avventure Modulari Salvate</h2>
   <AvventuraArchivio campagnaId={campagnaAttiva?.id || null} />
 </section>
-
+</section>
 
       <hr />
 
