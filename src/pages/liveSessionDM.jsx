@@ -14,6 +14,8 @@ import Combattimento from "../components/liveSession/combattimento";
 import AttaccoRapido from "../components/liveSession/attaccoRapido";
 import EnigmiAttivi from "../components/liveSession/enigmiAttivi";
 import VillainAttivi from "../components/liveSession/villainAttivi";
+import ModaleDettaglioFRD from "../components/modali/modaleFiveRoomDungeon";
+import LootSessione from "../components/liveSession/lootSessione";
 import "../styles/liveSessionDM.css";
 
 const LiveSessionDM = () => {
@@ -178,6 +180,12 @@ const onLog = (descrizione) => {
               ]);
             }}
           />
+          <LootSessione
+            campagnaId={id}
+            destinatari={[...pngInScena, ...villainInScena, ...mostriInScena]}
+            onLog={onLog}
+          />
+
         </div>
         <LogSessione eventi={eventiLog} />
       </div>

@@ -31,6 +31,8 @@ export default function ModaleVillain({ onClose }) {
 const [opzioniDialogo, setOpzioniDialogo] = useState([]);
 const [showCollegamento, setShowCollegamento] = useState(false);
 const [elementoId, setElementoId] = useState(null);
+const ordineStats = ["forza", "destrezza", "costituzione", "intelligenza", "saggezza", "carisma"];
+
 
   const tabs = [
     "Generali",
@@ -173,22 +175,45 @@ useEffect(() => {
 
                 <div className="form-group">
                   <label>Razza</label>
-                  <input type="text" value={villain.razza || ""} readOnly />
+                  <input type="text" value={villain.razza || ""} 
+                  onChange={(e) => setvillain({ ...villain, razza: e.target.value })} />
                 </div>
 
                 <div className="form-group">
                   <label>Classe</label>
-                  <input type="text" value={villain.classe || ""} readOnly />
+                  <input type="text" value={villain.classe || ""} 
+                  onChange={(e) => {
+  const nuovaClasse = e.target.value.toLowerCase();
+  const newVillain = { ...villain, classe: nuovaClasse };
+  
+  if (villain.stats) {
+    const principale = statPrincipalePerClasse[nuovaClasse];
+    if (principale) {
+      const statsArray = Object.entries(newVillain.stats);
+      statsArray.sort((a, b) => b[1] - a[1]); // ordina per valore
+      const [maxStatName, maxVal] = statsArray[0];
+      if (principale !== maxStatName) {
+        // Swap: la stat principale diventa la più alta
+        const oldValue = newVillain.stats[principale];
+        newVillain.stats[principale] = maxVal;
+        newVillain.stats[maxStatName] = oldValue;
+      }
+    }
+  }
+  setvillain(newVillain);
+}} />
                 </div>
 
                 <div className="form-group">
                   <label>Velocità</label>
-                  <input type="number" value={villain.velocita || ""} readOnly />
+                  <input type="number" value={villain.velocita || ""} 
+                  onChange={(e) => setvillain({ ...villain, velocita: e.target.value })} />
                 </div>
 
                 <div className="form-group">
                   <label>Livello</label>
-                  <input type="number" value={villain.livello || ""} readOnly />
+                  <input type="number" value={villain.livello || ""} 
+                  onChange={(e) => setvillain({ ...villain, livello: e.target.value })} />
                 </div>
 
                 {/* Dettagli razza */}
@@ -198,7 +223,8 @@ useEffect(() => {
                     {villain.linguaggi && villain.linguaggi.length > 0 && (
                   <div className="form-group">
                     <label>Linguaggi</label>
-                    <input type="text" value={villain.linguaggi.join(", ")} readOnly />
+                    <input type="text" value={villain.linguaggi.join(", ")} 
+                    onChange={(e) => setvillain({ ...villain, linguaggi: e.target.value.split(", ") })} />
                   </div>
                 )}
                     <p><strong>Tratti:</strong> {villain.dettagliRazza.traits.map(t => t.name).join(", ")}</p>
@@ -266,18 +292,21 @@ useEffect(() => {
 </div>
 
               <div className="stat-grid">
-                {Object.entries(villain.stats || {}).map(([stat, val]) => {
+                {ordineStats.map(stat => {
+                  const val = villain.stats[stat] || 0;
                   const mod = Math.floor((val - 10) / 2);
-                  const isSavingThrow = villain.savingThrowsClasse.includes(stat);
-                  const tiroSalvezza = isSavingThrow ? `+${villain.tiriSalvezza[stat]}` : null;
-
-                  // Abilità collegate a questa caratteristica
                   const abilita = abilitaPerStat[stat] || [];
-
                   return (
                     <div key={stat} className="stat-box">
                       <h5>{stat.toUpperCase()}</h5>
-                      <div className="stat-score">{val}</div>
+                      <input
+                        type="number"
+                        value={val}
+                        onChange={(e) => {
+                          const newStats = { ...villain.stats, [stat]: parseInt(e.target.value) || 0 };
+                          setvillain({ ...villain, stats: newStats });
+                        }}
+                      />
                       <div className="stat-mod">{mod >= 0 ? `+${mod}` : mod}</div>
 
                       {abilita.length > 0 && (
@@ -352,14 +381,14 @@ useEffect(() => {
               </div>
               <div className="form-group">
                 <label>Bonus Competenza</label>
-                <input type="text" value={`+${Math.ceil((villain.livello || 1) / 4) + 2}`} readOnly />
+                <input type="text" value={`+${Math.ceil((villain.livello || 1) / 4) + 2}`} onChange={(e) => setvillain({ ...villain, bonusCompetenza: e.target.value })} />
               </div>
               <div className="form-group">
                 <label>Dado Vita</label>
                 <input
                   type="text"
                   value={`d${villain.dadoVita || ""}`}
-                  readOnly
+                  onChange={(e) => setvillain({ ...villain, dadoVita: e.target.value })}
                 />
               </div>
             </div>
@@ -434,37 +463,106 @@ useEffect(() => {
 
 {/* Tabella Slot */}
 <h4>Slot Incantesimi</h4>
-{villain.slotIncantesimi && villain.slotIncantesimi.length > 0 ? (
-  <table className="slot-table">
-    <thead>
-      <tr>
-        <th>Livello</th>
-        <th>Slots Disponibili</th>
-        <th>Incantesimi Conosciuti</th>
-      </tr>
-    </thead>
-    <tbody>
-      {villain.slotIncantesimi.map((sl, idx) => {
-        const incCount = villain.incantesimi?.livelli?.[idx]?.lista?.length || 0;
-        return (
-          <tr key={idx}>
-            <td>{sl.livello}</td>
-            <td>{sl.slots}</td>
-            <td>{incCount}</td>
-          </tr>
-        );
-      })}
-    </tbody>
-  </table>
-) : (
-  <p>Nessuno slot disponibile</p>
-)}
+<div className="magic-actions">
+  <button
+    onClick={() => {
+      const nuovo = { livello: villain.slotIncantesimi.length + 1, slots: 0 };
+      setvillain({
+        ...villain,
+        slotIncantesimi: [...villain.slotIncantesimi, nuovo],
+        incantesimi: {
+          ...villain.incantesimi,
+          livelli: [...(villain.incantesimi?.livelli || []), { livello: nuovo.livello, slots: 0, lista: [] }]
+        }
+      });
+    }}
+  >
+    + Aggiungi Livello
+  </button>
+</div>
+
+<table className="slot-table">
+  <thead>
+    <tr>
+      <th>Livello</th>
+      <th>Slots Disponibili</th>
+      <th>Azioni</th>
+    </tr>
+  </thead>
+  <tbody>
+    {villain.slotIncantesimi?.length > 0 ? (
+      villain.slotIncantesimi.map((sl, idx) => (
+        <tr key={idx}>
+          <td>{sl.livello}</td>
+          <td>
+            <input
+              type="number"
+              value={sl.slots}
+              onChange={(e) => {
+                const newSlots = [...villain.slotIncantesimi];
+                newSlots[idx].slots = parseInt(e.target.value);
+                const newLivelli = [...villain.incantesimi.livelli];
+                newLivelli[idx].slots = parseInt(e.target.value);
+                setvillain({
+                  ...villain,
+                  slotIncantesimi: newSlots,
+                  incantesimi: { ...villain.incantesimi, livelli: newLivelli }
+                });
+              }}
+            />
+          </td>
+          <td>
+            <button
+              className="delete-btn"
+              onClick={() => {
+                const newSlots = villain.slotIncantesimi.filter((_, i) => i !== idx);
+                const newLivelli = villain.incantesimi.livelli.filter((_, i) => i !== idx);
+                setvillain({
+                  ...villain,
+                  slotIncantesimi: newSlots,
+                  incantesimi: { ...villain.incantesimi, livelli: newLivelli }
+                });
+              }}
+            >
+              ❌
+            </button>
+          </td>
+        </tr>
+      ))
+    ) : (
+      <tr><td colSpan="3">Nessuno slot disponibile</td></tr>
+    )}
+  </tbody>
+</table>
 
 
 <hr />
 
 {/* Tabella Trucchetti */}
 <h4>Trucchetti</h4>
+<div className="magic-actions">
+  <button
+    onClick={() => {
+      const nuovo = {
+        nome: "Nuovo Trucchetto",
+        scuola: "?",
+        durata: "—",
+        gittata: "—",
+        descrizione: "Descrizione breve"
+      };
+      setvillain({
+        ...villain,
+        incantesimi: {
+          ...villain.incantesimi,
+          trucchetti: [...(villain.incantesimi.trucchetti || []), nuovo]
+        }
+      });
+    }}
+  >
+    + Aggiungi Trucchetto
+  </button>
+</div>
+
 <table className="spell-table">
   <thead>
     <tr>
@@ -480,23 +578,41 @@ useEffect(() => {
     {villain.incantesimi?.trucchetti?.length > 0 ? (
       villain.incantesimi.trucchetti.map((spell, i) => (
         <tr key={i}>
-          <td>{spell.nome}</td>
-          <td>{spell.scuola}</td>
-          <td>{spell.durata}</td>
-          <td>{spell.gittata}</td>
+          <td><input type="text" value={spell.nome} onChange={(e) => {
+            const updated = [...villain.incantesimi.trucchetti];
+            updated[i].nome = e.target.value;
+            setvillain({ ...villain, incantesimi: { ...villain.incantesimi, trucchetti: updated } });
+          }} /></td>
+          <td><input type="text" value={spell.scuola} onChange={(e) => {
+            const updated = [...villain.incantesimi.trucchetti];
+            updated[i].scuola = e.target.value;
+            setvillain({ ...villain, incantesimi: { ...villain.incantesimi, trucchetti: updated } });
+          }} /></td>
+          <td><input type="text" value={spell.durata} onChange={(e) => {
+            const updated = [...villain.incantesimi.trucchetti];
+            updated[i].durata = e.target.value;
+            setvillain({ ...villain, incantesimi: { ...villain.incantesimi, trucchetti: updated } });
+          }} /></td>
+          <td><input type="text" value={spell.gittata} onChange={(e) => {
+            const updated = [...villain.incantesimi.trucchetti];
+            updated[i].gittata = e.target.value;
+            setvillain({ ...villain, incantesimi: { ...villain.incantesimi, trucchetti: updated } });
+          }} /></td>
+          <td><textarea value={spell.descrizione} onChange={(e) => {
+            const updated = [...villain.incantesimi.trucchetti];
+            updated[i].descrizione = e.target.value;
+            setvillain({ ...villain, incantesimi: { ...villain.incantesimi, trucchetti: updated } });
+          }} /></td>
           <td>
-            <span title={spell.descrizione}>
-              {spell.descrizione.slice(0, 40)}...
-            </span>
-          </td>
-          <td>
-            <button onClick={() => {
-              const updated = villain.incantesimi.trucchetti.filter((_, idx) => idx !== i);
-              setvillain({
-                ...villain,
-                incantesimi: { ...villain.incantesimi, trucchetti: updated }
-              });
-            }}>❌</button>
+            <button
+              onClick={() => {
+                const updated = villain.incantesimi.trucchetti.filter((_, idx) => idx !== i);
+                setvillain({ ...villain, incantesimi: { ...villain.incantesimi, trucchetti: updated } });
+              }}
+              className="delete-btn"
+            >
+              ❌
+            </button>
           </td>
         </tr>
       ))
@@ -511,7 +627,19 @@ useEffect(() => {
 {/* Incantesimi per livello */}
 {villain.incantesimi?.livelli?.map((lvl, idx) => (
   <div key={idx} className="spell-section">
-    <h4>Livello {lvl.livello} (Slots: {lvl.slots})</h4>
+    <h4>
+      Livello {lvl.livello} (Slots: {lvl.slots})
+      <button
+        onClick={() => {
+          const newLivelli = villain.incantesimi.livelli.filter((_, i) => i !== idx);
+          setvillain({ ...villain, incantesimi: { ...villain.incantesimi, livelli: newLivelli } });
+        }}
+        className="delete-btn"
+      >
+        ❌ Elimina livello
+      </button>
+    </h4>
+
     <table className="spell-table">
       <thead>
         <tr>
@@ -527,24 +655,42 @@ useEffect(() => {
         {lvl.lista.length > 0 ? (
           lvl.lista.map((spell, i) => (
             <tr key={i}>
-              <td>{spell.nome}</td>
-              <td>{spell.scuola}</td>
-              <td>{spell.durata}</td>
-              <td>{spell.gittata}</td>
+              <td><input type="text" value={spell.nome} onChange={(e) => {
+                const newLivelli = [...villain.incantesimi.livelli];
+                newLivelli[idx].lista[i].nome = e.target.value;
+                setvillain({ ...villain, incantesimi: { ...villain.incantesimi, livelli: newLivelli } });
+              }} /></td>
+              <td><input type="text" value={spell.scuola} onChange={(e) => {
+                const newLivelli = [...villain.incantesimi.livelli];
+                newLivelli[idx].lista[i].scuola = e.target.value;
+                setvillain({ ...villain, incantesimi: { ...villain.incantesimi, livelli: newLivelli } });
+              }} /></td>
+              <td><input type="text" value={spell.durata} onChange={(e) => {
+                const newLivelli = [...villain.incantesimi.livelli];
+                newLivelli[idx].lista[i].durata = e.target.value;
+                setvillain({ ...villain, incantesimi: { ...villain.incantesimi, livelli: newLivelli } });
+              }} /></td>
+              <td><input type="text" value={spell.gittata} onChange={(e) => {
+                const newLivelli = [...villain.incantesimi.livelli];
+                newLivelli[idx].lista[i].gittata = e.target.value;
+                setvillain({ ...villain, incantesimi: { ...villain.incantesimi, livelli: newLivelli } });
+              }} /></td>
+              <td><textarea value={spell.descrizione} onChange={(e) => {
+                const newLivelli = [...villain.incantesimi.livelli];
+                newLivelli[idx].lista[i].descrizione = e.target.value;
+                setvillain({ ...villain, incantesimi: { ...villain.incantesimi, livelli: newLivelli } });
+              }} /></td>
               <td>
-                <span title={spell.descrizione}>
-                  {spell.descrizione.slice(0, 40)}...
-                </span>
-              </td>
-              <td>
-                <button onClick={() => {
-                  const newLivelli = [...villain.incantesimi.livelli];
-                  newLivelli[idx].lista.splice(i, 1);
-                  setvillain({
-                    ...villain,
-                    incantesimi: { ...villain.incantesimi, livelli: newLivelli }
-                  });
-                }}>❌</button>
+                <button
+                  onClick={() => {
+                    const newLivelli = [...villain.incantesimi.livelli];
+                    newLivelli[idx].lista.splice(i, 1);
+                    setvillain({ ...villain, incantesimi: { ...villain.incantesimi, livelli: newLivelli } });
+                  }}
+                  className="delete-btn"
+                >
+                  ❌
+                </button>
               </td>
             </tr>
           ))
@@ -553,24 +699,25 @@ useEffect(() => {
         )}
       </tbody>
     </table>
-    <button onClick={() => {
-      const nuovoInc = {
-        nome: "Nuovo Incantesimo",
-        scuola: "?",
-        durata: "—",
-        gittata: "—",
-        descrizione: "Descrizione breve"
-      };
-      const newLivelli = [...villain.incantesimi.livelli];
-      newLivelli[idx].lista = [...lvl.lista, nuovoInc];
-      setvillain({
-        ...villain,
-        incantesimi: { ...villain.incantesimi, livelli: newLivelli }
-      });
-    }}>+ Aggiungi Incantesimo</button>
+
+    <button
+      onClick={() => {
+        const nuovoInc = {
+          nome: "Nuovo Incantesimo",
+          scuola: "?",
+          durata: "—",
+          gittata: "—",
+          descrizione: "Descrizione breve"
+        };
+        const newLivelli = [...villain.incantesimi.livelli];
+        newLivelli[idx].lista.push(nuovoInc);
+        setvillain({ ...villain, incantesimi: { ...villain.incantesimi, livelli: newLivelli } });
+      }}
+    >
+      + Aggiungi Incantesimo
+    </button>
   </div>
 ))}
-
 
             </div>
           )}
@@ -594,6 +741,51 @@ useEffect(() => {
                   <p>Nessun oggetto presente.</p>
                 )}
               </ul>
+              <hr />
+              {tab === "Equipaggiamento" && (
+  <div className="tab-contenuto">
+    <h3>⚔️ Armi Equipaggiate</h3>
+    {villain.armamento?.armi && villain.armamento.armi.length > 0 ? (
+      <ul>
+        {villain.armamento.armi.map((arma, i) => (
+          <li key={i}>
+            <strong>{arma.nome}</strong> – <span>{arma.danno}</span>
+            {arma.magico && <span> ✨ Magica</span>}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p>Nessuna arma assegnata</p>
+    )}
+
+    <h3>🛡️ Armatura & Scudo</h3>
+    {villain.armamento?.armatura ? (
+      <p>
+        <strong>{villain.armamento.armatura.nome}</strong> (CA Base: {villain.armamento.armatura.CA})
+      </p>
+    ) : (
+      <p>Nessuna armatura</p>
+    )}
+    {villain.armamento?.scudo && (
+      <p>
+        <strong>{villain.armamento.scudo.nome}</strong> (+{villain.armamento.scudo.bonus} CA)
+      </p>
+    )}
+    <p><strong>CA Totale:</strong> {villain.ca || "—"}</p>
+
+    <h3>🔮 Oggetti Magici</h3>
+    {villain.armamento?.oggettiMagici && villain.armamento.oggettiMagici.length > 0 ? (
+      <ul>
+        {villain.armamento.oggettiMagici.map((item, i) => (
+          <li key={i}>{item}</li>
+        ))}
+      </ul>
+    ) : (
+      <p>Nessun oggetto magico</p>
+    )}
+  </div>
+)}
+              <hr />
 
               <div className="form-group">
                 <input
@@ -642,19 +834,19 @@ useEffect(() => {
                 </div>
                 <div className="form-group">
                   <label>PF Massimi</label>
-                  <input type="number" value={villain.pf || 0} readOnly />
+                  <input type="number" value={villain.pf || 0} onChange={(e) => setvillain({ ...villain, pf: parseInt(e.target.value) })} />
                 </div>
                 <div className="form-group">
                   <label>Classe Armatura</label>
-                  <input type="number" value={villain.ca || 10} readOnly />
+                  <input type="number" value={villain.ca || 10} onChange={(e) => setvillain({ ...villain, ca: parseInt(e.target.value) })} />
                 </div>
                 <div className="form-group">
                   <label>Velocità</label>
-                  <input type="text" value={`${villain.velocita || 9} m`} readOnly />
+                  <input type="text" value={`${villain.velocita || 9} m`} onChange={(e) => setvillain({ ...villain, velocita: e.target.value })} />
                 </div>
                 <div className="form-group">
                   <label>Bonus Competenza</label>
-                  <input type="text" value={`+${Math.ceil((villain.livello || 1) / 4) + 2}`} readOnly />
+                  <input type="text" value={`+${Math.ceil((villain.livello || 1) / 4) + 2}`} onChange={(e) => setvillain({ ...villain, bonusCompetenza: e.target.value })} />
                 </div>
               </div>
 
@@ -674,34 +866,77 @@ useEffect(() => {
                   </thead>
                   <tbody>
                     <tr>
-                      <td>{villain.armaMischia.name}</td>
                       <td>
-                        {(() => {
-                          const isFinesse = villain.armaMischia.properties?.some(p => p.name.toLowerCase() === "finesse");
-                          const modFor = Math.floor((villain.stats.forza - 10) / 2);
-                          const modDes = Math.floor((villain.stats.destrezza - 10) / 2);
-                          const modBase = isFinesse ? Math.max(modFor, modDes) : modFor;
-                          const prof = villain.armiDiCompetenza?.some(a => a.index === villain.armaMischia.index)
-                            ? Math.ceil(villain.livello / 4) + 2
-                            : 0;
-                          const bonus = modBase + prof;
-                          return bonus >= 0 ? `+${bonus}` : bonus;
-                        })()}
-                      </td>
-                      <td>{villain.armaMischia.damage.damage_dice} {villain.armaMischia.damage.damage_type.name}</td>
+  <input
+    type="text"
+    value={villain.armaMischia?.name || ""}
+    onChange={(e) => setvillain({
+      ...villain,
+      armaMischia: { ...villain.armaMischia, name: e.target.value }
+    })}
+  />
+</td>
                       <td>
-                        {villain.armaMischia.properties?.map((p, i) => (
-                          <span key={i} title={getTooltipProprieta(p.name)}>
-                            {p.name}{i < villain.armaMischia.properties.length - 1 ? ", " : ""}
-                          </span>
-                        ))}
+                        <input
+                          type="text"
+                          value={(() => {
+                            const isFinesse = villain.armaMischia.properties?.some(p => p.name.toLowerCase() === "finesse");
+                            const modFor = Math.floor((villain.stats.forza - 10) / 2);
+                            const modDes = Math.floor((villain.stats.destrezza - 10) / 2);
+                            const modBase = isFinesse ? Math.max(modFor, modDes) : modFor;
+                          })()}
+                        />
                       </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={`${villain.armaMischia.damage.damage_dice} ${villain.armaMischia.damage.damage_type.name}`}
+                          onChange={(e) => setvillain({
+                            ...villain,
+                            armaMischia: { ...villain.armaMischia, damage: { ...villain.armaMischia.damage, damage_dice: e.target.value.split(" ")[0], damage_type: { name: e.target.value.split(" ")[1] } } }
+                          })}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={villain.armaMischia.properties?.map(p => p.name).join(", ") || ""}
+                          onChange={(e) => {
+                            const newProperties = e.target.value.split(",").map(name => ({ name: name.trim() }));
+                            setvillain({
+                              ...villain,
+                              armaMischia: { ...villain.armaMischia, properties: newProperties }
+                            });
+                          }}
+                        />
+                      </td>
+                      <td>
+      <button
+        onClick={() =>
+          setvillain({
+            ...villain,
+            armaMischia: null,
+          })
+        }
+        className="delete-btn"
+      >
+        ❌
+      </button>
+    </td>
                     </tr>
                   </tbody>
                 </table>
               ) : (
                 <p>Nessuna arma da mischia</p>
               )}
+<button
+  onClick={() => setvillain({
+    ...villain,
+    armaMischia: villain.armaMischia || { name: "", damage: "", properties: [] }
+  })}
+>
+  + Aggiungi Arma
+</button>
 
               <hr />
 
@@ -719,31 +954,80 @@ useEffect(() => {
                   </thead>
                   <tbody>
                     <tr>
-                      <td>{villain.armaDistanza.name}</td>
                       <td>
-                        {(() => {
-                          const modDes = Math.floor((villain.stats.destrezza - 10) / 2);
-                          const prof = villain.armiDiCompetenza?.some(a => a.index === villain.armaDistanza.index)
-                            ? Math.ceil(villain.livello / 4) + 2
-                            : 0;
+                        <input
+                          type="text"
+                          value={villain.armaDistanza.name}
+                          onChange={(e) => setvillain({
+                            ...villain,
+                            armaDistanza: { ...villain.armaDistanza, name: e.target.value }
+                          })}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={(() => {
+                            const modDes = Math.floor((villain.stats.destrezza - 10) / 2);
+                            const prof = villain.armiDiCompetenza?.some(a => a.index === villain.armaDistanza.index)
+                              ? Math.ceil(villain.livello / 4) + 2
+                              : 0;
                           const bonus = modDes + prof;
                           return bonus >= 0 ? `+${bonus}` : bonus;
-                        })()}
+                        })()} />
                       </td>
-                      <td>{villain.armaDistanza.damage.damage_dice} {villain.armaDistanza.damage.damage_type.name}</td>
                       <td>
-                        {villain.armaDistanza.properties?.map((p, i) => (
-                          <span key={i} title={getTooltipProprieta(p.name)}>
-                            {p.name}{i < villain.armaDistanza.properties.length - 1 ? ", " : ""}
-                          </span>
-                        ))}
+                        <input
+                          type="text"
+                          value={`${villain.armaDistanza.damage.damage_dice} ${villain.armaDistanza.damage.damage_type.name}`}
+                          onChange={(e) => setvillain({
+                            ...villain,
+                            armaDistanza: { ...villain.armaDistanza, damage: { ...villain.armaDistanza.damage, damage_dice: e.target.value.split(" ")[0], damage_type: { name: e.target.value.split(" ")[1] } } }
+                          })}
+                        />
                       </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={villain.armaDistanza.properties?.map(p => p.name).join(", ") || ""}
+                          onChange={(e) => {
+                            const newProperties = e.target.value.split(",").map(name => ({ name: name.trim() }));
+                            setvillain({
+                              ...villain,
+                              armaDistanza: { ...villain.armaDistanza, properties: newProperties }
+                            });
+                          }}
+                        />
+                      </td>
+                      <td>
+      <button
+        onClick={() =>
+          setvillain({
+            ...villain,
+            armaDistanza: null,
+          })
+        }
+        className="delete-btn"
+      >
+        ❌
+      </button>
+    </td>
                     </tr>
                   </tbody>
                 </table>
               ) : (
                 <p>Nessuna arma a distanza</p>
               )}
+
+              <button
+  onClick={() => setvillain({
+    ...villain,
+    armaDistanza: villain.armaDistanza || { name: "", damage: "", properties: [] }
+  })}
+>
+  + Aggiungi Arma a Distanza
+</button>
+
 
               <hr />
 
@@ -761,17 +1045,99 @@ useEffect(() => {
                   </thead>
                   <tbody>
                     <tr>
-                      <td>{villain.armaturaEquipaggiata.name}</td>
-                      <td>{villain.armaturaEquipaggiata.categorie[0]}</td>
-                      <td>{villain.armaturaEquipaggiata.armor_class.base}</td>
-                      <td>{villain.armaturaEquipaggiata.proprieta?.join(", ") || "-"}</td>
+                      <td>
+                        <input
+                          type="text"
+                          value={villain.armaturaEquipaggiata.name}
+                          onChange={(e) => setvillain({
+                            ...villain,
+                            armaturaEquipaggiata: { ...villain.armaturaEquipaggiata, name: e.target.value }
+                          })}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={villain.armaturaEquipaggiata.categorie[0]}
+                          onChange={(e) => setvillain({
+                            ...villain,
+                            armaturaEquipaggiata: { ...villain.armaturaEquipaggiata, categorie: [e.target.value] }
+                          })}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={villain.armaturaEquipaggiata.armor_class.base}
+                          onChange={(e) => setvillain({
+                            ...villain,
+                            armaturaEquipaggiata: { ...villain.armaturaEquipaggiata, armor_class: { ...villain.armaturaEquipaggiata.armor_class, base: e.target.value } }
+                          })}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={villain.armaturaEquipaggiata.proprieta?.join(", ") || ""}
+                          onChange={(e) => {
+                            const newProperties = e.target.value.split(",").map(name => ({ name: name.trim() }));
+                            setvillain({
+                              ...villain,
+                              armaturaEquipaggiata: { ...villain.armaturaEquipaggiata, proprieta: newProperties }
+                            });
+                          }}
+                        />
+                      </td>
+                      <td>
+      <button
+        onClick={() =>
+          setvillain({
+            ...villain,
+            armaturaEquipaggiata: null,
+          })
+        }
+        className="delete-btn"
+      >
+        ❌
+      </button>
+    </td>
                     </tr>
                     {villain.scudoEquipaggiato && (
                       <tr>
-                        <td>{villain.scudoEquipaggiato.name}</td>
+                        <td>
+                          <input
+                            type="text"
+                            value={villain.scudoEquipaggiato.name}
+                            onChange={(e) => setvillain({
+                              ...villain,
+                              scudoEquipaggiato: { ...villain.scudoEquipaggiato, name: e.target.value }
+                            })}
+                          />
+                        </td>
                         <td>Scudo</td>
-                        <td>+{villain.scudoEquipaggiato.armor_class.base}</td>
-                        <td>-</td>
+                        <td>
+                          <input
+                            type="text"
+                            value={villain.scudoEquipaggiato.armor_class.base}
+                            onChange={(e) => setvillain({
+                              ...villain,
+                              scudoEquipaggiato: { ...villain.scudoEquipaggiato, armor_class: { ...villain.scudoEquipaggiato.armor_class, base: e.target.value } }
+                            })}
+                          />
+                        </td>
+                        <td>
+      <button
+        onClick={() =>
+          setvillain({
+            ...villain,
+            scudoEquipaggiato: null,
+          })
+        }
+        className="delete-btn"
+      >
+        ❌
+      </button>
+    </td>
                       </tr>
                     )}
                   </tbody>
@@ -779,7 +1145,15 @@ useEffect(() => {
               ) : (
                 <p>Nessuna armatura equipaggiata (CA: 10 + Mod Destrezza)</p>
               )}
-
+              <button
+                onClick={() => setvillain({
+                  ...villain,
+                  armaturaEquipaggiata: villain.armaturaEquipaggiata || { name: "", categorie: [""], armor_class: { base: 10 }, proprieta: [] },
+                  scudoEquipaggiato: villain.scudoEquipaggiato || { name: "", armor_class: { base: 2 } }
+                })}
+              >
+                + Aggiungi Armatura/Scudo
+              </button>
               <p><strong>CA Totale:</strong> {villain.ca}</p>
             </div>
           )}

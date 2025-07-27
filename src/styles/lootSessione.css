@@ -1,0 +1,12 @@
+.widget.loot-sessione {
+  background: #1A1F2B;
+  border: 1px solid #3D3D3D;
+  border-radius: 6px;
+  padding: 1rem;
+  color: #F2F2F0;
+}
+
+.widget.loot-sessione ul {
+  margin-top: 0.8rem;
+  padding-left: 1rem;
+}

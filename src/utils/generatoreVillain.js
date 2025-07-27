@@ -87,6 +87,29 @@ function getIncantesimiPerClasse(classe, livello) {
   return data[`level${livello}`] || [];
 }
 
+const potenziaArmaMagica = (arma, livello) => {
+  if (!arma) return null;
+  const bonus = livello >= 11 ? "+2" : "+1";
+  return {
+    ...arma,
+    nome: `${arma.nome} ${bonus}`,
+    danno: `${arma.danno}${bonus}`,
+    magico: true
+  };
+};
+
+const generaOggettiMagici = (livello) => {
+  const lista = [];
+  const pool = livello >= 13 ? [...oggettiMagici.moltoRaro, ...oggettiMagici.leggendario] :
+               livello >= 9 ? [...oggettiMagici.nonComune, ...oggettiMagici.raro] :
+               oggettiMagici.comune;
+  const num = livello >= 15 ? 3 : 1 + Math.floor(Math.random() * 2);
+  for (let i = 0; i < num; i++) {
+    lista.push(pool[Math.floor(Math.random() * pool.length)]);
+  }
+  return lista;
+};
+
 export function generaVillain(opzioni = {}) {
   const villain = {};
 
@@ -120,24 +143,24 @@ export function generaVillain(opzioni = {}) {
 
   // 5. Stats
 const prioritaStat = {
-  barbaro: ["forza", "costituzione"],
-  bardo: ["carisma", "destrezza"],
-  chierico: ["saggezza", "costituzione"],
-  druido: ["saggezza", "costituzione"],
-  guerriero: ["forza", "costituzione"],
-  ladro: ["destrezza", "intelligenza"],
-  mago: ["intelligenza", "costituzione"],
-  monaco: ["destrezza", "saggezza"],
-  paladino: ["forza", "carisma"],
+  barbarian: ["forza", "costituzione"],
+  bard: ["carisma", "destrezza"],
+  cleric: ["saggezza", "costituzione"],
+  druid: ["saggezza", "costituzione"],
+  fighter: ["forza", "costituzione"],
+  rogue: ["destrezza", "intelligenza"],
+  wizard: ["intelligenza", "costituzione"],
+  monk: ["destrezza", "saggezza"],
+  paladin: ["forza", "carisma"],
   ranger: ["destrezza", "saggezza"],
-  stregone: ["carisma", "costituzione"],
+  sorcerer: ["carisma", "costituzione"],
   warlock: ["carisma", "costituzione"]
 };
 
 // Tiro delle stats e ordinamento
 const rolls = tiraStats().sort((a, b) => b - a); // valori decrescenti
-const ordine = ["forza", "destrezza", "costituzione", "intelligenza", "saggezza", "carisma"];
-const priorita = prioritaStat[classeKey] || ordine;
+const ordineStats = ["forza", "destrezza", "costituzione", "intelligenza", "saggezza", "carisma"];
+const priorita = prioritaStat[classeKey] || ordineStats;
 
 // Reset stats
 villain.stats = {};
@@ -219,12 +242,37 @@ function hasCategory(item, keyword) {
   return item.categorie.some(c => c.toLowerCase().includes(keyword.toLowerCase()));
 }
 
-// Armature
-const armatureScelte = getEquipFromIds(equipBase.armature, armature);
-villain.armaturaEquipaggiata = armatureScelte[0] || null;
+// --- ARMATURE (OBBLIGATORIE PER CLASSI NON MAGICHE SE COMPETENTI) ---
+const competenzeClasse = classeData.proficiencies || [];
+const isClasseMagica = ["wizard", "sorcerer", "warlock"].includes(classeKey);
 
-// Se il kit prevede uno scudo, aggiungilo
-villain.scudoEquipaggiato = armatureScelte.find(a => hasCategory(a, "scudo")) || null;
+let armatura = null;
+let scudo = null;
+
+// Classi NON magiche → sempre un’armatura se competenti
+if (!isClasseMagica) {
+  if (competenzeClasse.some(prof => prof.toLowerCase().includes("armature pesanti"))) {
+    armatura = armature.find(a => a.categorie.includes("Armatura pesante")) || null;
+  } else if (competenzeClasse.some(prof => prof.toLowerCase().includes("armature medie"))) {
+    armatura = armature.find(a => a.categorie.includes("Armatura media")) || null;
+  } else if (competenzeClasse.some(prof => prof.toLowerCase().includes("armature leggere"))) {
+    armatura = armature.find(a => a.categorie.includes("Armatura leggera")) || null;
+  }
+
+  if (competenzeClasse.some(prof => prof.toLowerCase().includes("scudi"))) {
+    scudo = armature.find(a => a.categorie.includes("Scudo")) || null;
+  }
+} else {
+  // Classi magiche → solo armatura leggera se competente
+  if (competenzeClasse.some(prof => prof.toLowerCase().includes("armature leggere"))) {
+    armatura = armature.find(a => a.categorie.includes("Armatura leggera")) || null;
+  }
+}
+
+// Salva nel villain
+villain.armaturaEquipaggiata = armatura;
+villain.scudoEquipaggiato = scudo;
+
 
 // Armi
 const armiScelte = getEquipFromIds(equipBase.armi, armi);
@@ -258,16 +306,29 @@ if (villain.scudoEquipaggiato) {
 }
 villain.ca = caBase;
 
-// --- ARMI --- //
+// --- SE LIVELLO > 5: ARMI MAGICHE --- //
+if (villain.livello > 5) {
+  [villain.armaMischia, villain.armaDistanza].forEach(arma => {
+    if (arma) {
+      arma.magico = true;
+      arma.bonus = villain.livello > 10 ? "+2" : "+1";
+      arma.nome = `${arma.nome} ${arma.bonus}`;
+      arma.danno = arma.danno + arma.bonus; // es. "1d8" → "1d8+1"
+    }
+  });
+}
 
+// --- SE LIVELLO > 8: AGGIUNGI OGGETTI MAGICI --- //
+if (villain.livello > 8) {
+  const numOggetti = Math.floor(Math.random() * 2) + 1; // 1-2 oggetti
+  villain.armamento.oggettiMagici = [];
+  for (let i = 0; i < numOggetti; i++) {
+    villain.armamento.oggettiMagici.push(
+      oggettiMagiciBase[Math.floor(Math.random() * oggettiMagiciBase.length)]
+    );
+  }
+}
 
-// Arma da mischia
-const armiMischia = villain.armiDiCompetenza.filter(a => hasCategory(a, "mischia"));
-villain.armaMischia = armiMischia.length > 0 ? casuale(armiMischia) : null;
-
-// Arma a distanza
-const armiDistanza = villain.armiDiCompetenza.filter(a => hasCategory(a, "distanza") || hasCategory(a, "arco"));
-villain.armaDistanza = armiDistanza.length > 0 ? casuale(armiDistanza) : null;
 
 // Aggiorna equipaggiamento narrativo
 villain.equipVari = [
