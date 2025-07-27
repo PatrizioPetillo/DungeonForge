@@ -3,6 +3,7 @@ export const classes = [
     index: "barbarian",
     name: "Barbaro",
     hit_die: 12,
+    saving_throws: ["Forza", "Costituzione"],
     proficiencies: ["Armi semplici", "Armi da guerra", "Armature leggere", "Armature medie", "Scudi"],
     proficiency_choices: [
       {
@@ -24,6 +25,7 @@ export const classes = [
     index: "bard",
     name: "Bardo",
     hit_die: 8,
+    saving_throws: ["Destrezza", "Carisma"],
     proficiencies: ["Armi semplici", "Spade corte", "Balestre leggere", "Liuto", "Flauto"],
     proficiency_choices: [
       {
@@ -45,6 +47,7 @@ export const classes = [
     index: "cleric",
     name: "Chierico",
     hit_die: 8,
+    saving_throws: ["Saggezza", "Carisma"],
     proficiencies: ["Armi semplici", "Armature leggere", "Armature medie", "Scudi"],
     proficiency_choices: [
       {
@@ -66,6 +69,7 @@ export const classes = [
     index: "druid",
     name: "Druido",
     hit_die: 8,
+    saving_throws: ["Intelligenza", "Saggezza"],
     proficiencies: ["Bastoni", "Fionde", "Scimitarre", "Scudi di legno"],
     proficiency_choices: [
       {
@@ -87,6 +91,7 @@ export const classes = [
     index: "fighter",
     name: "Guerriero",
     hit_die: 10,
+    saving_throws: ["Forza", "Costituzione"],
     proficiencies: ["Armi semplici", "Armi da guerra", "Armature leggere", "Armature medie", "Armature pesanti", "Scudi"],
     proficiency_choices: [
       {
@@ -220,6 +225,7 @@ export const classes = [
     index: "rogue",
     name: "Ladro",
     hit_die: 8,
+    saving_throws: ["Destrezza", "Intelligenza"],
     proficiencies: ["Armature leggere", "Armi semplici", "Balestre leggere", "Spade corte", "Spade lunghe", "Stocchi"],
     proficiency_choices: [
       {

@@ -1,95 +1,98 @@
+export function getTooltipArmatura(prop) {
+  const descrizioni = {
+    "Svantaggio su Furtività": "Hai svantaggio ai tiri di Furtività.",
+    "Richiede For 13": "Devi avere Forza almeno 13 per indossarla senza penalità.",
+    "Richiede For 15": "Devi avere Forza almeno 15 per indossarla senza penalità.",
+    "Dex bonus": "Puoi aggiungere il tuo bonus di Destrezza alla Classe Armatura (CA), fino a un massimo di 2.",
+    "Max Dex bonus": "Il tuo bonus di Destrezza è limitato a un massimo di 2 quando indossi questa armatura.",
+    "Base": "La Classe Armatura (CA) di base fornita da questa armatura.",
+  };
+  return descrizioni[prop] || "Proprietà dell'armatura.";
+}
+
 export const armature = [
+  {
+    index: "padded-armor",
+    name: "Armatura imbottita",
+    categorie: ["Armatura leggera"],
+    armor_class: { base: 11, dex_bonus: true },
+    proprieta: ["Svantaggio su Furtività"]
+  },
   {
     index: "leather-armor",
     name: "Armatura di cuoio",
-    equipment_category: { name: "Armor" },
-    armor_category: "Light",
-    cost: { quantity: 10, unit: "gp" },
-    armor_class: { base: 11, dex_bonus: true, max_bonus: null },
-    weight: 5,
-    stealth_disadvantage: false
+    categorie: ["Armatura leggera"],
+    armor_class: { base: 11, dex_bonus: true },
+    proprieta: []
   },
   {
-    index: "chain-mail",
+    index: "studded-leather",
+    name: "Armatura di cuoio borchiata",
+    categorie: ["Armatura leggera"],
+    armor_class: { base: 12, dex_bonus: true },
+    proprieta: []
+  },
+  {
+    index: "hide-armor",
+    name: "Armatura di pelle dura",
+    categorie: ["Armatura media"],
+    armor_class: { base: 12, dex_bonus: true, max_bonus: 2 },
+    proprieta: []
+  },
+  {
+    index: "chain-shirt",
     name: "Cotta di maglia",
-    equipment_category: { name: "Armor" },
-    armor_category: "Heavy",
-    cost: { quantity: 75, unit: "gp" },
-    armor_class: { base: 16, dex_bonus: false },
-    weight: 27,
-    stealth_disadvantage: true,
-    strength_minimum: 13
+    categorie: ["Armatura media"],
+    armor_class: { base: 13, dex_bonus: true, max_bonus: 2 },
+    proprieta: []
   },
   {
-    index: "shield",
-    name: "Scudo",
-    equipment_category: { name: "Armor" },
-    armor_category: "Shield",
-    cost: { quantity: 10, unit: "gp" },
-    armor_class: { base: 2, dex_bonus: false },
-    weight: 3,
-    stealth_disadvantage: false
-  },
-  {
-    index: "plate-armor",
-    name: "Armatura a piastre",
-    equipment_category: { name: "Armor" },
-    armor_category: "Heavy",
-    cost: { quantity: 1500, unit: "gp" },
-    armor_class: { base: 18, dex_bonus: false },
-    weight: 65,
-    stealth_disadvantage: false,
-    strength_minimum: 15
-  },
-  {
-    index: "studded-leather-armor",
-    name: "Armatura di cuoio rinforzato",
-    equipment_category: { name: "Armor" },
-    armor_category: "Light",
-    cost: { quantity: 45, unit: "gp" },
-    armor_class: { base: 12, dex_bonus: true, max_bonus: null },
-    weight: 13,
-    stealth_disadvantage: false
+    index: "scale-mail",
+    name: "Corazza a scaglie",
+    categorie: ["Armatura media"],
+    armor_class: { base: 14, dex_bonus: true, max_bonus: 2 },
+    proprieta: ["Svantaggio su Furtività"]
   },
   {
     index: "breastplate",
     name: "Corazza",
-    equipment_category: { name: "Armor" },
-    armor_category: "Medium",
-    cost: { quantity: 400, unit: "gp" },
+    categorie: ["Armatura media"],
     armor_class: { base: 14, dex_bonus: true, max_bonus: 2 },
-    weight: 20,
-    stealth_disadvantage: false
+    proprieta: []
   },
   {
     index: "half-plate",
-    name: "Mezza corazza",
-    equipment_category: { name: "Armor" },
-    armor_category: "Medium",
-    cost: { quantity: 750, unit: "gp" },
+    name: "Mezza armatura",
+    categorie: ["Armatura media"],
     armor_class: { base: 15, dex_bonus: true, max_bonus: 2 },
-    weight: 40,
-    stealth_disadvantage: false,
-    strength_minimum: 15
+    proprieta: ["Svantaggio su Furtività"]
   },
   {
-    index: "ring-mail",
-    name: "Maglia di anelli",
-    equipment_category: { name: "Armor" },
-    armor_category: "Heavy",
-    cost: { quantity: 30, unit: "gp" },
-    armor_class: { base: 14, dex_bonus: false },
-    weight: 40,
-    stealth_disadvantage: true
+    index: "chain-mail",
+    name: "Maglia ad anelli",
+    categorie: ["Armatura pesante"],
+    armor_class: { base: 16, dex_bonus: false },
+    proprieta: ["Richiede For 13", "Svantaggio su Furtività"]
   },
   {
-    index: "scale-mail",
-    name: "Maglia di scaglie",
-    equipment_category: { name: "Armor" },
-    armor_category: "Medium",
-    cost: { quantity: 50, unit: "gp" },
-    armor_class: { base: 14, dex_bonus: true, max_bonus: 2 },
-    weight: 45,
-    stealth_disadvantage: true
+    index: "splint",
+    name: "Armatura a piastre",
+    categorie: ["Armatura pesante"],
+    armor_class: { base: 17, dex_bonus: false },
+    proprieta: ["Richiede For 15", "Svantaggio su Furtività"]
+  },
+  {
+    index: "plate",
+    name: "Armatura completa",
+    categorie: ["Armatura pesante"],
+    armor_class: { base: 18, dex_bonus: false },
+    proprieta: ["Richiede For 15", "Svantaggio su Furtività"]
+  },
+  {
+    index: "shield",
+    name: "Scudo",
+    categorie: ["Scudo"],
+    armor_class: { base: 2, dex_bonus: false },
+    proprieta: []
   }
 ];

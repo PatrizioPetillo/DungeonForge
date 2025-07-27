@@ -305,12 +305,18 @@
   background: #553a7c;
 }
 
+.saving-throw .saving-throws-list {
+  display: inline-flex;
+  margin-top: 0.5rem;
+  gap: 11rem;
+  
+}
+
 /* ========================
    TABELLE
    ======================== */
 .combat-table, .armor-table, .spell-table {
   width: 100%;
-  width: 800px;
   border-collapse: collapse;
   margin-top: 10px;
   display: block;

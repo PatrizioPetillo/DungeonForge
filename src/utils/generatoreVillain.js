@@ -157,15 +157,7 @@ razzaData.ability_bonuses.forEach((bonus) => {
 
   // 6. Bonus razziali
   villain.bonusRaziali = razzaData.ability_bonuses.map(b => `${b.ability_score}: +${b.bonus}`).join(", ") || "Nessuno";
-
-  // Recupera Tiri Salvezza della classe
-villain.tiriSalvezza = [];
-classeData.saving_throws.forEach(ts => {
-  const stat = ts.name.toLowerCase();
-  const mod = Math.floor((villain.stats[stat] - 10) / 2);
-  const bonus = mod + proficienza; // Aggiunge bonus competenza
-  villain.tiriSalvezza.push({ stat, bonus });
-});
+  
 
   // 7. Competenze e abilità a scelta
   villain.privilegiClasse = classeData.proficiencies;
@@ -191,19 +183,63 @@ villain.abilitaClasse = abilitaScelte;
   villain.ca = 10 + Math.floor((villain.stats.destrezza - 10) / 2);
 
   // 10. Tiri salvezza
-  villain.savingThrowsClasse = classeData.saving_throws || [];
-villain.tiriSalvezza = {};
-ordine.forEach((stat) => {
+ // Normalizza i TS della classe
+villain.savingThrowsClasse = (classeData.saving_throws || []).map(ts => ts.toLowerCase());
+
+// Calcolo TS solo per caratteristiche competenti
+villain.tiriSalvezza = villain.savingThrowsClasse.map(stat => {
   const mod = Math.floor((villain.stats[stat] - 10) / 2);
-  villain.tiriSalvezza[stat] = mod + (villain.savingThrowsClasse.includes(stat) ? proficienza : 0);
+  return {
+    stat,
+    bonus: mod + proficienza
+  };
 });
 
   // 11. Equipaggiamento
   const equipBase = equipBasePerClasse[classeKey] || { armi: [], armature: [] };
-villain.armiEquippate = getEquipFromIds(equipBase.armi, armi);
-villain.armatureIndossate = getEquipFromIds(equipBase.armature, armature);
-// Ricalcolo CA dinamica
-villain.ca = calcolaCA(villain.stats, villain.armatureIndossate);
+// 1. Filtra le armi e armature di competenza
+villain.armiDiCompetenza = armi.filter(a =>
+  a.categorie.some(cat => classeData.proficiencies.includes(cat))
+);
+
+villain.armatureIndossate = [];
+villain.armatureDiCompetenza = armature.filter(a =>
+  a.categorie.some(cat => classeData.proficiencies.includes(cat))
+);
+
+// Seleziona arma da mischia
+const armiMischia = villain.armiDiCompetenza.filter(a => a.categorie.includes("Mischia"));
+villain.armaMischia = armiMischia.length > 0
+  ? casuale(armiMischia)
+  : armi.find(a => a.index === "dagger");
+
+  // Seleziona arma a distanza
+const armiDistanza = villain.armiDiCompetenza.filter(a => a.categorie.includes("A distanza"));
+villain.armaDistanza = armiDistanza.length > 0
+  ? casuale(armiDistanza)
+  : null;
+
+// 3. Seleziona un'armatura coerente (preferendo la più protettiva possibile)
+const armatureOrdinate = villain.armatureDiCompetenza.sort((a, b) => (b.armor_class.base) - (a.armor_class.base));
+villain.armaturaEquipaggiata = armatureOrdinate.length > 0
+  ? armatureOrdinate[0]
+  : armature.find(a => a.index === "leather-armor");
+
+// 4. Controlla se lo scudo è tra le competenze e aggiungilo
+villain.scudoEquipaggiato = villain.armatureDiCompetenza.find(a => a.categorie.includes("Scudo")) || null;
+
+// 5. Calcola CA dinamica
+const modDex = Math.floor((villain.stats.destrezza - 10) / 2);
+let caBase = villain.armaturaEquipaggiata.armor_class.base;
+if (villain.armaturaEquipaggiata.armor_class.dex_bonus) {
+  caBase += villain.armaturaEquipaggiata.armor_class.max_bonus
+    ? Math.min(modDex, villain.armaturaEquipaggiata.armor_class.max_bonus)
+    : modDex;
+}
+if (villain.scudoEquipaggiato) caBase += villain.scudoEquipaggiato.armor_class.base;
+
+villain.ca = caBase;
+
 villain.equipVari = [
   ...(equipBase.equipaggiamento || []),
   "10 torce",
@@ -217,8 +253,8 @@ if (equipBase.focusArcano) {
   villain.focusArcano = equipBase.focusArcano;
 }
 
-
 // Penalità se indossa armatura pesante senza forza minima
+
 villain.armatureIndossate.forEach(a => {
   if (a.armor_category === "Heavy" && a.strength_minimum && villain.stats.forza < a.strength_minimum) {
     villain.velocita -= 3; // riduzione di 3 metri
