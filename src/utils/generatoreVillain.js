@@ -4,6 +4,7 @@ import { razze } from "./races";     // API locale
 import { spells } from "./spells";
 import { armi } from "./armi";
 import { armature } from "./armature";
+import { oggettiMagiciBase, oggettiMagici } from "./oggettiMagici";
 import { backgrounds } from "./backgrounds";
 
 const statMagicaPerClasse = {
@@ -112,6 +113,12 @@ const generaOggettiMagici = (livello) => {
 
 export function generaVillain(opzioni = {}) {
   const villain = {};
+  villain.armamento = {
+  armi: [],
+  armatura: null,
+  scudo: null,
+  oggettiMagici: []
+};
 
   // 1. Livello
   villain.livello = opzioni.livello || rand(3, 10);
@@ -159,8 +166,8 @@ const prioritaStat = {
 
 // Tiro delle stats e ordinamento
 const rolls = tiraStats().sort((a, b) => b - a); // valori decrescenti
-const ordineStats = ["forza", "destrezza", "costituzione", "intelligenza", "saggezza", "carisma"];
-const priorita = prioritaStat[classeKey] || ordineStats;
+const ordine = ["forza", "destrezza", "costituzione", "intelligenza", "saggezza", "carisma"];
+const priorita = prioritaStat[classeKey] || ordine;
 
 // Reset stats
 villain.stats = {};
@@ -318,17 +325,22 @@ if (villain.livello > 5) {
   });
 }
 
-// --- SE LIVELLO > 8: AGGIUNGI OGGETTI MAGICI --- //
 if (villain.livello > 8) {
-  const numOggetti = Math.floor(Math.random() * 2) + 1; // 1-2 oggetti
   villain.armamento.oggettiMagici = [];
+  let pool = oggettiMagici.comune;
+
+  if (villain.livello >= 13) {
+    pool = [...oggettiMagici.moltoRaro, ...oggettiMagici.leggendario];
+  } else if (villain.livello >= 9) {
+    pool = [...oggettiMagici.nonComune, ...oggettiMagici.raro];
+  }
+
+  const numOggetti = villain.livello >= 15 ? 3 : 1 + Math.floor(Math.random() * 2); // 1-3 oggetti
   for (let i = 0; i < numOggetti; i++) {
-    villain.armamento.oggettiMagici.push(
-      oggettiMagiciBase[Math.floor(Math.random() * oggettiMagiciBase.length)]
-    );
+    const oggettoCasuale = pool[Math.floor(Math.random() * pool.length)];
+    villain.armamento.oggettiMagici.push(oggettoCasuale);
   }
 }
-
 
 // Aggiorna equipaggiamento narrativo
 villain.equipVari = [

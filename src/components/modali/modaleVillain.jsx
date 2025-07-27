@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import { generaVillain } from "../../utils/generatoreVillain";
-import { armi, getTooltipProprieta } from "../../utils/armi";
-import { armature } from "../../utils/armature";
 import {
   generaHookVillain,
   generaDialogoVillain,
@@ -22,7 +20,7 @@ const abilitaPerStat = {
   carisma: ["Persuasione", "Inganno", "Intrattenere", "Intimidire"]
 };
 
-export default function ModaleVillain({ onClose }) {
+export default function ModaleVillain({ onClose, onSave }) {
   const [villain, setvillain] = useState({});
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState("Generali");
@@ -31,8 +29,8 @@ export default function ModaleVillain({ onClose }) {
 const [opzioniDialogo, setOpzioniDialogo] = useState([]);
 const [showCollegamento, setShowCollegamento] = useState(false);
 const [elementoId, setElementoId] = useState(null);
-const ordineStats = ["forza", "destrezza", "costituzione", "intelligenza", "saggezza", "carisma"];
 
+const ordineStats = ["forza", "destrezza", "costituzione", "intelligenza", "saggezza", "carisma"];
 
   const tabs = [
     "Generali",
@@ -121,7 +119,7 @@ const handleSalva = async () => {
     data.id = result.id; // 🔥 Aggiungi ID al villain
     toast.success("✅ Villain salvato in Archivio!");
 
-    if (collegaAllaCampagna && onSave) {
+    if (onSave) {
       onSave(data);
     }
   } else {
@@ -205,15 +203,21 @@ useEffect(() => {
                 </div>
 
                 <div className="form-group">
-                  <label>Velocità</label>
-                  <input type="number" value={villain.velocita || ""} 
-                  onChange={(e) => setvillain({ ...villain, velocita: e.target.value })} />
+                  <label>Allineamento</label>
+                  <input type="text" value={villain.allineamento || ""} 
+                  onChange={(e) => setvillain({ ...villain, allineamento: e.target.value })} />
                 </div>
 
                 <div className="form-group">
                   <label>Livello</label>
                   <input type="number" value={villain.livello || ""} 
                   onChange={(e) => setvillain({ ...villain, livello: e.target.value })} />
+                </div>
+
+                <div className="form-group">
+                  <label>Velocità</label>
+                  <input type="number" value={villain.velocita || ""} 
+                  onChange={(e) => setvillain({ ...villain, velocita: e.target.value })} />
                 </div>
 
                 {/* Dettagli razza */}
@@ -742,50 +746,6 @@ useEffect(() => {
                 )}
               </ul>
               <hr />
-              {tab === "Equipaggiamento" && (
-  <div className="tab-contenuto">
-    <h3>⚔️ Armi Equipaggiate</h3>
-    {villain.armamento?.armi && villain.armamento.armi.length > 0 ? (
-      <ul>
-        {villain.armamento.armi.map((arma, i) => (
-          <li key={i}>
-            <strong>{arma.nome}</strong> – <span>{arma.danno}</span>
-            {arma.magico && <span> ✨ Magica</span>}
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <p>Nessuna arma assegnata</p>
-    )}
-
-    <h3>🛡️ Armatura & Scudo</h3>
-    {villain.armamento?.armatura ? (
-      <p>
-        <strong>{villain.armamento.armatura.nome}</strong> (CA Base: {villain.armamento.armatura.CA})
-      </p>
-    ) : (
-      <p>Nessuna armatura</p>
-    )}
-    {villain.armamento?.scudo && (
-      <p>
-        <strong>{villain.armamento.scudo.nome}</strong> (+{villain.armamento.scudo.bonus} CA)
-      </p>
-    )}
-    <p><strong>CA Totale:</strong> {villain.ca || "—"}</p>
-
-    <h3>🔮 Oggetti Magici</h3>
-    {villain.armamento?.oggettiMagici && villain.armamento.oggettiMagici.length > 0 ? (
-      <ul>
-        {villain.armamento.oggettiMagici.map((item, i) => (
-          <li key={i}>{item}</li>
-        ))}
-      </ul>
-    ) : (
-      <p>Nessun oggetto magico</p>
-    )}
-  </div>
-)}
-              <hr />
 
               <div className="form-group">
                 <input
@@ -1157,8 +1117,7 @@ useEffect(() => {
               <p><strong>CA Totale:</strong> {villain.ca}</p>
             </div>
           )}
-
-
+          
           {/* TAB NARRATIVA */}
           {tab === "Narrativa" && (
             <div className="tab-content">
