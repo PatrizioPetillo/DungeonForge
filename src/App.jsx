@@ -2,17 +2,17 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import packageJson from '../package.json';
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import AuthPage from '../pages/authPage';
-import DashboardDM from '../pages/dashboardDM';
-import ModaleCreaCampagna from '../components/modaleCreaCampagna';
-import CampagnaCard from '../components/campagnaCard';
-import SuggerimentoDelGiorno from '../components/suggerimentoDelGiorno';
-import ModaleDettagliCampagna from '../components/modaleDettagliCampagna';
+import AuthPage from './pages/AuthPage';
+import DashboardDM from './pages/dashboardDM';
+import ModaleCreaCampagna from './components/modali/modaleCreaCampagna';
+import CampagnaCard from './components/campagnaCard';
+import SuggerimentoDelGiorno from './components/suggerimentoDelGiorno';
+import ModaleDettagliCampagna from './components/modaleDettagliCampagna';
 import ModaleDettaglioArchivio from '../components/modali/modaleDettaglioArchivio';
 import ArchivioSezione from '../components/archivioSezione';
-import Archivio from '../pages/archivio';
+import Archivio from './pages/archivio';
 import CardElemento from '../components/cardElemento';
-import LiveSessionDM from '../pages/liveSessionDM';
+import LiveSessionDM from './pages/liveSessionDM';
 
 import './App.css';
 

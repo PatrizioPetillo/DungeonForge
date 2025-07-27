@@ -17,7 +17,7 @@ import ModaleCreaCampagna from "../components/modaleCreaCampagna";
 import ModaleDettagliCampagna from "../components/modaleDettagliCampagna";
 import CampagnaCard from "../components/campagnaCard";
 import ModaleOggetti from "../components/gestioneOggetti";
-import SuggerimentoDelGiorno from "../components/suggerimentodelGiorno";
+import SuggerimentoDelGiorno from "../components/suggerimentoDelGiorno";
 import "../styles/dashboardDM.css";
 
 function DashboardDM() {
