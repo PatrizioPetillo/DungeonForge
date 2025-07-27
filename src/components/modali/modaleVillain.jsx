@@ -425,20 +425,26 @@ const removeSpell = (index) => {
       <tr>
         <th>Livello</th>
         <th>Slots Disponibili</th>
+        <th>Incantesimi Conosciuti</th>
       </tr>
     </thead>
     <tbody>
-      {villain.slotIncantesimi.map((sl, idx) => (
-        <tr key={idx}>
-          <td>{sl.livello}</td>
-          <td>{sl.slots}</td>
-        </tr>
-      ))}
+      {villain.slotIncantesimi.map((sl, idx) => {
+        const incCount = villain.incantesimi?.livelli?.[idx]?.lista?.length || 0;
+        return (
+          <tr key={idx}>
+            <td>{sl.livello}</td>
+            <td>{sl.slots}</td>
+            <td>{incCount}</td>
+          </tr>
+        );
+      })}
     </tbody>
   </table>
 ) : (
   <p>Nessuno slot disponibile</p>
 )}
+
 
 <hr />
 
@@ -557,139 +563,7 @@ const removeSpell = (index) => {
           {/* TAB EQUIPAGGIAMENTO */}
           {tab === "Equipaggiamento" && (
             <div className="tab-equipaggiamento">
-              <h4>Armi Equipaggiate</h4>
-              <ul className="equip-list">
-                {villain.armiEquippate?.length > 0 ? (
-                  villain.armiEquippate.map((arma, i) => (
-                    <li key={i} className="equip-item">
-                      <strong>{arma.name}</strong> – {arma.damage.damage_dice} {arma.damage.damage_type.name}
-                      <br />
-                      <small>
-                        Proprietà: {arma.properties.map(p => p.name).join(", ")} • Peso: {arma.weight || 0} lb
-                      </small>
-                      <button onClick={() => {
-                        const updated = villain.armiEquippate.filter((_, idx) => idx !== i);
-                        setvillain({ ...villain, armiEquippate: updated });
-                      }}>❌</button>
-                    </li>
-                  ))
-                ) : (
-                  <p>Nessuna arma equipaggiata.</p>
-                )}
-              </ul>
-
-              <select
-                onChange={(e) => {
-                  const armaSelezionata = armi.find(a => a.index === e.target.value);
-                  if (armaSelezionata) {
-                    setvillain({ ...villain, armiEquippate: [...(villain.armiEquippate || []), armaSelezionata] });
-                  }
-                  e.target.value = "";
-                }}
-              >
-                <option value="">+ Aggiungi arma</option>
-                {armi.map((a) => (
-                  <option key={a.index} value={a.index}>{a.name}</option>
-                ))}
-              </select>
-
-              <hr />
-              <h4>🛡️ Armature </h4>
-<table className="combat-table">
-  <thead>
-    <tr>
-      <th>Nome</th>
-      <th>Tipo</th>
-      <th>CA Base</th>
-      <th>Proprietà</th>
-      <th>Equipaggia</th>
-    </tr>
-  </thead>
-  <tbody>
-    {villain.armatureDisponibili?.map((armor, i) => (
-      <tr key={i} style={{ background: armor.index === villain.armaturaEquipaggiata?.index ? "#d4af37" : "transparent" }}>
-        <td>{armor.name}</td>
-        <td>{armor.categorie[0]}</td>
-        <td>{armor.armor_class.base}</td>
-        <td>{armor.proprieta?.join(", ") || "-"}</td>
-        <td>
-          <button onClick={() => {
-            // Ricalcolo CA
-            const modDex = Math.floor((villain.stats.destrezza - 10) / 2);
-            let nuovaCA = armor.armor_class.base;
-            if (armor.armor_class.dex_bonus) {
-              nuovaCA += armor.armor_class.max_bonus
-                ? Math.min(modDex, armor.armor_class.max_bonus)
-                : modDex;
-            }
-            if (villain.scudoEquipaggiato) {
-              nuovaCA += villain.scudoEquipaggiato.armor_class.base;
-            }
-
-            setvillain({
-              ...villain,
-              armaturaEquipaggiata: armor,
-              ca: nuovaCA
-            });
-          }}>
-            {armor.index === villain.armaturaEquipaggiata?.index ? "Equipaggiata" : "Equipaggia"}
-          </button>
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
-<p><strong>CA Totale:</strong> {villain.ca}</p>
-
-
-              <select
-                onChange={(e) => {
-                  const armorSelezionata = armature.find(a => a.index === e.target.value);
-                  if (armorSelezionata) {
-                    const updated = [...(villain.armatureIndossate || []), armorSelezionata];
-                    const miglioreArmatura = updated
-  .filter(a => !a.categorie.includes("Scudo"))
-  .sort((a, b) => b.armor_class.base - a.armor_class.base)[0] || null;
-
-setvillain({ 
-  ...villain, 
-  armatureIndossate: updated, 
-  armaturaEquipaggiata: miglioreArmatura, 
-  ca: nuovaCA 
-});
-
-                    // Ricalcolo CA dinamicamente
-                    const modDex = Math.floor((villain.stats.destrezza - 10) / 2);
-                    let nuovaCA = 10 + modDex;
-                    updated.forEach(a => {
-                      if (a.armor_category === "Shield") {
-                        nuovaCA += a.armor_class.base;
-                      } else {
-                        nuovaCA = a.armor_class.base;
-                        if (a.armor_class.dex_bonus) {
-                          nuovaCA += a.armor_class.max_bonus
-                            ? Math.min(modDex, a.armor_class.max_bonus)
-                            : modDex;
-                        }
-                      }
-                    });
-
-                    setvillain({ ...villain, armatureIndossate: updated, ca: nuovaCA });
-                  }
-                  e.target.value = "";
-                }}
-              >
-                <option value="">+ Aggiungi armatura</option>
-                {armature.map((a) => (
-                  <option key={a.index} value={a.index}>{a.name}</option>
-                ))}
-              </select>
-
-              <div className="ca-display">
-                <h5>Classe Armatura Attuale: {villain.ca}</h5>
-              </div>
-              <hr />
-              <h4>Oggetti Vari</h4>
+              <h4>Inventario</h4>
               <ul className="equip-list">
                 {villain.equipVari?.length > 0 ? (
                   villain.equipVari.map((obj, i) => (
@@ -771,170 +645,130 @@ setvillain({
 
               <hr />
 
-              {/* --- TABELLA ARMI DA MISCHIA --- */}
-              <div>
-                <h4>⚔️ Arma da Mischia</h4>
-                {villain.armaMischia ? (
-                  <table className="combat-table">
-                    <thead>
-                      <tr>
-                        <th>Arma</th>
-                        <th>Bonus Attacco</th>
-                        <th>Danno</th>
-                        <th>Proprietà</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>{villain.armaMischia.name}</td>
-                        <td>
-                          {(() => {
-                            const isFinesse = villain.armaMischia.properties?.some(p => p.name.toLowerCase() === "finesse");
-                            const modFor = Math.floor((villain.stats.forza - 10) / 2);
-                            const modDes = Math.floor((villain.stats.destrezza - 10) / 2);
-                            const modBase = isFinesse ? Math.max(modFor, modDes) : modFor;
-                            const prof = villain.armiDiCompetenza.some(a => a.index === villain.armaMischia.index)
-                              ? Math.ceil(villain.livello / 4) + 2
-                              : 0;
-                            const bonus = modBase + prof;
-                            return bonus >= 0 ? `+${bonus}` : bonus;
-                          })()}
-                        </td>
-                        <td>{villain.armaMischia.damage.damage_dice} {villain.armaMischia.damage.damage_type.name}</td>
-                        <td>
-                          {villain.armaMischia.properties?.map((p, i) => (
-                            <span key={i} title={getTooltipProprieta(p.name)}>
-                              {p.name}{i < villain.armaMischia.properties.length - 1 ? ", " : ""}
-                            </span>
-                          ))}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                ) : <p>Nessuna arma da mischia</p>}
+              {/* --- ARMA DA MISCHIA --- */}
+              <h4>⚔️ Arma da Mischia</h4>
+              {villain.armaMischia ? (
+                <table className="combat-table">
+                  <thead>
+                    <tr>
+                      <th>Arma</th>
+                      <th>Bonus Attacco</th>
+                      <th>Danno</th>
+                      <th>Proprietà</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>{villain.armaMischia.name}</td>
+                      <td>
+                        {(() => {
+                          const isFinesse = villain.armaMischia.properties?.some(p => p.name.toLowerCase() === "finesse");
+                          const modFor = Math.floor((villain.stats.forza - 10) / 2);
+                          const modDes = Math.floor((villain.stats.destrezza - 10) / 2);
+                          const modBase = isFinesse ? Math.max(modFor, modDes) : modFor;
+                          const prof = villain.armiDiCompetenza?.some(a => a.index === villain.armaMischia.index)
+                            ? Math.ceil(villain.livello / 4) + 2
+                            : 0;
+                          const bonus = modBase + prof;
+                          return bonus >= 0 ? `+${bonus}` : bonus;
+                        })()}
+                      </td>
+                      <td>{villain.armaMischia.damage.damage_dice} {villain.armaMischia.damage.damage_type.name}</td>
+                      <td>
+                        {villain.armaMischia.properties?.map((p, i) => (
+                          <span key={i} title={getTooltipProprieta(p.name)}>
+                            {p.name}{i < villain.armaMischia.properties.length - 1 ? ", " : ""}
+                          </span>
+                        ))}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              ) : (
+                <p>Nessuna arma da mischia</p>
+              )}
 
-                <h4>🏹 Arma a Distanza</h4>
-                {villain.armaDistanza ? (
-                  <table className="combat-table">
-                    <thead>
+              <hr />
+
+              {/* --- ARMA A DISTANZA --- */}
+              <h4>🏹 Arma a Distanza</h4>
+              {villain.armaDistanza ? (
+                <table className="combat-table">
+                  <thead>
+                    <tr>
+                      <th>Arma</th>
+                      <th>Bonus Attacco</th>
+                      <th>Danno</th>
+                      <th>Proprietà</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>{villain.armaDistanza.name}</td>
+                      <td>
+                        {(() => {
+                          const modDes = Math.floor((villain.stats.destrezza - 10) / 2);
+                          const prof = villain.armiDiCompetenza?.some(a => a.index === villain.armaDistanza.index)
+                            ? Math.ceil(villain.livello / 4) + 2
+                            : 0;
+                          const bonus = modDes + prof;
+                          return bonus >= 0 ? `+${bonus}` : bonus;
+                        })()}
+                      </td>
+                      <td>{villain.armaDistanza.damage.damage_dice} {villain.armaDistanza.damage.damage_type.name}</td>
+                      <td>
+                        {villain.armaDistanza.properties?.map((p, i) => (
+                          <span key={i} title={getTooltipProprieta(p.name)}>
+                            {p.name}{i < villain.armaDistanza.properties.length - 1 ? ", " : ""}
+                          </span>
+                        ))}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              ) : (
+                <p>Nessuna arma a distanza</p>
+              )}
+
+              <hr />
+
+              {/* --- ARMATURA E SCUDO --- */}
+              <h4>🛡️ Armatura Equipaggiata</h4>
+              {villain.armaturaEquipaggiata ? (
+                <table className="combat-table">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Tipo</th>
+                      <th>CA Base</th>
+                      <th>Proprietà</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>{villain.armaturaEquipaggiata.name}</td>
+                      <td>{villain.armaturaEquipaggiata.categorie[0]}</td>
+                      <td>{villain.armaturaEquipaggiata.armor_class.base}</td>
+                      <td>{villain.armaturaEquipaggiata.proprieta?.join(", ") || "-"}</td>
+                    </tr>
+                    {villain.scudoEquipaggiato && (
                       <tr>
-                        <th>Arma</th>
-                        <th>Bonus Attacco</th>
-                        <th>Danno</th>
-                        <th>Proprietà</th>
+                        <td>{villain.scudoEquipaggiato.name}</td>
+                        <td>Scudo</td>
+                        <td>+{villain.scudoEquipaggiato.armor_class.base}</td>
+                        <td>-</td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>{villain.armaDistanza.name}</td>
-                        <td>
-                          {(() => {
-                            const modDes = Math.floor((villain.stats.destrezza - 10) / 2);
-                            const prof = villain.armiDiCompetenza.some(a => a.index === villain.armaDistanza.index)
-                              ? Math.ceil(villain.livello / 4) + 2
-                              : 0;
-                            const bonus = modDes + prof;
-                            return bonus >= 0 ? `+${bonus}` : bonus;
-                          })()}
-                        </td>
-                        <td>{villain.armaDistanza.damage.damage_dice} {villain.armaDistanza.damage.damage_type.name}</td>
-                        <td>
-                          {villain.armaDistanza.properties?.map((p, i) => (
-                            <span key={i} title={getTooltipProprieta(p.name)}>
-                              {p.name}{i < villain.armaDistanza.properties.length - 1 ? ", " : ""}
-                            </span>
-                          ))}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                ) : <p>Nessuna arma a distanza</p>}
+                    )}
+                  </tbody>
+                </table>
+              ) : (
+                <p>Nessuna armatura equipaggiata (CA: 10 + Mod Destrezza)</p>
+              )}
 
-                <hr />
-
-                <h4>🛡️ Armatura Equipaggiata</h4>
-                {villain.armaturaEquipaggiata ? (
-                  <table className="combat-table">
-                    <thead>
-                      <tr>
-                        <th>Nome</th>
-                        <th>Tipo</th>
-                        <th>CA Base</th>
-                        <th>Proprietà</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>{villain.armaturaEquipaggiata.name}</td>
-                        <td>{villain.armaturaEquipaggiata.categorie[0]}</td>
-                        <td>{villain.armaturaEquipaggiata.armor_class.base}</td>
-                        <td>{villain.armaturaEquipaggiata.proprieta?.join(", ") || "-"}</td>
-                      </tr>
-                      {villain.scudoEquipaggiato && (
-                        <tr>
-                          <td>{villain.scudoEquipaggiato.name}</td>
-                          <td>Scudo</td>
-                          <td>+{villain.scudoEquipaggiato.armor_class.base}</td>
-                          <td>-</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p>Nessuna armatura equipaggiata (CA: 10 + Mod Destrezza)</p>
-                )}
-                <p><strong>CA Totale:</strong> {villain.ca}</p>
-              </div>
-              
-              {/* Selettori per aggiungere nuove armi/armature */}
-              <div className="add-equip-section">
-                <select
-                  onChange={(e) => {
-                    const armaSelezionata = armi.find(a => a.index === e.target.value);
-                    if (armaSelezionata) {
-                      const { bonusAttacco, danno } = calcolaAttacco(armaSelezionata, villain.stats, villain.livello);
-                      armaSelezionata.bonusAttacco = `+${bonusAttacco}`;
-                      armaSelezionata.dannoCalcolato = danno;
-
-                      setvillain({ ...villain, armiEquippate: [...(villain.armiEquippate || []), armaSelezionata] });
-                    }
-                    e.target.value = "";
-                  }}
-                >
-                  <option value="">+ Aggiungi arma</option>
-                  {armi.map((a) => (
-                    <option key={a.index} value={a.index}>{a.name}</option>
-                  ))}
-                </select>
-
-                <select
-                  onChange={(e) => {
-                    const armorSelezionata = armature.find(a => a.index === e.target.value);
-                    if (armorSelezionata) {
-                      const updated = [...(villain.armatureIndossate || []), armorSelezionata];
-                      const nuovaCA = calcolaCA(villain.stats, updated);
-                      const miglioreArmatura = updated
-  .filter(a => !a.categorie.includes("Scudo"))
-  .sort((a, b) => b.armor_class.base - a.armor_class.base)[0] || null;
-
-setvillain({ 
-  ...villain, 
-  armatureIndossate: updated, 
-  armaturaEquipaggiata: miglioreArmatura, 
-  ca: nuovaCA 
-});
-                    }
-                    e.target.value = "";
-                  }}
-                >
-                  <option value="">+ Aggiungi armatura</option>
-                  {armature.map((a) => (
-                    <option key={a.index} value={a.index}>{a.name}</option>
-                  ))}
-                </select>
-              </div>
+              <p><strong>CA Totale:</strong> {villain.ca}</p>
             </div>
           )}
+
 
           {/* TAB NARRATIVA */}
           {tab === "Narrativa" && (

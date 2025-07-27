@@ -46,7 +46,10 @@ export const spells = {
 
   cleric: {
     cantrips: [
-      { name: "Luce Sacra", level: 0, school: "Evocazione", casting_time: "1 azione", range: "18 m", components: "V, S", duration: "Istantanea", desc: "Infligge danni radianti a un nemico." }
+      { name: "Luce Sacra", level: 0, school: "Evocazione", casting_time: "1 azione", range: "18 m", components: "V, S", duration: "Istantanea", desc: "Infligge danni radianti a un nemico." },
+      { name: "Resistenza", level: 0, school: "Abiurazione", casting_time: "1 azione", range: "Contatto", components: "V, S", duration: "1 minuto", desc: "Conferisce resistenza a un tipo di danno." },
+      { name: "Guarigione Minore", level: 0, school: "Evocazione", casting_time: "1 azione", range: "Contatto", components: "V, S", duration: "Istantanea", desc: "Guarisce lievi ferite." },
+      { name: "Parola di Guarigione", level: 0, school: "Evocazione", casting_time: "1 azione", range: "Contatto", components: "V, S", duration: "Istantanea", desc: "Guarisce una creatura di 1d4 + modificatore Saggezza." }  
     ],
     level1: [
       { name: "Cura Ferite", level: 1, school: "Evocazione", casting_time: "1 azione", range: "Contatto", components: "V, S", duration: "Istantanea", desc: "Guarisce ferite di una creatura." }

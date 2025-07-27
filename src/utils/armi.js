@@ -141,7 +141,7 @@ export const armi = [
   },
   {
     index: "rapier",
-    name: "Rapiere",
+    name: "Stocco",
     categorie: ["Armi da guerra", "Mischia"],
     damage: { damage_dice: "1d8", damage_type: { name: "Perforante" } },
     properties: [{ name: "Finesse" }]

@@ -43,15 +43,15 @@ const abilitaPerStat = {
 
 function generaFocusArcano(classe) {
   const focusPerClasse = {
-    mago: ["Bastone di quercia inciso", "Cristallo arcano lucente", "Bacchetta d’osso intarsiata", "Libro degli incantesimi con copertina di pelle"],
-    stregone: ["Pietra runica cremisi", "Bastone con gemma rossa", "Cristallo pulsante di energia", "Anello con sigillo arcano"],
+    wizard: ["Bastone di quercia inciso", "Cristallo arcano lucente", "Bacchetta d’osso intarsiata", "Libro degli incantesimi con copertina di pelle"],
+    sorcerer: ["Pietra runica cremisi", "Bastone con gemma rossa", "Cristallo pulsante di energia", "Anello con sigillo arcano"],
     warlock: ["Teschio di corvo inciso", "Anello con occhio demoniaco", "Libro di ombre", "Cristallo oscuro"],
-    bardo: ["Lira d’argento", "Flauto di osso antico", "Liuto intarsiato di rune", "Tamburo di pelle di drago"],
-    chierico: ["Simbolo sacro (Croce d’oro)", "Rosario di perle", "Amuleto con rune divine"],
-    druido: ["Totem di corteccia", "Amuleto di pietra verde", "Ramo di quercia runico"],
-    ranger: ["Totem Lupo", "Pietra di luna incisa", "Collana di denti", "Bracciale di legno intagliato"],
-    paladino: ["Simbolo sacro incastonato in argento (Mezzo Sole)", "Scudo con runa sacra", "Anello di giada con croce"],
-    monaco: ["Corda di preghiera", "Amuleto di giada", "Bracciale di meditazione"],
+    bard: ["Lira d’argento", "Flauto di osso antico", "Liuto intarsiato di rune", "Tamburo di pelle di drago"],
+    cleric: ["Simbolo sacro (Croce d’oro)", "Rosario di perle", "Amuleto con rune divine"],
+    druid: ["Totem di corteccia", "Amuleto di pietra verde", "Ramo di quercia runico"],
+    ranger: ["Totem Lupo", "Pietra di luna incisa", "Collana di denti di bugbear", "Bracciale di legno intagliato"],
+    paladin: ["Simbolo sacro incastonato in argento (Mezzo Sole)", "Scudo con runa sacra", "Anello di giada con croce"],
+    monk: ["Corda di preghiera", "Amuleto di giada", "Bracciale di meditazione"],
   };
     return casuale(focusPerClasse[classe] || ["Cristallo mistico con venature luminose"]);
 }
@@ -76,6 +76,15 @@ function calcolaCA(stats, armatureEquip) {
 
   function getEquipFromIds(ids, lista) {
   return lista.filter(item => ids.includes(item.index));
+}
+// Recupera incantesimi per classe e livello dal dataset spells.js
+function getIncantesimiPerClasse(classe, livello) {
+  const data = spells[classe];
+  if (!data) return [];
+  if (livello === 0) {
+    return data.cantrips || [];
+  }
+  return data[`level${livello}`] || [];
 }
 
 export function generaVillain(opzioni = {}) {
@@ -148,20 +157,21 @@ ordine.forEach(stat => {
   }
 });
 
+
+// 6. Bonus razziali
+villain.bonusRaziali = razzaData.ability_bonuses.map(b => `${b.ability_score}: +${b.bonus}`).join(", ") || "Nessuno";
+
 // Aggiunta bonus razziali
-razzaData.ability_bonuses.forEach((bonus) => {
+(razzaData.ability_bonuses || []).forEach(bonus => {
   if (villain.stats[bonus.ability_score] !== undefined) {
     villain.stats[bonus.ability_score] += bonus.bonus;
   }
 });
 
-  // 6. Bonus razziali
-  villain.bonusRaziali = razzaData.ability_bonuses.map(b => `${b.ability_score}: +${b.bonus}`).join(", ") || "Nessuno";
-  
-
   // 7. Competenze e abilità a scelta
-  villain.privilegiClasse = classeData.proficiencies;
-  villain.competenzeScelte = classeData.proficiency_choices[0]?.from || [];
+villain.privilegiClasse = classeData.proficiencies || [];
+
+ villain.competenzeScelte = classeData.proficiency_choices?.[0]?.from || [];
   const sceltaAbilita = classeData.proficiency_choices[0];
 const abilitaScelte = [];
 if (sceltaAbilita) {
@@ -175,7 +185,7 @@ villain.abilitaClasse = abilitaScelte;
 
 
   // 8. Privilegi filtrati per livello
-  villain.privilegiDettagliati = classeData.features.filter(f => f.level <= villain.livello);
+ villain.privilegiDettagliati = (classeData.features || []).filter(f => f.level <= villain.livello);
 
   // 9. PF e CA
   const modCos = Math.floor((villain.stats.costituzione - 10) / 2);
@@ -195,48 +205,45 @@ villain.tiriSalvezza = villain.savingThrowsClasse.map(stat => {
   };
 });
 
+// Lista armi di competenza
+villain.armiDiCompetenza = armi.filter(a =>
+  classeData.proficiencies.some(prof =>
+    a.categorie.some(cat => cat.toLowerCase().includes(prof.toLowerCase()))
+  )
+);
   // 11. Equipaggiamento
   const equipBase = equipBasePerClasse[classeKey] || { armi: [], armature: [] };
-// 1. Filtra le armi e armature di competenza
-villain.armiDiCompetenza = armi.filter(a =>
-  a.categorie.some(cat => classeData.proficiencies.includes(cat))
-);
+  
+// Funzione helper per match parziale
+function hasCategory(item, keyword) {
+  return item.categorie.some(c => c.toLowerCase().includes(keyword.toLowerCase()));
+}
 
-villain.armatureIndossate = [];
-villain.armatureDiCompetenza = armature.filter(a =>
-  a.categorie.some(cat => classeData.proficiencies.includes(cat))
-);
+// Armature
+const armatureScelte = getEquipFromIds(equipBase.armature, armature);
+villain.armaturaEquipaggiata = armatureScelte[0] || null;
 
-// Seleziona arma da mischia
-const armiMischia = villain.armiDiCompetenza.filter(a => a.categorie.includes("Mischia"));
-villain.armaMischia = armiMischia.length > 0
-  ? casuale(armiMischia)
-  : armi.find(a => a.index === "dagger");
+// Se il kit prevede uno scudo, aggiungilo
+villain.scudoEquipaggiato = armatureScelte.find(a => hasCategory(a, "scudo")) || null;
 
-  // Seleziona arma a distanza
-const armiDistanza = villain.armiDiCompetenza.filter(a => a.categorie.includes("A distanza"));
-villain.armaDistanza = armiDistanza.length > 0
-  ? casuale(armiDistanza)
-  : null;
+// Armi
+const armiScelte = getEquipFromIds(equipBase.armi, armi);
+villain.armaMischia = armiScelte.find(a => hasCategory(a, "mischia")) || null;
+villain.armaDistanza = armiScelte.find(a => hasCategory(a, "distanza") || hasCategory(a, "arco")) || null;
 
-// Armature disponibili per la classe
-villain.armatureDiCompetenza = armature.filter(a =>
-  a.categorie.some(cat => classeData.proficiencies.includes(cat))
-);
-
-// Ordina dalla migliore alla peggiore
-const armatureOrdinate = villain.armatureDiCompetenza
-  .filter(a => !a.categorie.includes("Scudo"))
-  .sort((a, b) => b.armor_class.base - a.armor_class.base);
-
-villain.armaturaEquipaggiata = armatureOrdinate[0] || null;
-
-// Scudo se competente
-villain.scudoEquipaggiato = villain.armatureDiCompetenza.find(a => a.categorie.includes("Scudo")) || null;
+// Se il kit non ha armi a distanza, scegli una casuale tra competenze
+if (!villain.armaDistanza) {
+  const armiDistanza = villain.armiDiCompetenza.filter(a => hasCategory(a, "distanza") || hasCategory(a, "arco"));
+  villain.armaDistanza = armiDistanza.length > 0 ? casuale(armiDistanza) : null;
+}
 
 // Calcolo CA
+villain.ca = calcolaCA(villain.stats, [villain.armaturaEquipaggiata, villain.scudoEquipaggiato].filter(Boolean));
+
+// Calcolo CA dinamico
 const modDex = Math.floor((villain.stats.destrezza - 10) / 2);
 let caBase = 10 + modDex;
+
 if (villain.armaturaEquipaggiata) {
   caBase = villain.armaturaEquipaggiata.armor_class.base;
   if (villain.armaturaEquipaggiata.armor_class.dex_bonus) {
@@ -245,35 +252,37 @@ if (villain.armaturaEquipaggiata) {
       : modDex;
   }
 }
+
 if (villain.scudoEquipaggiato) {
   caBase += villain.scudoEquipaggiato.armor_class.base;
 }
 villain.ca = caBase;
 
-// Salviamo anche per UI
-villain.armatureDisponibili = villain.armatureDiCompetenza;
+// --- ARMI --- //
 
 
+// Arma da mischia
+const armiMischia = villain.armiDiCompetenza.filter(a => hasCategory(a, "mischia"));
+villain.armaMischia = armiMischia.length > 0 ? casuale(armiMischia) : null;
+
+// Arma a distanza
+const armiDistanza = villain.armiDiCompetenza.filter(a => hasCategory(a, "distanza") || hasCategory(a, "arco"));
+villain.armaDistanza = armiDistanza.length > 0 ? casuale(armiDistanza) : null;
+
+// Aggiorna equipaggiamento narrativo
 villain.equipVari = [
   ...(equipBase.equipaggiamento || []),
+  villain.armaturaEquipaggiata ? `Indossa: ${villain.armaturaEquipaggiata.name}` : "",
+  villain.scudoEquipaggiato ? `Scudo: ${villain.scudoEquipaggiato.name}` : "",
+  villain.armaMischia ? `Arma da mischia: ${villain.armaMischia.name}` : "",
+  villain.armaDistanza ? `Arma a distanza: ${villain.armaDistanza.name}` : "",
   "10 torce",
   "Corda di canapa (15 m)",
   "Razions da viaggio (5 giorni)",
   "Otre d’acqua",
   "Acciarino e pietra focaia"
-];
-// Focus arcano se presente
-if (equipBase.focusArcano) {
-  villain.focusArcano = equipBase.focusArcano;
-}
+].filter(Boolean);
 
-// Penalità se indossa armatura pesante senza forza minima
-
-villain.armatureIndossate.forEach(a => {
-  if (a.armor_category === "Heavy" && a.strength_minimum && villain.stats.forza < a.strength_minimum) {
-    villain.velocita -= 3; // riduzione di 3 metri
-  }
-});
 
   // 12. Magia
    // Classi magiche e stat principale coerente con le index italiane
@@ -332,21 +341,41 @@ if (casterType) {
   villain.slotIncantesimi = calcolaSlotIncantesimi(villain.livello, casterType)
     .map((num, idx) => ({ livello: idx + 1, slots: num }));
 
-  villain.incantesimi = {
-    trucchetti: (spells[classeKey]?.cantrips || []).slice(0, 2).map(sp => ({
-      nome: sp.name,
-      livello: 0,
-      scuola: sp.school,
-      durata: sp.duration,
-      gittata: sp.range,
-      descrizione: Array.isArray(sp.desc) ? sp.desc.join(" ") : sp.desc
-    })),
-    livelli: villain.slotIncantesimi.map(sl => ({
+  // Trucchetti (scegli 2-3 casuali)
+const tuttiTrucchetti = getIncantesimiPerClasse(classeKey, 0);
+const trucchettiSelezionati = tuttiTrucchetti.length > 0
+  ? Array.from({ length: Math.min(3, tuttiTrucchetti.length) }, () => casuale(tuttiTrucchetti))
+  : [];
+
+villain.incantesimi = {
+  trucchetti: trucchettiSelezionati.map(sp => ({
+    nome: sp.name,
+    livello: 0,
+    scuola: sp.school,
+    durata: sp.duration,
+    gittata: sp.range,
+    descrizione: Array.isArray(sp.desc) ? sp.desc.join(" ") : sp.desc
+  })),
+  livelli: villain.slotIncantesimi.map(sl => {
+    const incDisponibili = getIncantesimiPerClasse(classeKey, sl.livello);
+    const numInc = Math.min(sl.slots, incDisponibili.length);
+    const incantesimiCasuali = Array.from({ length: numInc }, () => casuale(incDisponibili));
+
+    return {
       livello: sl.livello,
       slots: sl.slots,
-      lista: [] // inizialmente vuota, DM li aggiunge o li pesca dall'elenco
-    }))
-  };
+      lista: incantesimiCasuali.map(sp => ({
+        nome: sp.name,
+        livello: sp.level,
+        scuola: sp.school,
+        durata: sp.duration,
+        gittata: sp.range,
+        descrizione: Array.isArray(sp.desc) ? sp.desc.join(" ") : sp.desc
+      }))
+    };
+  })
+};
+
 }
 
 }
