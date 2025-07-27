@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp, getDocs } from "firebase/firestore";
 import { firestore } from "../../firebase/firebaseConfig";
+import { toast } from "react-toastify";
 import {
   generaTitoloCasuale,
   generaContenutoCasuale,
@@ -115,20 +116,47 @@ const [esempioCorrente, setEsempioCorrente] = useState("Clicca il dado per gener
     });
   };
 
-  const salvaAvventura = async () => {
-    try {
-      await addDoc(collection(firestore, "avventure"), {
-        titolo,
-        stanze,
-        createdAt: serverTimestamp(),
-      });
-      toast.success("Avventura salvata!");
-      onClose();
-    } catch (err) {
-      console.error(err);
-      toast.error("Errore durante il salvataggio.");
+  const handleSalva = async () => {
+  try {
+    if (!avventura.titolo || avventura.stanze.length === 0) {
+      toast.error("❌ Inserisci almeno il titolo e una stanza!");
+      return;
     }
-  };
+
+    // Aggiungi timestamp e metadati
+    const avventuraData = {
+      ...avventura,
+      createdAt: serverTimestamp(),
+      tipo: "fiveRoomDungeon"
+    };
+
+    // 🔹 1. Salva in Archivio
+    const docRef = await addDoc(collection(firestore, "avventure"), avventuraData);
+    avventuraData.id = docRef.id;
+
+    toast.success("✅ Avventura salvata in Archivio!");
+
+    // 🔹 2. Se collegata alla campagna → salva nella sotto-collezione
+    if (collegaAllaCampagna && campagnaId) {
+      const campagnaRef = collection(firestore, "campagne", campagnaId, "avventure");
+      await addDoc(campagnaRef, {
+        ...avventuraData,
+        collegataCampagna: true
+      });
+      toast.success("📌 Avventura collegata alla campagna!");
+    }
+
+    // 🔹 3. Callback per aggiornare lo stato nella modale Crea Campagna
+    if (onSave) {
+      onSave(avventuraData);
+    }
+
+    onClose();
+  } catch (err) {
+    console.error("Errore salvataggio FRD:", err);
+    toast.error("❌ Errore durante il salvataggio");
+  }
+};
 
   return (
     <div className="modale-overlay">
@@ -139,7 +167,7 @@ const [esempioCorrente, setEsempioCorrente] = useState("Clicca il dado per gener
             <button onClick={generaAvventura} title="Genera avventura">
               🎲
             </button>
-            <button onClick={salvaAvventura} title="Salva">
+            <button onClick={handleSalva} title="Salva">
               💾
             </button>
             <button onClick={onClose} title="Chiudi">

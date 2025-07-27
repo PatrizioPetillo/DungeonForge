@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { completaPNGComune } from "../../utils/generators";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
-import { eliminaDaArchivio } from "../../utils/firestoreArchivio";
 import {
   generaHookPNG,
   generaDialogoPNG,
@@ -31,32 +30,19 @@ const [elementoId, setElementoId] = useState(null);
   };
 
   const handleSalva = async () => {
-      const data = { ...png, tipo: "comune" };
-      const result = await salvaInArchivio("png", data);
-    
-        if (result.success) {
--    toast.success("✅ PNG salvato!");
--    setElementoId(result.id);
--    setShowCollegamento(true);
-+    toast.success("✅ PNG salvato in Archivio!");
+  const data = { ...png, tipo: "comune" };
+  const result = await salvaInArchivio("png", data);
+
+  if (result.success) {
+    data.id = result.id; // 🔥 Aggiungi ID al PNG
+    toast.success("✅ PNG salvato in Archivio!");
+
+    if (collegaAllaCampagna && onSave) {
+      onSave(data);
+    }
   } else {
     toast.error("❌ Errore nel salvataggio!");
   }
-    };
-
-    const rimuoviPNG = async (index) => {
-  const updated = [...campagna.png];
-  const pngToRemove = updated[index];
-
-  if (pngToRemove.id) {
-    const result = await eliminaDaArchivio("png", pngToRemove.id);
-    if (!result.success) {
-      console.error("Errore eliminazione PNG dall'archivio");
-    }
-  }
-
-  updated.splice(index, 1);
-  setCampagna({ ...campagna, png: updated });
 };
 
 

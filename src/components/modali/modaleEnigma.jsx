@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
-import { eliminaDaArchivio } from "../../utils/firestoreArchivio";
 import { toast } from "react-toastify";
 import {
   generaHookEnigma,
@@ -97,26 +96,19 @@ const effetti = [
 };
 
  const handleSalva = async () => {
-    const ok = await salvaInArchivio("enigmi", enigma);
-    if (ok) {
-      alert("Enigma salvato nell'Archivio!");
-      onClose();
-    }
-  };
+  const data = { ...enigma, tipo: "enigma" };
+  const result = await salvaInArchivio("enigmi", data);
 
-  const rimuoviEnigma = async (index) => {
-  const updated = [...campagna.enigmi];
-  const enigmaToRemove = updated[index];
+  if (result.success) {
+    data.id = result.id;
+    toast.success("✅ Enigma salvato in Archivio!");
 
-  if (enigmaToRemove.id) {
-    const result = await eliminaDaArchivio("enigmi", enigmaToRemove.id);
-    if (!result.success) {
-      console.error("Errore eliminazione Enigma dall'archivio");
+    if (collegaAllaCampagna && onSave) {
+      onSave(data);
     }
+  } else {
+    toast.error("❌ Errore nel salvataggio!");
   }
-
-  updated.splice(index, 1);
-  setCampagna({ ...campagna, enigmi: updated });
 };
 
   

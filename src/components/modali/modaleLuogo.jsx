@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
-import { eliminaDaArchivio}
 import { generaLuogo } from "../../utils/generatoreLuogo"; // Nuovo generatore
 import {
   generaHookLuogo,
@@ -53,33 +52,21 @@ const [elementoId, setElementoId] = useState(null);
 
   // SALVATAGGIO FIRESTORE
   const handleSalva = async () => {
-        const data = { ...luogo, tipo: "luogo" };
-        const result = await salvaInArchivio("luoghi", data);
+  const data = { ...luogo, tipo: "luogo" };
+  const result = await salvaInArchivio("luoghi", data);
 
-          if (result.success) {
--    toast.success("✅ Luogo salvato!");
--    setElementoId(result.id);
--    setShowCollegamento(true);
-+    toast.success("✅ Luogo salvato in Archivio!");
+  if (result.success) {
+    data.id = result.id;
+    toast.success("✅ Luogo salvato in Archivio!");
+
+    if (collegaAllaCampagna && onSave) {
+      onSave(data);
+    }
   } else {
     toast.error("❌ Errore nel salvataggio!");
   }
-      };
-
-      const rimuoviLuogo = async (index) => {
-  const updated = [...campagna.luoghi];
-  const luogoToRemove = updated[index];
-
-  if (luogoToRemove.id) {
-    const result = await eliminaDaArchivio("luoghi", luogoToRemove.id);
-    if (!result.success) {
-      console.error("Errore eliminazione luogo dall'archivio");
-    }
-  }
-
-  updated.splice(index, 1);
-  setCampagna({ ...campagna, luoghi: updated });
 };
+
 
       useEffect(() => {
   if (luogo) {

@@ -45,19 +45,22 @@ export const ModaleIncontro = ({ campagnaId, onClose }) => {
     loadData();
   }, [campagnaId]);
 
-  const salvaIncontro = async () => {
-    try {
-      await addDoc(collection(firestore, `campagne/${campagnaId}/incontri`), {
-        ...incontro,
-        createdAt: serverTimestamp(),
-      });
-      toast.success("Incontro salvato!");
-      onClose();
-    } catch (err) {
-      console.error(err);
-      toast.error("Errore nel salvataggio dell'incontro.");
+  const handleSalva = async () => {
+  const data = { ...incontro, tipo: "incontro" };
+  const result = await salvaInArchivio("incontri", data);
+
+  if (result.success) {
+    data.id = result.id;
+    toast.success("✅ Incontro salvato in Archivio!");
+
+    if (collegaAllaCampagna && onSave) {
+      onSave(data);
     }
-  };
+  } else {
+    toast.error("❌ Errore nel salvataggio!");
+  }
+};
+
 
   return (
   <div className="modal-overlay">
@@ -65,7 +68,7 @@ export const ModaleIncontro = ({ campagnaId, onClose }) => {
       <div className="modale-header">
         <h2>⚔️ Nuovo Incontro</h2>
         <div className="icone-header">
-          <button onClick={salvaIncontro}>💾</button>
+          <button onClick={handleSalva}>💾</button>
           <button onClick={onClose}>✖️</button>
         </div>
       </div>

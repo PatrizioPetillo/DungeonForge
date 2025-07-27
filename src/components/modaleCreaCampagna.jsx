@@ -19,6 +19,7 @@ import {
 } from "../utils/generators";
 import { collection, doc, setDoc, addDoc, serverTimestamp } from "firebase/firestore";
 import { firestore } from "../firebase/firebaseConfig";
+import { eliminaDaArchivio } from "../utils/firestoreArchivio";
 import { generateId } from "../utils/idUtils";
 
 import "../styles/modaleCreaCampagna.css";
@@ -60,6 +61,8 @@ function ModaleCreaCampagna({ onClose }) {
   const [archivioPNG, setArchivioPNG] = useState([]);
   const [modaleLuogoAperta, setModaleLuogoAperta] = useState(false);
   const [luogoAttivo, setLuogoAttivo] = useState(null);
+  const [modaleFiveRoomAperta, setModaleFiveRoomAperta] = useState(false);
+
   const [campagna, setCampagna] = useState({
     id: null,
     titolo: "",
@@ -99,20 +102,44 @@ const apriModaleEnigma = () => {
   setModaleEnigmaAperta(true);
 };
 
-const rimuoviEnigma = (index) => {
-  const nuovaLista = [...enigmiCampagna];
-  nuovaLista.splice(index, 1);
-  setEnigmiCampagna(nuovaLista);
+const rimuoviEnigma = async (index) => {
+  const updated = [...enigmiCampagna];
+  const enigma = updated[index];
+
+  if (enigma.id) {
+    await eliminaDaArchivio("enigmi", enigma.id);
+  }
+
+  updated.splice(index, 1);
+  setEnigmiCampagna(updated);
 };
 
 const apriModaleIncontro = () => {
   setModaleIncontroAperta(true);
 };
 
-const rimuoviIncontro = (index) => {
-  const nuovaLista = [...incontri];
-  nuovaLista.splice(index, 1);
-  setIncontri(nuovaLista);
+const rimuoviIncontro = async (index) => {
+  const updated = [...incontri];
+  const incontro = updated[index];
+
+  if (incontro.id) {
+    await eliminaDaArchivio("incontri", incontro.id);
+  }
+
+  updated.splice(index, 1);
+  setIncontri(updated);
+};
+
+const rimuoviMostro = async (index) => {
+  const updated = [...campagna.mostri];
+  const mostro = updated[index];
+
+  if (mostro.id) {
+    await eliminaDaArchivio("mostri", mostro.id);
+  }
+
+  updated.splice(index, 1);
+  setCampagna({ ...campagna, mostri: updated });
 };
 
 const fetchIncontri = async () => {
@@ -135,11 +162,17 @@ useEffect(() => {
     setCampagna({ ...campagna, villain: updated });
   };
 
-  const rimuoviVillain = (index) => {
-    const updated = [...(campagna.villain || [])];
-    updated.splice(index, 1);
-    setCampagna({ ...campagna, villain: updated });
-  };
+ const rimuoviVillain = async (index) => {
+  const updated = [...campagna.villain];
+  const villain = updated[index];
+
+  if (villain.id) {
+    await eliminaDaArchivio("villain", villain.id);
+  }
+
+  updated.splice(index, 1);
+  setCampagna({ ...campagna, villain: updated });
+};
 
   const apriModaleVillain = (villain) => {
     setModaleVillainAperta(true);
@@ -180,11 +213,17 @@ useEffect(() => {
     setCampagna({ ...campagna, png: lista });
   };
 
-  const rimuoviPNG = (index) => {
-    const lista = [...(campagna.png || [])];
-    lista.splice(index, 1);
-    setCampagna({ ...campagna, png: lista });
-  };
+ const rimuoviPNG = async (index) => {
+  const updated = [...campagna.png];
+  const png = updated[index];
+
+  if (png.id) {
+    await eliminaDaArchivio("png", png.id);
+  }
+
+  updated.splice(index, 1);
+  setCampagna({ ...campagna, png: updated });
+};
 
   const apriModalePNG = (png) => {
     setPngAttivo(png);
@@ -221,11 +260,17 @@ useEffect(() => {
     setModaleLuogoAperta(true);
   };
 
-  const rimuoviLuogo = (index) => {
-    const luoghi = [...campagna.luoghi];
-    luoghi.splice(index, 1);
-    setCampagna({ ...campagna, luoghi });
-  };
+ const rimuoviLuogo = async (index) => {
+  const updated = [...campagna.luoghi];
+  const luogo = updated[index];
+
+  if (luogo.id) {
+    await eliminaDaArchivio("luoghi", luogo.id);
+  }
+
+  updated.splice(index, 1);
+  setCampagna({ ...campagna, luoghi: updated });
+};
 
   const nomeScenaDaID = (id) => {
   const scena = campagna.scene?.find(s => s.id === id);
@@ -1594,6 +1639,17 @@ const generaIncontri = (capitoli, villain, png, mostri) => {
 
   </div>
 )}
+<ModaleFiveRoomDungeon
+  collegaAllaCampagna={true}
+  campagnaId={campagna.id} // id della campagna attiva
+  onSave={(avventuraSalvata) => {
+    setCampagna({
+      ...campagna,
+      avventure: [...(campagna.avventure || []), avventuraSalvata]
+    });
+  }}
+  onClose={() => setModaleFiveRoomAperta(false)}
+/>
 
 
     </div>

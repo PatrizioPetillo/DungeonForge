@@ -3,7 +3,6 @@ import "../../styles/modaleMostro.css";
 import { toast } from "react-toastify";
 import ModaleCollegamento from "../modali/modaleCollegamento";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
-import { eliminaDaArchivio } from "../../utils/firestoreArchivio";
 import { collection } from "firebase/firestore";
 import { firestore } from "../../firebase/firebaseConfig";
 import LootBox from "../generatori/lootBox";
@@ -72,34 +71,22 @@ const ModaleMostro = ({ onClose }) => {
     });
   }, [campagnaAttiva]);
 
-  const handleSalvaMostro = async () => {
-      const data = { ...mostro, tipo: "mostro" };
-      const result = await salvaInArchivio("mostri", data);
+  const handleSalva = async () => {
+  const data = { ...mostro, tipo: "mostro" };
+  const result = await salvaInArchivio("mostri", data);
 
-        if (result.success) {
--    toast.success("✅ Mostro salvato!");
--    setElementoId(result.id);
--    setShowCollegamento(true);
-+    toast.success("✅ Mostro salvato in Archivio!");
+  if (result.success) {
+    data.id = result.id;
+    toast.success("✅ Mostro salvato in Archivio!");
+
+    if (collegaAllaCampagna && onSave) {
+      onSave(data);
+    }
   } else {
     toast.error("❌ Errore nel salvataggio!");
   }
-    };
-
-    const rimuoviMostro = async (index) => {
-  const updated = [...campagna.mostri];
-  const mostroToRemove = updated[index];
-
-  if (mostroToRemove.id) {
-    const result = await eliminaDaArchivio("mostri", mostroToRemove.id);
-    if (!result.success) {
-      console.error("Errore eliminazione mostro dall'archivio");
-    }
-  }
-
-  updated.splice(index, 1);
-  setCampagna({ ...campagna, mostri: updated });
 };
+
 
     useEffect(() => {
   if (initialData) {
@@ -183,7 +170,7 @@ const ModaleMostro = ({ onClose }) => {
         <div className="modale-header">
           <h2>🧟‍♂️ Mostro</h2>
           <div className="icone-header">
-            <button onClick={handleSalvaMostro} title="Salva">
+            <button onClick={handleSalva} title="Salva">
               💾
             </button>
             <button onClick={generaMostroCasuale} title="Genera">
