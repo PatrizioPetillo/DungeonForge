@@ -1,0 +1,52 @@
+.avventura-archivio-widget {
+  background: #1A1F2B;
+  color: #F2F2F0;
+  border: 1px solid #3D3D3D;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.avventura-archivio-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #3D3D3D;
+}
+
+.avventura-archivio-item button {
+  background: #D4AF37;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #1A1F2B;
+  font-weight: bold;
+}
+/* Responsive layout for widget */
+@media (max-width: 768px) {
+  .avventura-archivio-widget {
+    padding: 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .avventura-archivio-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+
+  .avventura-archivio-item button {
+    width: 100%;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .avventura-archivio-widget h3 {
+    font-size: 1rem;
+  }
+
+  .avventura-archivio-item strong {
+    font-size: 0.9rem;
+  }
+}

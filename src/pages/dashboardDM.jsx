@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth, db } from "../firebase/firebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
 import PngWidget from "../components/widget/pngWidget";
 import VillainWidget from "../components/widget/villainWidget";
 import ModaleVillain from "../components/modali/modaleVillain";
-import ModalePng from "../components/modali/modalePNG";
 import MostroWidget from "../components/widget/mostroWidget";
 import ModaleMostro from "../components/modali/modaleMostro";
 import LuogoWidget from "../components/widget/luogoWidget";
@@ -102,7 +100,7 @@ function DashboardDM() {
   <MostroWidget onClick={() => setShowMostroModal(true)} />
   <LuogoWidget onClick={() => setShowLuogoModal(true)} />
   <EnigmaWidget onClick={() => setMostraModaleEnigma(true)} />
-  <AvventuraWidget onClick={() => setMostraModaleAvventura(true)} />
+  <AvventuraWidget campagnaId={campagnaAttiva?.id || null} />
 </div>
 <hr />
 {isVillainModalOpen && (
@@ -134,6 +132,12 @@ function DashboardDM() {
           <button>✏️ Modifica Recap</button>
         </div>
       </section>
+
+      <section className="dashboard-section">
+  <h2>📚 Avventure Modulari Salvate</h2>
+  <AvventuraArchivio campagnaId={campagnaAttiva?.id || null} />
+</section>
+
 
       <hr />
 

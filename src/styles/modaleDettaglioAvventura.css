@@ -1,0 +1,87 @@
+.modale-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+}
+
+.modale-dettaglio-avventura {
+  background: #1A1F2B;
+  color: #F2F2F0;
+  width: 70%;
+  max-height: 80%;
+  overflow-y: auto;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.modale-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.azioni {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.btn-delete {
+  background: #8A3A24;
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-collega {
+  background: #2D6B4F;
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+/* Responsive for modal */
+@media (max-width: 1024px) {
+  .modale-dettaglio-avventura {
+    width: 85%;
+  }
+}
+
+@media (max-width: 768px) {
+  .modale-dettaglio-avventura {
+    width: 95%;
+    padding: 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .modale-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .azioni {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .azioni button {
+    width: 100%;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modale-dettaglio-avventura {
+    max-height: 90%;
+    font-size: 0.85rem;
+  }
+
+  .modale-header h2 {
+    font-size: 1rem;
+  }
+}
