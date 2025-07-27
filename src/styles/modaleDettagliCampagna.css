@@ -15,8 +15,8 @@
   background-color: #1a1f2b;
   padding: 2rem;
   border-radius: var(--radius);
-  width: 90%;
-  max-width: 700px;
+  width: 100%;
+  max-width: 935px;
   box-shadow: 0 0 20px #000;
   color: var(--color-text);
 }

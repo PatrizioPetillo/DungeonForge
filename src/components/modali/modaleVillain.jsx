@@ -2,14 +2,15 @@ import React, { useState } from "react";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import { generaVillain } from "../../utils/generatoreVillain";
 import { armi, getTooltipProprieta } from "../../utils/armi";
-import { armature, getTooltipArmatura } from "../../utils/armature";
+import { armature } from "../../utils/armature";
 import {
   generaHookVillain,
   generaDialogoVillain,
   genera3HookVillain,
   genera3DialoghiVillain
 } from "../../utils/narrativeGenerators";
-
+import { toast } from "react-toastify";
+import ModaleCollegamento from "../modali/modaleCollegamento";
 import "../../styles/modaleVillain.css";
 
 const abilitaPerStat = {
@@ -28,7 +29,8 @@ export default function ModaleVillain({ onClose }) {
   const [spellSuggeriti, setSpellSuggeriti] = useState([]);
   const [opzioniHook, setOpzioniHook] = useState([]);
 const [opzioniDialogo, setOpzioniDialogo] = useState([]);
-
+const [showCollegamento, setShowCollegamento] = useState(false);
+const [elementoId, setElementoId] = useState(null);
 
   const tabs = [
     "Generali",
@@ -108,15 +110,27 @@ const removeSpell = (index) => {
     setvillain(nuovovillain);
     setLoading(false);
   };
+  
+const handleSalva = async () => {
+  const data = { ...villain, tipo: "villain" };
+  const result = await salvaInArchivio("villain", data);
 
-  const handleSalva = async () => {
-    const data = { ...villain, tipo: "Non Comune" };
-    const ok = await salvaInArchivio("villain", data);
-    if (ok) {
-      alert("villain salvato nell'Archivio!");
-      onClose();
-    }
-  };
+    if (result.success) {
+-    toast.success("✅ Villain salvato!");
+-    setElementoId(result.id);
+-    setShowCollegamento(true);
++    toast.success("✅ Villain salvato in Archivio!");
+  } else {
+    toast.error("❌ Errore nel salvataggio!");
+  }
+};
+
+useEffect(() => {
+  if (initialData) {
+    setvillain(initialData); // o setPNG(...)
+  }
+}, [initialData]);
+
 
   return (
     <div className="modale-overlay">
@@ -846,6 +860,13 @@ const removeSpell = (index) => {
             </div>
           )}
         </div>
+        {showCollegamento && (
+  <ModaleCollegamento
+    idElemento={elementoId}
+    tipoElemento="villain"
+    onClose={() => setShowCollegamento(false)}
+  />
+)}
       </div>
     </div>
   );

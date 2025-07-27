@@ -7,7 +7,8 @@ import {
   genera3HookLuogo,
   genera3FrasiLuogo
 } from "../../utils/narrativeGenerators";
-
+import { toast } from "react-toastify";
+import ModaleCollegamento from "../modali/modaleCollegamento";
 import "../../styles/modaleLuogo.css";
 
 const ModaleLuogo = ({ onClose, onSave, luogo: initialLuogo }) => {
@@ -40,7 +41,8 @@ const ModaleLuogo = ({ onClose, onSave, luogo: initialLuogo }) => {
   const [loading, setLoading] = useState(false);
   const [opzioniHook, setOpzioniHook] = useState([]);
 const [opzioniFrasi, setOpzioniFrasi] = useState([]);
-
+const [showCollegamento, setShowCollegamento] = useState(false);
+const [elementoId, setElementoId] = useState(null);
 
   // GENERAZIONE CASUALE
   const handleGenera = () => {
@@ -50,12 +52,24 @@ const [opzioniFrasi, setOpzioniFrasi] = useState([]);
 
   // SALVATAGGIO FIRESTORE
   const handleSalva = async () => {
-    const ok = await salvaInArchivio("luoghi", luogo);
-    if (ok) {
-      alert("Luogo salvato nell'Archivio!");
-      onClose();
-    }
-  };
+        const data = { ...luogo, tipo: "luogo" };
+        const result = await salvaInArchivio("luoghi", data);
+
+          if (result.success) {
+-    toast.success("✅ Luogo salvato!");
+-    setElementoId(result.id);
+-    setShowCollegamento(true);
++    toast.success("✅ Luogo salvato in Archivio!");
+  } else {
+    toast.error("❌ Errore nel salvataggio!");
+  }
+      };
+
+      useEffect(() => {
+  if (initialData) {
+    setLuogo(initialData); // o setPNG(...)
+  }
+}, [initialData]);
 
 
   return (
@@ -337,6 +351,13 @@ const [opzioniFrasi, setOpzioniFrasi] = useState([]);
         <p>Nessuna immagine</p>
       )}
     </div>
+    {showCollegamento && (
+      <ModaleCollegamento
+        idElemento={elementoId}
+        tipoElemento="luogo"
+        onClose={() => setShowCollegamento(false)}
+      />
+    )}
       </div>
     </div>
   );

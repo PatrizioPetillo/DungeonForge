@@ -3,7 +3,7 @@ import { deleteDoc, doc, getDoc, collection, getDocs, setDoc, } from "firebase/f
 import { firestore } from "../../firebase/firebaseConfig";
 import "../../styles/modaleDettaglioArchivio.css";
 
-export default function ModaleDettaglioArchivio({ id, tipo, collegamentoInfo, onClose, onCollega }) {
+export default function ModaleDettaglioArchivio({ id, tipo, collegamentoInfo, onClose, onCollega, onEdit }) {
   const [dettaglio, setDettaglio] = useState(null);
   const [campagne, setCampagne] = useState([]);
   const [capitoli, setCapitoli] = useState([]);
@@ -16,7 +16,7 @@ export default function ModaleDettaglioArchivio({ id, tipo, collegamentoInfo, on
 
   useEffect(() => {
     const fetchDettaglio = async () => {
-      const ref = doc(firestore, `archivio/${tipo}`, id);
+      const ref = doc(firestore, tipo, id);
       const snap = await getDoc(ref);
       if (snap.exists()) {
         setDettaglio(snap.data());
@@ -62,7 +62,7 @@ export default function ModaleDettaglioArchivio({ id, tipo, collegamentoInfo, on
 
   const handleElimina = async () => {
     if (window.confirm("Sei sicuro di voler eliminare questo elemento dall'Archivio?")) {
-      await deleteDoc(doc(firestore, `archivio/${tipo}`, id));
+      await deleteDoc(doc(firestore, tipo, id));
       alert("Elemento eliminato dall'Archivio!");
       onClose();
     }
@@ -82,7 +82,10 @@ export default function ModaleDettaglioArchivio({ id, tipo, collegamentoInfo, on
       <div className="modale-archivio">
         <div className="modale-header">
           <h3>{dettaglio.nome || dettaglio.titolo || "Dettaglio Archivio"}</h3>
-          <button onClick={onClose}>✖</button>
+          <div>
+            <button onClick={() => onEdit(dettaglio)}>✏</button>
+            <button onClick={onClose}>✖</button>
+          </div>
         </div>
 
         <div className="modale-body">

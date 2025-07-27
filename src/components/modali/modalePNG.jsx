@@ -7,7 +7,8 @@ import {
   genera3HookPNG,
   genera3DialoghiPNG
 } from "../../utils/narrativeGenerators";
-
+import { toast } from "react-toastify";
+import ModaleCollegamento from "../modali/modaleCollegamento";
 import "../../styles/modalePNG.css";
 
 export default function ModalePNGComune({ onClose }) {
@@ -16,7 +17,8 @@ export default function ModalePNGComune({ onClose }) {
   const [tab, setTab] = useState("Generali");
   const [opzioniHook, setOpzioniHook] = useState([]);
 const [opzioniDialogo, setOpzioniDialogo] = useState([]);
-
+const [showCollegamento, setShowCollegamento] = useState(false);
+const [elementoId, setElementoId] = useState(null);
 
   const tabs = ["Generali", "Narrativa", "Equipaggiamento"];
 
@@ -28,13 +30,24 @@ const [opzioniDialogo, setOpzioniDialogo] = useState([]);
   };
 
   const handleSalva = async () => {
-    const data = { ...png, tipo: "Comune" };
-    const ok = await salvaInArchivio("png", data);
-    if (ok) {
-      alert("PNG salvato nell'Archivio!");
-      onClose();
-    }
-  };
+      const data = { ...png, tipo: "comune" };
+      const result = await salvaInArchivio("png", data);
+    
+        if (result.success) {
+-    toast.success("✅ PNG salvato!");
+-    setElementoId(result.id);
+-    setShowCollegamento(true);
++    toast.success("✅ PNG salvato in Archivio!");
+  } else {
+    toast.error("❌ Errore nel salvataggio!");
+  }
+    };
+
+    useEffect(() => {
+  if (initialData) {
+    setPNG(initialData); // o setPNG(...)
+  }
+}, [initialData]);
 
 
   return (
@@ -254,6 +267,14 @@ const [opzioniDialogo, setOpzioniDialogo] = useState([]);
             </div>
           )}
         </div>
+        {showCollegamento && (
+  <ModaleCollegamento
+    idElemento={elementoId}
+    tipoElemento="png"
+    onClose={() => setShowCollegamento(false)}
+  />
+)}
+
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import CardElemento from "./cardElemento";
 import "../styles/archivioSezione.css";
 
-const ArchivioSezione = ({ titolo, dati, categoria, collegamenti }) => {
+const ArchivioSezione = ({ titolo, dati, categoria, collegamenti, onCardClick, onCollegaClick }) => {
   const [espanso, setEspanso] = useState(false);
 
   const filtraDati = (lista) => {
@@ -22,13 +22,20 @@ const ArchivioSezione = ({ titolo, dati, categoria, collegamenti }) => {
     <div className={`archivio-section ${espanso ? "expanded" : "collapsed"}`}>
       <div className="archivio-header">
         <h2>{titolo}</h2>
-        <button className="btn-add">+ Aggiungi</button>
+        <button onClick={() => setEspanso(!espanso)} className="btn-toggle">
+          {espanso ? "Nascondi" : "Mostra"} Dettagli
+        </button>
       </div>
 
       <div className="card-grid">
         {dati.map((item) => (
-          <CardElemento key={item.id} item={item} categoria={categoria} collegamenti={collegamenti} />
-
+          <CardElemento
+      key={item.id}
+      item={item}
+      categoria={categoria}
+      collegamenti={collegamenti}
+      onEdit={(elemento) => onCollegaClick(elemento)} // rimuoviamo dopo
+    />
         ))}
       </div>
 

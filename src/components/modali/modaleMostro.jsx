@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/modaleMostro.css";
 import { toast } from "react-toastify";
+import ModaleCollegamento from "../modali/modaleCollegamento";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import { collection } from "firebase/firestore";
 import { firestore } from "../../firebase/firebaseConfig";
@@ -47,7 +48,8 @@ const ModaleMostro = ({ onClose }) => {
   const [mostraCompendio, setMostraCompendio] = useState(false);
   const [incontriDisponibili, setIncontriDisponibili] = useState([]);
   const [incontriCollegati, setIncontriCollegati] = useState([]);
-  
+  const [showCollegamento, setShowCollegamento] = useState(false);
+  const [elementoId, setElementoId] = useState(null);
 
   useEffect(() => {
   if (!campagnaAttiva?.id) return;
@@ -70,15 +72,25 @@ const ModaleMostro = ({ onClose }) => {
   }, [campagnaAttiva]);
 
   const handleSalvaMostro = async () => {
-  const data = { ...mostro, tipo: "Mostro" }; // Aggiungi eventuali campi extra
-  const ok = await salvaInArchivio("mostri", data);
-  if (ok) {
-    alert("Mostro salvato nell'Archivio!");
-    onClose();
+      const data = { ...mostro, tipo: "mostro" };
+      const result = await salvaInArchivio("mostri", data);
+
+        if (result.success) {
+-    toast.success("✅ Mostro salvato!");
+-    setElementoId(result.id);
+-    setShowCollegamento(true);
++    toast.success("✅ Mostro salvato in Archivio!");
   } else {
-    alert("Errore nel salvataggio del mostro");
+    toast.error("❌ Errore nel salvataggio!");
   }
-};
+    };
+
+    useEffect(() => {
+  if (initialData) {
+    setMostro(initialData); // o setPNG(...)
+  }
+}, [initialData]);
+
 
   const generaMostroCasuale = async () => {
     try {
@@ -499,7 +511,15 @@ const ModaleMostro = ({ onClose }) => {
           }}
         />
       )}
+      {showCollegamento && (
+        <ModaleCollegamento
+          idElemento={elementoId}
+          tipoElemento="mostro"
+          onClose={() => setShowCollegamento(false)}
+        />
+      )}
     </div>
+    
   );
 };
 

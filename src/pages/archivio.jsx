@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { getDocs, collection } from "firebase/firestore";
 import { firestore } from "../firebase/firebaseConfig";
-import ArchivioSezione from "../components/ArchivioSezione";
+import ArchivioSezione from "../components/archivioSezione";
+import ModaleDettaglioArchivio from "../components/modali/modaleDettaglioArchivio";
+import ModaleCollegamento from "../components/modali/modaleCollegamento";
 import "../styles/Archivio.css";
 
 const Archivio = () => {
@@ -14,6 +16,24 @@ const Archivio = () => {
   const [filtro, setFiltro] = useState("tutti");
 const [searchTerm, setSearchTerm] = useState("");
 const [filtroTipoPNG, setFiltroTipoPNG] = useState("");
+const [showCollegamento, setShowCollegamento] = useState(false);
+const [elementoId, setElementoId] = useState(null);
+const [tipoElemento, setTipoElemento] = useState(null);
+const [showModalDettaglio, setShowModalDettaglio] = useState(false);
+const [selectedId, setSelectedId] = useState(null);
+const [selectedTipo, setSelectedTipo] = useState(null);
+const [modificaElemento, setModificaElemento] = useState(null);
+
+const apriDettaglioArchivio = (id, tipo) => {
+  setSelectedId(id);
+  setSelectedTipo(tipo);
+  setShowModalDettaglio(true);
+};
+
+const handleEdit = (elemento, tipo) => {
+  setModificaElemento({ ...elemento, tipo });
+  setShowModalDettaglio(false);
+};
 
 const filtraDati = (lista, tipoCategoria = null) => {
   return lista.filter((item) => {
@@ -58,14 +78,20 @@ const caricaCollegamenti = async () => {
   setCollegamenti(map);
 };
 
+const apriModaleCollegamento = (id, tipo) => {
+  setElementoId(id);
+  setTipoElemento(tipo);
+  setShowCollegamento(true);
+};
+
   useEffect(() => {
     const fetchArchivio = async () => {
       const [pngSnap, villainSnap, mostriSnap, luoghiSnap, enigmiSnap] = await Promise.all([
-        getDocs(collection(firestore, "archivio/png")),
-        getDocs(collection(firestore, "archivio/villain")),
-        getDocs(collection(firestore, "archivio/mostri")),
-        getDocs(collection(firestore, "archivio/luoghi")),
-        getDocs(collection(firestore, "archivio/enigmi")),
+        getDocs(collection(firestore, "png")),
+        getDocs(collection(firestore, "villain")),
+        getDocs(collection(firestore, "mostri")),
+        getDocs(collection(firestore, "luoghi")),
+        getDocs(collection(firestore, "enigmi")),
       ]);
 
       setPng(pngSnap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -107,33 +133,64 @@ const caricaCollegamenti = async () => {
   </select>
 </div>
 
-      <ArchivioSezione
+  <ArchivioSezione
   titolo="Villain"
   dati={filtraDati(villain)}
   categoria="villain"
   collegamenti={collegamenti}
+  onCardClick={(id) => apriDettaglioArchivio(id, "villain")}
+  onCollegaClick={(id) => apriModaleCollegamento(id, "villain")}
 />
         <hr className="archivio" />
-      <ArchivioSezione titolo="PNG" dati={filtraDati(png, "png")} categoria="png" collegamenti={collegamenti} />
+      <ArchivioSezione titolo="PNG" dati={filtraDati(png, "png")} categoria="png" collegamenti={collegamenti} onCardClick={(id) => apriDettaglioArchivio(id, "png")} onCollegaClick={(id) => apriModaleCollegamento(id, "png")} />
       <hr className="archivio" />
-      <ArchivioSezione titolo="Mostri" dati={filtraDati(mostri)} categoria="mostri" collegamenti={collegamenti} />
+      <ArchivioSezione titolo="Mostri" dati={filtraDati(mostri)} categoria="mostri" collegamenti={collegamenti} onCardClick={(id) => apriDettaglioArchivio(id, "mostri")} onCollegaClick={(id) => apriModaleCollegamento(id, "mostri")} />
       <hr className="archivio" />
-      <ArchivioSezione titolo="Luoghi" dati={filtraDati(luoghi)} categoria="luoghi" collegamenti={collegamenti} />
+      <ArchivioSezione titolo="Luoghi" dati={filtraDati(luoghi)} categoria="luoghi" collegamenti={collegamenti} onCardClick={(id) => apriDettaglioArchivio(id, "luoghi")} onCollegaClick={(id) => apriModaleCollegamento(id, "luoghi")} />
       <hr className="archivio" />
-      <ArchivioSezione titolo="Enigmi" dati={filtraDati(enigmi)} categoria="enigmi" collegamenti={collegamenti} />
+      <ArchivioSezione titolo="Enigmi" dati={filtraDati(enigmi)} categoria="enigmi" collegamenti={collegamenti} onCardClick={(id) => apriDettaglioArchivio(id, "enigmi")} onCollegaClick={(id) => apriModaleCollegamento(id, "enigmi")} />
       <br />
-      <ModaleDettaglioArchivio
-        id={selectedId}
-        tipo={selectedTipo}
-        onClose={() => setShowModal(false)}
-        onCollega={(entita) => handleCollegaAScena(entita)}
-      />
-      <br />
-      <p className="note-archivio">
-        Nota: Puoi salvare nuovi elementi nell'archivio tramite i modali di creazione (es. ModaleMostro, ModaleVillain, ecc.).
-      </p>
-    </div>
-  );
+      {showModalDettaglio && (
+  <ModaleDettaglioArchivio
+    id={selectedId}
+    tipo={selectedTipo}
+    onClose={() => setShowModalDettaglio(false)}
+  />
+)}
+
+{showCollegamento && (
+  <ModaleCollegamento
+    idElemento={elementoId}
+    tipoElemento={tipoElemento}
+    onClose={() => setShowCollegamento(false)}
+  />
+)}
+{modificaElemento && modificaElemento.tipo === "villain" && (
+  <ModaleVillain
+    initialData={modificaElemento}
+    onClose={() => setModificaElemento(null)}
+  />
+)}
+{modificaElemento && modificaElemento.tipo === "png" && (
+  <ModalePNG
+    initialData={modificaElemento}
+    onClose={() => setModificaElemento(null)}
+  />
+)}
+{modificaElemento && modificaElemento.tipo === "mostri" && (
+  <ModaleMostro
+    initialData={modificaElemento}
+    onClose={() => setModificaElemento(null)}
+  />
+)}
+{modificaElemento && modificaElemento.tipo === "luoghi" && (
+  <ModaleLuogo
+    initialData={modificaElemento}
+    onClose={() => setModificaElemento(null)}
+  />
+)}
+</div>
+);
 };
 
 export default Archivio;

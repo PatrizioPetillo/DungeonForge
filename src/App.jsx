@@ -1,8 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { ToastContainer } from "react-toastify";
 import packageJson from '../package.json';
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import 'react-tooltip/dist/react-tooltip.css';
 import AuthPage from './pages/authPage';
 import DashboardDM from './pages/dashboardDM';
 import ModaleCreaCampagna from './components/modaleCreaCampagna';
@@ -36,6 +35,7 @@ function App() {
       <footer>
         <small>Versione: {packageJson.version}</small>
       </footer>
+      <ToastContainer position="top-right" autoClose={3000} />
     </BrowserRouter>
   );
 }

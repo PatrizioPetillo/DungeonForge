@@ -30,6 +30,10 @@ const CardElemento = ({ item, categoria, collegamenti  }) => {
     tipo={categoria}
     collegamentoInfo={collegamenti[item.id] || null}
     onClose={() => setShowModal(false)}
+    onEdit={(elemento) => {
+    setShowModal(false);
+    if (onEdit) onEdit(elemento, categoria);
+  }}
   />
 )}
     </>

@@ -9,7 +9,8 @@ import {
   genera3HookPNG,
   genera3DialoghiPNG
 } from "../../utils/narrativeGenerators";
-
+import { toast } from "react-toastify";
+import ModaleCollegamento from "../modali/modaleCollegamento";
 import "../../styles/modalePNG.css";
 
 const abilitaPerStat = {
@@ -28,7 +29,8 @@ export default function ModalePNGNonComune({ onClose }) {
   const [spellSuggeriti, setSpellSuggeriti] = useState([]);
   const [opzioniHook, setOpzioniHook] = useState([]);
 const [opzioniDialogo, setOpzioniDialogo] = useState([]);
-
+const [showCollegamento, setShowCollegamento] = useState(false);
+const [elementoId, setElementoId] = useState(null);
 
   const tabs = [
     "Generali",
@@ -119,13 +121,25 @@ const removeSpell = (index) => {
   };
 
   const handleSalva = async () => {
-    const data = { ...png, tipo: "Non Comune" };
-    const ok = await salvaInArchivio("png", data);
-    if (ok) {
-      alert("PNG salvato nell'Archivio!");
-      onClose();
-    }
+    const data = { ...png, tipo: "non comune" };
+    const result = await salvaInArchivio("png", data);
+  
+      if (result.success) {
+-    toast.success("✅ PNG salvato!");
+-    setElementoId(result.id);
+-    setShowCollegamento(true);
++    toast.success("✅ PNG salvato in Archivio!");
+  } else {
+    toast.error("❌ Errore nel salvataggio!");
+  }
   };
+
+  useEffect(() => {
+  if (initialData) {
+    setPNG(initialData); // o setPNG(...)
+  }
+}, [initialData]);
+
 
   return (
     <div className="modale-overlay">
@@ -1099,6 +1113,13 @@ const removeSpell = (index) => {
             </div>
           )}
         </div>
+        {showCollegamento && (
+  <ModaleCollegamento
+    idElemento={elementoId}
+    tipoElemento="png"
+    onClose={() => setShowCollegamento(false)}
+  />
+)}
       </div>
     </div>
   );

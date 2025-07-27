@@ -1,17 +1,21 @@
-import { doc, setDoc } from "firebase/firestore";
+import { collection, doc, setDoc } from "firebase/firestore";
 import { firestore } from "../firebase/firebaseConfig";
 
 export async function salvaInArchivio(tipo, dato) {
   try {
     const id = dato.id || crypto.randomUUID();
-    await setDoc(doc(firestore, `archivio/${tipo}`, id), {
+    const colRef = collection(firestore, tipo); // ✅ villain, png, mostro, luogo
+    const docRef = doc(colRef, id);
+
+    await setDoc(docRef, {
       ...dato,
       id,
       creatoIl: new Date().toISOString()
     });
-    return true;
+
+    return { success: true, id };
   } catch (error) {
     console.error(`Errore salvataggio archivio [${tipo}]:`, error);
-    return false;
+    return { success: false, error };
   }
 }
