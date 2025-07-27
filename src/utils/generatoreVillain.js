@@ -4,7 +4,7 @@ import { razze } from "./races";     // API locale
 import { spells } from "./spells";
 import { armi } from "./armi";
 import { armature } from "./armature";
-import { oggettiMagiciBase, oggettiMagici } from "./oggettiMagici";
+import { oggettiMagici } from "./oggettiMagici";
 import { backgrounds } from "./backgrounds";
 
 const statMagicaPerClasse = {
