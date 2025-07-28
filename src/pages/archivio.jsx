@@ -22,6 +22,7 @@ const [tipoElemento, setTipoElemento] = useState(null);
 const [showModalDettaglio, setShowModalDettaglio] = useState(false);
 const [selectedId, setSelectedId] = useState(null);
 const [selectedTipo, setSelectedTipo] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 const [modificaElemento, setModificaElemento] = useState(null);
 const [mostraDettagli, setMostraDettagli] = useState(false);
 
@@ -157,6 +158,7 @@ const apriModaleCollegamento = (id, tipo) => {
           tipo={selectedTipo}
           onClose={() => setShowModalDettaglio(false)}
           onElimina={(idEliminato) => {
+          setRefreshKey(prev => prev + 1);
             if (selectedTipo === "png") setPng(p => p.filter(x => x.id !== idEliminato));
             if (selectedTipo === "villain") setVillain(p => p.filter(x => x.id !== idEliminato));
             if (selectedTipo === "mostri") setMostri(p => p.filter(x => x.id !== idEliminato));
