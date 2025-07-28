@@ -18,9 +18,15 @@ import ModaleDettagliCampagna from "../components/modaleDettagliCampagna";
 import CampagnaCard from "../components/campagnaCard";
 import ModaleOggetti from "../components/gestioneOggetti";
 import SuggerimentoDelGiorno from "../components/suggerimentoDelGiorno";
+import DiarioNarratore from "../components/diarioNarratore";
+import { firestore } from "../firebase/firebaseConfig";
+import { useDM } from "../context/DMContext";
 import "../styles/dashboardDM.css";
 
 function DashboardDM() {
+  const { dmId } = useDM();
+  const [mostraModaleDiario, setMostraModaleDiario] = useState(false);
+  const [campagnaId, setCampagnaId] = useState(null);
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [campagna, setCampagna] = useState({
@@ -182,11 +188,14 @@ function DashboardDM() {
       </section> */}
 
       {/* FUTURE: Note del Narratore / Diario */}
-      {/* <section className="dashboard-section">
+      <section className="dashboard-section">
         <h2>📓 Diario del Narratore</h2>
         <p className="section-desc">Appunti sparsi, idee, bozze di trame o colpi di scena.</p>
-        <button>Aggiungi nota</button>
-      </section> */}
+        <button onClick={() => setMostraModaleDiario(true)}>Aggiungi nota</button>
+      </section>
+      {mostraModaleDiario && (
+        <DiarioNarratore />
+      )}
 
 {mostraModaleOggetti && (
   <ModaleOggetti

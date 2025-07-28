@@ -29,6 +29,7 @@ self.addEventListener("activate", event => {
       }));
     })
   );
+  self.clients.claim();
 });
 
 // ✅ Fetch: network first, fallback cache, aggiorna in background
