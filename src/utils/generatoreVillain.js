@@ -4,7 +4,6 @@ import { razze } from "./races";     // API locale
 import { spells } from "./spells";
 import { armi } from "./armi";
 import { armature } from "./armature";
-import { oggettiMagici } from "./oggettiMagici";
 import { backgrounds } from "./backgrounds";
 
 const statMagicaPerClasse = {
@@ -99,26 +98,9 @@ const potenziaArmaMagica = (arma, livello) => {
   };
 };
 
-const generaOggettiMagici = (livello) => {
-  const lista = [];
-  const pool = livello >= 13 ? [...oggettiMagici.moltoRaro, ...oggettiMagici.leggendario] :
-               livello >= 9 ? [...oggettiMagici.nonComune, ...oggettiMagici.raro] :
-               [...oggettiMagici.comune];
-  const num = livello >= 15 ? 3 : 1 + Math.floor(Math.random() * 2);
-  for (let i = 0; i < num; i++) {
-    lista.push(pool[Math.floor(Math.random() * pool.length)]);
-  }
-  return lista;
-};
-
 export function generaVillain(opzioni = {}) {
   const villain = {};
-  villain.armamento = {
-  armi: [],
-  armatura: null,
-  scudo: null,
-  oggettiMagici: []
-};
+  
 
   // 1. Livello
   villain.livello = opzioni.livello || rand(3, 10);
@@ -189,7 +171,7 @@ ordine.forEach(stat => {
 
 
 // 6. Bonus razziali
-villain.bonusRaziali = razzaData.ability_bonuses.map(b => `${b.ability_score}: +${b.bonus}`).join(", ") || "Nessuno";
+villain.bonusRazziali = razzaData.ability_bonuses.map(b => `${b.ability_score}: +${b.bonus}`).join(", ") || "Nessuno";
 
 // Aggiunta bonus razziali
 (razzaData.ability_bonuses || []).forEach(bonus => {
@@ -312,35 +294,6 @@ if (villain.scudoEquipaggiato) {
   caBase += villain.scudoEquipaggiato.armor_class.base;
 }
 villain.ca = caBase;
-
-// --- SE LIVELLO > 5: ARMI MAGICHE --- //
-if (villain.livello > 5) {
-  [villain.armaMischia, villain.armaDistanza].forEach(arma => {
-    if (arma) {
-      arma.magico = true;
-      arma.bonus = villain.livello > 10 ? "+2" : "+1";
-      arma.nome = `${arma.nome} ${arma.bonus}`;
-      arma.danno = arma.danno + arma.bonus; // es. "1d8" → "1d8+1"
-    }
-  });
-}
-
-if (villain.livello > 8) {
-  villain.armamento.oggettiMagici = [];
-  let pool = oggettiMagici.comune;
-
-  if (villain.livello >= 13) {
-    pool = [...oggettiMagici.moltoRaro, ...oggettiMagici.leggendario];
-  } else if (villain.livello >= 9) {
-    pool = [...oggettiMagici.nonComune, ...oggettiMagici.raro];
-  }
-
-  const numOggetti = villain.livello >= 15 ? 3 : 1 + Math.floor(Math.random() * 2); // 1-3 oggetti
-  for (let i = 0; i < numOggetti; i++) {
-    const oggettoCasuale = pool[Math.floor(Math.random() * pool.length)];
-    villain.armamento.oggettiMagici.push(oggettoCasuale);
-  }
-}
 
 // Aggiorna equipaggiamento narrativo
 villain.equipVari = [

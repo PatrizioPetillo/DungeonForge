@@ -166,7 +166,7 @@ const initialData = {
   pf: "",
   ca: "",
   dadoVita: "",
-  bonusRaziali: "",
+  bonusRazziali: "",
   bonusCompetenza: "",
   abilitaClasse: [],
   tiriSalvezza: {},
@@ -291,9 +291,9 @@ const initialData = {
           {tab === "Statistiche" && (
             <div className="tab-statistiche">
               <h4>Punteggi Caratteristica</h4>
-              {png.bonusRaziali && (
+              {png.bonusRazziali && (
                 <div className="bonus-raziali">
-                  <strong>Bonus Razziali:</strong> {png.bonusRaziali}
+                  <strong>Bonus Razziali:</strong> {png.bonusRazziali}
                 </div>
               )}
 

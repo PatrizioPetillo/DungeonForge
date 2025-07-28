@@ -153,7 +153,7 @@ razzaData.ability_bonuses.forEach((bonus) => {
 });
 
   // 6. Bonus razziali
-  png.bonusRaziali = razzaData.ability_bonuses.map(b => `${b.ability_score}: +${b.bonus}`).join(", ") || "Nessuno";
+  png.bonusRazziali = razzaData.ability_bonuses.map(b => `${b.ability_score}: +${b.bonus}`).join(", ") || "Nessuno";
 
   // 7. Competenze e abilità a scelta
   png.privilegiClasse = classeData.proficiencies;
@@ -266,8 +266,9 @@ const classiHalfCaster = ["paladin", "ranger"];
   if (spellData) {
     // Cantrips
     const maxCantrips = Math.min(3 + Math.floor(png.livello / 4), spellData.cantrips?.length || 0);
-    png.incantesimi.push(
-      ...spellData.cantrips.slice(0, maxCantrips).map(sp => ({
+    png.incantesimi = [
+  ...png.incantesimi,
+  ...spellData.cantrips.slice(0, maxCantrips).map(sp => ({
         nome: sp.name,
         livello: sp.level,
         scuola: sp.school,
@@ -276,7 +277,7 @@ const classiHalfCaster = ["paladin", "ranger"];
         durata: sp.duration,
         descrizione: sp.desc
       }))
-    );
+    ];
 
 
     // Incantesimi per livello
@@ -284,8 +285,9 @@ const classiHalfCaster = ["paladin", "ranger"];
       const key = `level${lvl}`;
       if (spellData[key]) {
         const numSpells = Math.min(2, spellData[key].length);
-        png.incantesimi.push(
-          ...spellData[key].slice(0, numSpells).map(sp => ({
+        png.incantesimi = [
+  ...png.incantesimi,
+  ...spellData.cantrips.slice(0, maxCantrips).map(sp => ({
             nome: sp.name,
             livello: sp.level,
             scuola: sp.school,
@@ -294,7 +296,7 @@ const classiHalfCaster = ["paladin", "ranger"];
             durata: sp.duration,
             descrizione: sp.desc
           }))
-        );
+         ];
       }
     }
   }

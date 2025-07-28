@@ -274,9 +274,9 @@ useEffect(() => {
           {tab === "Statistiche" && (
             <div className="tab-statistiche">
               <h4>Punteggi Caratteristica</h4>
-              {villain.bonusRaziali && (
+              {villain.bonusRazziali && (
                 <div className="bonus-raziali">
-                  <strong>Bonus Razziali:</strong> {villain.bonusRaziali}
+                  <strong>Bonus Razziali:</strong> {villain.bonusRazziali}
                 </div>
               )}
               <div className="saving-throw">
@@ -713,9 +713,18 @@ useEffect(() => {
           gittata: "—",
           descrizione: "Descrizione breve"
         };
-        const newLivelli = [...villain.incantesimi.livelli];
+        const newLivelli = villain.incantesimi.livelli.map(livello => ({
+          ...livello,
+          lista: [...(livello.lista || [])]
+        }));
         newLivelli[idx].lista.push(nuovoInc);
-        setvillain({ ...villain, incantesimi: { ...villain.incantesimi, livelli: newLivelli } });
+        setvillain({
+          ...villain,
+          incantesimi: {
+            ...villain.incantesimi,
+            livelli: newLivelli
+          }
+        });
       }}
     >
       + Aggiungi Incantesimo

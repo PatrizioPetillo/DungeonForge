@@ -11,7 +11,7 @@ createRoot(document.getElementById('root')).render(
     </DMProvider>
   </StrictMode>,
 )
-if ("serviceWorker" in navigator) {
+ if ("serviceWorker" in navigator) {
   navigator.serviceWorker
     .register("/service-worker.js")
     .then(() => console.log("Service Worker registrato"))
