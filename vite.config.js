@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   build: {
     sourcemap: true,
-
+manifest: true,
     rollupOptions: {
       external: ['uuid']
     }

@@ -1,4 +1,4 @@
-const CACHE_NAME = "dungeonforge-cache-v3";
+const CACHE_NAME = "dungeonforge-cache-v2";
 const STATIC_ASSETS = [
   "/",
   "/index.html",
@@ -19,13 +19,16 @@ self.addEventListener("install", (event) => {
 });
 
 // ✅ Activate: elimina vecchie cache e prendi il controllo
-self.addEventListener("activate", (event) => {
+self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
-    )
+    caches.keys().then(keys => {
+      return Promise.all(keys.map(key => {
+        if (key !== CACHE_NAME) {
+          return caches.delete(key);
+        }
+      }));
+    })
   );
-  self.clients.claim(); // Controlla subito le schede aperte
 });
 
 // ✅ Fetch: network first, fallback cache, aggiorna in background
