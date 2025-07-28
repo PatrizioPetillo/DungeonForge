@@ -103,14 +103,14 @@ const generaOggettiMagici = (livello) => {
   const lista = [];
   const pool = livello >= 13 ? [...oggettiMagici.moltoRaro, ...oggettiMagici.leggendario] :
                livello >= 9 ? [...oggettiMagici.nonComune, ...oggettiMagici.raro] :
-[oggettiMagici.comune];
+               [...oggettiMagici.comune];
   const num = livello >= 15 ? 3 : 1 + Math.floor(Math.random() * 2);
   for (let i = 0; i < num; i++) {
     lista.push(pool[Math.floor(Math.random() * pool.length)]);
   }
   return lista;
 };
-  
+
 export function generaVillain(opzioni = {}) {
   const villain = {};
   villain.armamento = {
