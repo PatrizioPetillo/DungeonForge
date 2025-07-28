@@ -3,7 +3,7 @@ import { deleteDoc, doc, getDoc, collection, getDocs, setDoc, } from "firebase/f
 import { firestore } from "../../firebase/firebaseConfig";
 import "../../styles/modaleDettaglioArchivio.css";
 
-export default function ModaleDettaglioArchivio({ id, tipo, collegamentoInfo, onClose, onCollega, onEdit }) {
+export default function ModaleDettaglioArchivio({ id, tipo, collegamentoInfo, onClose, onCollega, onEdit, onElimina }) {
   const [dettaglio, setDettaglio] = useState(null);
   const [campagne, setCampagne] = useState([]);
   const [capitoli, setCapitoli] = useState([]);
@@ -61,12 +61,14 @@ export default function ModaleDettaglioArchivio({ id, tipo, collegamentoInfo, on
 };
 
   const handleElimina = async () => {
-    if (window.confirm("Sei sicuro di voler eliminare questo elemento dall'Archivio?")) {
-      await deleteDoc(doc(firestore, tipo, id));
-      alert("Elemento eliminato dall'Archivio!");
-      onClose();
-    }
-  };
+  if (window.confirm("Sei sicuro di voler eliminare questo elemento dall'Archivio?")) {
+    await deleteDoc(doc(firestore, tipo, id));
+    alert("Elemento eliminato dall'Archivio!");
+    if (onElimina) onElimina(id); // 🔥 notifica al componente padre
+    onClose();
+  }
+};
+
 
   const handleCollega = () => {
     if (onCollega) {

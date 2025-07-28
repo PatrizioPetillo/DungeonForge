@@ -82,6 +82,13 @@
   border-radius: 4px;
 }
 
+.sfocata {
+  filter: blur(2px);
+  opacity: 0.4;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
 @media (max-width: 1024px) {
   .card-grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));

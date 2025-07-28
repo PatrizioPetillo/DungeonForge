@@ -82,8 +82,8 @@ export const razzeItaliane = {
 // GENERA NOME
 // ==============================
 export const generaNomeCasuale = () => {
-  const prefissi = ["Ar", "Bel", "Dor", "Fen", "Gor", "Lil", "Mor", "Ser", "Zan", "Val", "Xan", "Kyr", "Tyr", "Vyn", "Zyr"];
-  const suffissi = ["ath", "ion", "mir", "dor", "vek", "nys", "var", "oth", "lyn", "ryn", "syr", "tar", "zar", "xan", "wyn", "ryn"];
+  const prefissi = ["Ar", "Bel", "Dor", "Fen", "Gor", "Lil", "Mor", "Kan", "Ser", "Zan", "Val", "Xan", "Kyr", "Tyr", "Vyn", "Zyr", "Lyn", "Ryn", "Syl", "Thal", "Ael", "Cael", "Ery", "Ith", "Nim"];
+  const suffissi = ["ath", "ion", "mir", "dor", "vek", "nys", "var", "oth", "lyn", "ryn", "syr", "tar", "zar", "xan", "wyn", "ryn", "lyn", "ryn", "ryn"];
   return (
     prefissi[Math.floor(Math.random() * prefissi.length)] +
     suffissi[Math.floor(Math.random() * suffissi.length)]
@@ -91,27 +91,27 @@ export const generaNomeCasuale = () => {
 };
 
 export const generaCognomeCasuale = () => {
-  const parti = ["Black", "Stone", "Iron", "Shadow", "Storm", "Bright", "Dark", "Swift", "Frost", "Fire", "Wind", "Earth", "Sky", "Moon", "Star"];
-  const parti2 = ["blade", "fang", "heart", "song", "claw", "fire", "shadow", "storm", "wind", "stone", "light", "night", "dawn", "dusk", "flame"];
+  const parti = ["Black", "Stone", "Iron", "Shadow", "Storm", "Bright", "Dark", "Swift", "Frost", "Fire", "Wind", "Earth", "Sky", "Moon", "Star", "Sun", "Night", "Dawn", "Dusk", "Flame", "Spark", "Wave", "Thorn", "Branch", "Leaf"];
+  const parti2 = ["blade", "fang", "heart", "song", "claw", "fire", "shadow", "storm", "wind", "stone", "light", "night", "dawn", "dusk", "flame", "spark", "wave", "thorn", "branch", "leaf"];
   return parti[Math.floor(Math.random() * parti.length)] + parti2[Math.floor(Math.random() * parti2.length)];
 };
 
 const nomiPerRazza = {
   elf: {
-    prefissi: ["Ael", "Luth", "Fen", "Cael", "Ery", "Thal", "Syl", "Elan", "Ith", "Nim"],
-    suffissi: ["ion", "ar", "eth", "iel", "orn", "wen", "dil", "las", "thil", "riel"],
+    prefissi: ["Ael", "Luth", "Fen", "Cael", "Ery", "Thal", "Syl", "Elan", "Ith", "Nim", "Ari", "Lira", "Fey", "Cyr", "Elen", "Thal", "Sylv", "Elowen", "Ithil"],
+    suffissi: ["ion", "ar", "eth", "iel", "orn", "wen", "dil", "las", "thil", "riel", "wen", "dil", "las", "thil", "riel", "wenna", "dilwen", "lasiel", "thilorn"],
   },
   dwarf: {
-    prefissi: ["Brom", "Thar", "Dur", "Grim", "Kor", "Grom", "Thol", "Bald", "Dwal", "Krag"],
-    suffissi: ["gar", "din", "mir", "rak", "run", "dor", "nar", "vik", "zul", "rak"],
+    prefissi: ["Brom", "Thar", "Dur", "Grim", "Kor", "Grom", "Thol", "Bald", "Dwal", "Krag", "Ragn", "Thur", "Gald", "Baldur", "Dwalin", "Kragar", "Ragnar"],
+    suffissi: ["gar", "din", "mir", "rak", "run", "dor", "nar", "vik", "zul", "rak", "dor", "nar", "vik", "zul", "rak", "dor", "nar", "vik", "zul"],
   },
   human: {
-    prefissi: ["Ed", "Jon", "Mar", "Luc", "Rol", "Sam", "Tom", "Ben", "Max", "Leo"],
-    suffissi: ["ric", "ian", "as", "bert", "ardo", "aldo", "ino", "ero", "ano", "ito"],
+    prefissi: ["Ed", "Jon", "Mar", "Luc", "Rol", "Sam", "Tom", "Ben", "Max", "Leo", "Ana", "Eva", "Lia", "Mia", "Nia", "Ria", "Sia", "Tia", "Zia"],
+    suffissi: ["ric", "ian", "as", "bert", "ardo", "aldo", "ino", "ero", "ano", "ito", "ino", "ero", "ano", "ito", "ino", "ero", "ano", "ito"],
   },
   tiefling: {
     prefissi: ["Lilith", "Zariel", "Amdusias", "Baal", "Mephistopheles", "Asmodeus", "Belial", "Mammon", "Dispater", "Levistus"],
-    suffissi: ["th", "iel", "is", "as", "on"],
+    suffissi: ["th", "iel", "is", "as", "on", "ar", "eth", "or", "yn", "is", "as", "on", "ar", "eth", "or", "yn"],
   },
   gnome: {
     prefissi: ["Fiz", "Nim", "Zil", "Tink", "Bibb", "Gim", "Wizzle", "Pip", "Jin", "Tink"],
@@ -131,7 +131,7 @@ const nomiPerRazza = {
   },
   aasimar: {
     prefissi: ["Seraph", "Celest", "Lumin", "Astra", "Divin", "Radiant", "Halo", "Glor", "Virtu", "Elys"],
-    suffissi: ["iel", "on", "is", "as", "ar", "eth"],
+    suffissi: ["iel", "on", "is", "as", "ar", "eth", "or", "yn", "is", "as", "on", "ar", "eth", "or", "yn"],
   },
   halfling: {
     prefissi: ["Bil", "Frodo", "Pippin", "Meri", "Sam", "Tuck", "Lobelia", "Rosie", "Daisy", "Ruby"],
@@ -149,7 +149,7 @@ export function generaNomePerRazza(razza) {
   return generaNomeCasuale(); // fallback
 }
 export const listaMestieri = ["Locandiere", "Erborista", "Mercante", "Cacciatore", "Studioso", "Ladro", "Guida", "Artigiano", "Guardia cittadina", "Contadino", "Cultista", "Guardiano", "Cacciatore di taglie", "Artista", "Bardo", "Saggio", "Guaritore", "Cavaliere errante", "Esploratore", "Guardaboschi", "Cacciatore di reliquie", "Guardiano del tempio", "Custode della biblioteca", "Maestro di spada", "Alchimista", "Cartografo", "Costruttore di armi", "Mercenario", "Cavaliere errante"];
-export const listaRuoli = ["Alleato", "Traditore", "Guida", "Mentore", "Mercante", "Contatto", "Nemico", "Sfidante", "Sostenitore", "Testimone", "Vittima", "Spia", "Informatore"];
+export const listaRuoli = ["Alleato", "Traditore", "Guida", "Mentore", "Mercante", "Contatto", "Nemico", "Sfidante", "Sostenitore", "Testimone", "Vittima", "Spia", "Informatore", "Sfidante", "Protettore", "Rivale", "Confidente", "Avversario", "Compagno", "Sconosciuto", "Benefattore", "Antagonista"];
 
 export function completaPNGComune(png) {
    const razzaKey = png.razza || casuale(Object.keys(razzeItaliane));
@@ -166,22 +166,28 @@ export function completaPNGComune(png) {
     `Un ${razzaDescr.toLowerCase()} robusto con barba incolta e occhi scuri. Il suo viso è segnato da cicatrici, ma il suo sorriso è caloroso. Indossa abiti semplici e ha un'aria di saggezza. Ama raccontare storie di battaglie passate.`,
     `Una giovane ${razzaDescr.toLowerCase()} dai capelli castani e occhi verdi. Il suo viso è pulito e dall'aria gentile. Indossa abiti colorati e ha un sorriso contagioso. Ama aiutare gli altri e spesso si offre volontaria per le attività del villaggio.`,
     `Un ragazzo ${razzaDescr.toLowerCase()} con capelli ricci e occhi azzurri. Il suo viso è coperto di lentiggini e ha un sorriso malizioso. Indossa abiti logori e ha un'aria spensierata. Ama giocare con gli altri bambini e spesso si infila nei guai.`,
+    `Un ${razzaDescr.toLowerCase()} anziano con capelli bianchi e occhi azzurri. Il suo viso è segnato da rughe profonde, ma il suo sorriso è caloroso. Indossa abiti semplici e ha un'aria di saggezza. Ama raccontare storie ai bambini del villaggio.`,
+    `Un ${razzaDescr.toLowerCase()} giovane con capelli neri e occhi marroni. Il suo viso è pulito e dall'aria seria. Indossa abiti eleganti e ha un'aria di determinazione. Ama studiare e spesso si trova in biblioteca a leggere libri antichi.`,
+    `Un ${razzaDescr.toLowerCase()} robusto con barba incolta e occhi scuri. Il suo viso è segnato da cicatrici, ma il suo sorriso è caloroso. Indossa abiti semplici e ha un'aria di saggezza. Ama raccontare storie di battaglie passate.`,
+    `Una giovane ${razzaDescr.toLowerCase()} dai capelli biondi e occhi blu. Il suo viso è pulito e dall'aria spensierata. Indossa abiti eleganti e ha un sorriso contagioso. Ama ballare e spesso si esibisce in spettacoli per il villaggio.`,
+    `Un ${razzaDescr.toLowerCase()} anziano con capelli bianchi e occhi verdi. Il suo viso è segnato da rughe profonde, ma il suo sorriso è caloroso. Indossa abiti semplici e ha un'aria di saggezza. Ama raccontare storie ai bambini del villaggio.`,
+    `Un ${razzaDescr.toLowerCase()} giovane con capelli castani e occhi marroni. Il suo viso è pulito e dall'aria gentile. Indossa abiti colorati e ha un sorriso contagioso. Ama aiutare gli altri e spesso si offre volontaria per le attività del villaggio.`,
   ];
   const segni = [
-    "Cicatrice sull'occhio destro",
-    "Tatuaggio di un drago sul braccio sinistro",
-    "Orecchio tagliato",
-    "Braccio destro amputato",
-    "Dente mancante",
-    "Zoppia evidente",
-    "Ride nervosamente prima di parlare",
-    "Parla in modo confuso e disordinato",
-    "Tamburella con le dita quando è nervoso",
-    "Si gratta spesso la testa quando è in pensiero",
-    "Si morde le labbra quando è in ansia",
-    "Si tocca spesso il mento quando riflette",
+    "Cicatrice sull'occhio destro che copre con una benda",
+    "Tatuaggio di un drago sul braccio sinistro che si estende fino alla mano",
+    "Orecchio tagliato proprio alla punta, segno di una vecchia battaglia",
+    "Braccio destro amputato, altezza del gomito, sostituito da una protesi di legno che termina con un uncino",
+    "Dente mancante sul lato sinistro della bocca, che gli conferisce un'aria minacciosa",
+    "Zoppia evidente alla gamba destra, che lo costringe a camminare con un bastone",
+    "Ride nervosamente prima di parlare e si gratta spesso la testa",
+    "Parla in modo confuso e disordinato quando è sotto pressione",
+    "Tamburella con le dita quando sa qualcosa di importante",
+    "Si gratta spesso la testa quando è in pensiero o quando è preoccupato",
+    "Si morde le labbra quando è in ansia o quando è nervoso",
+    "Si tocca spesso il mento quando riflette, guardando in alto.",
   ];
-  const ruoli = ["Alleato", "Traditore", "Guida", "Mentore", "Mercante", "Contatto", "Nemico", "Sfidante", "Sostenitore", "Testimone", "Vittima"];
+  
 const origini = [
   "Nato e cresciuto in un piccolo villaggio sulle montagne, dove ha imparato a cacciare e a sopravvivere. Divenuto un cacciatore esperto, ora offre le sue abilità per aiutare gli altri.",
   "Ex soldato ora in cerca di redenzione. Ha combattuto in molte battaglie, ma ora cerca di usare le sue abilità per proteggere i più deboli.",
@@ -192,6 +198,7 @@ const origini = [
   "Un mercante che ha viaggiato per il mondo, accumulando ricchezze e conoscenze. Ora vive in un piccolo villaggio, dove offre i suoi beni e le sue conoscenze a chi ne ha bisogno.",
   "Un contadino che ha deciso di lasciare la sua vita semplice per cercare avventure. Ora usa le sue abilità per aiutare gli altri e per scoprire il mondo.",
   "Un ex artigiano che ha deciso di lasciare la sua bottega per cercare avventure. Ora usa le sue abilità per aiutare gli altri e per scoprire il mondo.",
+  "Un giovane esploratore che ha deciso di lasciare la sua casa per scoprire il mondo. Ora usa le sue abilità per aiutare gli altri e per scoprire nuove terre.",
 ];
 const collegamenti = [
   "Collegato alla Scena: L’imboscata nel bosco",
@@ -199,22 +206,22 @@ const collegamenti = [
 ];
 
   const equipPerMestiere = {
-  Locandiere: { indossa: "Grembiule sporco, camicia semplice", porta: "Chiave di cantina, bottiglia di vino" },
-  Erborista: { indossa: "Mantello di lana, cappuccio verde", porta: "Borsa con erbe, mortaio e pestello" },
-  Mercante: { indossa: "Tunica ricamata, cappello ampio", porta: "Borsa con monete, registro contabile" },
-  Cacciatore: { indossa: "Pelle di cervo, stivali fangosi", porta: "Trappole, coltello da caccia" },
-  Studioso: { indossa: "Abito di stoffa, occhiali spessi", porta: "Libro di appunti, calamaio" },
-  Ladro: { indossa: "Mantello scuro, cappuccio", porta: "Attrezzi da scasso, monete rubate" },
-  Guida: { indossa: "Giacca di pelle, cappello largo", porta: "Mappa consunta, borraccia" },
+  Locandiere: { indossa: "Grembiule sporco, camicia semplice, pantaloni logori", porta: "Chiave di cantina, bottiglia di vino, panno per pulire" },
+  Erborista: { indossa: "Mantello di lana, cappuccio verde", porta: "Borsa con erbe medicinali, mortaio e pestello" },
+  Mercante: { indossa: "Tunica ricamata, cappello ampio", porta: "Borsa con monete (15 mo), registro contabile" },
+  Cacciatore: { indossa: "Pelle di cervo, stivali fangosi, arco corto", porta: "Trappole, coltello da caccia" },
+  Studioso: { indossa: "Abito di stoffa, occhiali spessi, borsa di pelle", porta: "Pergamene con appunti, calamaio, piuma d'oca" },
+  Ladro: { indossa: "Mantello scuro, cappuccio, stivali di spessa stoffa", porta: "Attrezzi da scasso, monete false, pugnale" },
+  Guida: { indossa: "Giacca di pelle, cappello largo", porta: "Mappa consunta, borraccia, zaino da esploratore" },
   Artigiano: { indossa: "Grembiule di cuoio, guanti", porta: "Strumenti da lavoro, pezzi di legno" },
-  "Guardia cittadina": { indossa: "Uniforme, elmetto", porta: "Bastone, fischietto" },
-  Contadino: { indossa: "Tunica di lino, stivali di paglia", porta: "Forcone, cesto di verdure" },
-  Cultista: { indossa: "Cappuccio nero, tunica", porta: "Amuleto oscuro, libro di rituali" },
-  "Guardiano": { indossa: "Armatura a scaglie, scudo", porta: "Chiave del tempio, torcia" },
-  "Cacciatore di taglie": { indossa: "Giacca di pelle, stivali robusti", porta: "Bastone da combattimento, borsa con ricompense" },
-  "Artista": { indossa: "Abito colorato, berretto", porta: "Strumento musicale, blocco da disegno" },
-  Bardo: { indossa: "Abito elegante, mantello", porta: "Strumento musicale, pergamena di canzoni" },
-  Saggio: { indossa: "Tunica semplice, mantello", porta: "Bastone, libro di saggezza" },
+  "Guardia cittadina": { indossa: "Cotta di maglia, elmetto, stivali in pelle", porta: "Spada lunga, scudo, fischietto" },
+  Contadino: { indossa: "Tunica di lino, stivali di stoffa logora", porta: "Forcone, cesto di verdure" },
+  Cultista: { indossa: "Cappuccio nero, lunga tunica scura, cinta di corda", porta: "Amuleto oscuro, libro di rituali, pugnale sacrificale" },
+  "Guardiano": { indossa: "Armatura a scaglie, Spada lunga, scudo", porta: "Chiave del tempio, torcia, rosario" },
+  "Cacciatore di taglie": { indossa: "Giacca di pelle, stivali robusti", porta: "Balestra leggera, borsa con manifesti dei ricercati" },
+  "Artista": { indossa: "Abito colorato, berretto, pantaloni larghi", porta: "Blocco da disegno, disegni vari, carboncini" },
+  Bardo: { indossa: "Abito elegante, mantello, cappello con fesa", porta: "Piccola Arpa, spartiti vari" },
+  Saggio: { indossa: "Tunica semplice, mantello", porta: "Bastone, tomo rilegato" },
   Guaritore: { indossa: "Tunica bianca, mantello", porta: "Borsa con erbe curative, amuleto di guarigione" },
   "Cavaliere errante": { indossa: "Armatura completa, mantello", porta: "Spada corta, scudo" },
   "Esploratore": { indossa: "Giacca di pelle, stivali robusti", porta: "Mappa, bussola" },
@@ -227,6 +234,7 @@ const collegamenti = [
   Cartografo: { indossa: "Giacca di pelle, cappello", porta: "Mappa, bussola" },
   "Costruttore di armi": { indossa: "Grembiule di cuoio, guanti", porta: "Attrezzi da lavoro, pezzi di metallo" },
   Mercenario: { indossa: "Armatura di cuoio, mantello", porta: "Spada corta, borsa con monete" },
+
   };
   
   const equip = equipPerMestiere[mestiere] || { indossa: "Abiti semplici", porta: "Niente di particolare" };

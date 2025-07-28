@@ -33,16 +33,30 @@ self.addEventListener("activate", event => {
 });
 
 // ✅ Fetch: network first, fallback cache, aggiorna in background
-self.addEventListener("fetch", (event) => {
+self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+
+  if (
+    event.request.method !== 'GET' ||
+    url.origin !== location.origin // solo file locali, niente Google/Firebase
+  ) {
+    return; // ignora POST o richieste esterne
+  }
+
   event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        const resClone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, resClone);
+    caches.open(CACHE_NAME).then((cache) => {
+      return fetch(event.request)
+        .then((response) => {
+          if (response && response.status === 200 && response.type === "basic") {
+            cache.put(event.request, response.clone());
+          }
+          return response;
+        })
+        .catch(() => {
+          return cache.match(event.request);
         });
-        return response;
-      })
-      .catch(() => caches.match(event.request))
+    })
   );
 });
+
+

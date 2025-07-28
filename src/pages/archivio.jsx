@@ -23,6 +23,7 @@ const [showModalDettaglio, setShowModalDettaglio] = useState(false);
 const [selectedId, setSelectedId] = useState(null);
 const [selectedTipo, setSelectedTipo] = useState(null);
 const [modificaElemento, setModificaElemento] = useState(null);
+const [mostraDettagli, setMostraDettagli] = useState(false);
 
 const apriDettaglioArchivio = (id, tipo) => {
   setSelectedId(id);
@@ -151,12 +152,20 @@ const apriModaleCollegamento = (id, tipo) => {
       <ArchivioSezione titolo="Enigmi" dati={filtraDati(enigmi)} categoria="enigmi" collegamenti={collegamenti} onCardClick={(id) => apriDettaglioArchivio(id, "enigmi")} onCollegaClick={(id) => apriModaleCollegamento(id, "enigmi")} />
       <br />
       {showModalDettaglio && (
-  <ModaleDettaglioArchivio
-    id={selectedId}
-    tipo={selectedTipo}
-    onClose={() => setShowModalDettaglio(false)}
-  />
-)}
+        <ModaleDettaglioArchivio
+          id={selectedId}
+          tipo={selectedTipo}
+          onClose={() => setShowModalDettaglio(false)}
+          onElimina={(idEliminato) => {
+            if (selectedTipo === "png") setPng(p => p.filter(x => x.id !== idEliminato));
+            if (selectedTipo === "villain") setVillain(p => p.filter(x => x.id !== idEliminato));
+            if (selectedTipo === "mostri") setMostri(p => p.filter(x => x.id !== idEliminato));
+            if (selectedTipo === "luoghi") setLuoghi(p => p.filter(x => x.id !== idEliminato));
+            if (selectedTipo === "enigmi") setEnigmi(p => p.filter(x => x.id !== idEliminato));
+          }}
+        />
+      )}
+
 
 {showCollegamento && (
   <ModaleCollegamento

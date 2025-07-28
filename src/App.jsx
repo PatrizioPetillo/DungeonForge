@@ -35,7 +35,17 @@ function App() {
       <footer>
         <small>Versione: {packageJson.version}</small>
       </footer>
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer 
+  position="bottom-center" // 👈 più visibile
+  autoClose={3000}
+  hideProgressBar={false}
+  newestOnTop={true}
+  closeOnClick
+  rtl={false}
+  pauseOnFocusLoss
+  draggable
+  pauseOnHover
+/>
     </BrowserRouter>
   );
 }

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import Lottie from "lottie-react";
+import loadingAnim from "../../assets/lottie/Animation-Calderone.json";
 import { completaPNGComune } from "../../utils/generators";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import {
@@ -9,6 +11,7 @@ import {
 } from "../../utils/narrativeGenerators";
 import { toast } from "react-toastify";
 import ModaleCollegamento from "../modali/modaleCollegamento";
+import { collegaElementoACampagna } from "../../utils/campagneUtils";
 import "../../styles/modalePNG.css";
 
 export default function ModalePNGComune({ onClose }) {
@@ -19,6 +22,8 @@ export default function ModalePNGComune({ onClose }) {
 const [opzioniDialogo, setOpzioniDialogo] = useState([]);
 const [showCollegamento, setShowCollegamento] = useState(false);
 const [elementoId, setElementoId] = useState(null);
+const [isSaving, setIsSaving] = useState(false);
+
 
   const tabs = ["Generali", "Narrativa", "Equipaggiamento"];
 
@@ -30,6 +35,7 @@ const [elementoId, setElementoId] = useState(null);
   };
 
   const handleSalva = async () => {
+     setIsSaving(true);
   const data = { ...png, tipo: "comune" };
   const result = await salvaInArchivio("png", data);
 
@@ -37,9 +43,13 @@ const [elementoId, setElementoId] = useState(null);
     data.id = result.id; // 🔥 Aggiungi ID al PNG
     toast.success("✅ PNG salvato in Archivio!");
 
-    if (collegaAllaCampagna && onSave) {
+    if (collegaElementoACampagna && onSave) {
       onSave(data);
     }
+    setTimeout(() => {
+      setIsSaving(false);
+      onClose(); // chiude la modale
+    }, 1000);
   } else {
     toast.error("❌ Errore nel salvataggio!");
   }
@@ -75,6 +85,12 @@ const [elementoId, setElementoId] = useState(null);
         </div>
 
         {loading && <p>Generazione in corso...</p>}
+        {isSaving && (
+          <div className="saving-overlay">
+            <Lottie animationData={loadingAnim} style={{ height: 120 }} loop />
+            <p>Salvataggio in corso...</p>
+          </div>
+        )}
 
         <div className="tabs-comune">
           {tabs.map((t) => (
@@ -137,6 +153,8 @@ const [elementoId, setElementoId] = useState(null);
                     <option value="Cacciatore">Cacciatore di Taglie</option>
                     <option value="Cameriera">Cameriera</option>
                     <option value="Erborista">Erborista</option>
+                    <option value="Guardaboschi">Guardaboschi</option>
+                    <option value="Guaritore">Guaritore</option>
                     <option value="Guardia">Guardia Cittadina</option>
                     <option value="Locandiere">Locandiere</option>
                     <option value="Mercante">Mercante</option>
@@ -145,6 +163,33 @@ const [elementoId, setElementoId] = useState(null);
                     <option value="Sarto">Sarto</option>
                     <option value="Stalliere">Stalliere</option>
                     <option value="Vagabondo">Vagabondo</option>
+                    <option value="Veterinario">Veterinario</option>
+                    <option value="Viandante">Viandante</option>
+                    <option value="Studioso">Studioso</option>
+                    <option value="Ladro">Ladro</option>
+                    <option value="Guida">Guida</option>
+                    <option value="Artigiano">Artigiano</option>
+                    <option value="Guardia cittadina">Guardia cittadina</option>
+                    <option value="Contadino">Contadino</option>
+                    <option value="Cultista">Cultista</option>
+                    <option value="Guardiano">Guardiano</option>
+                    <option value="Cacciatore di taglie">Cacciatore di taglie</option>
+                    <option value="Artista">Artista</option>
+                    <option value="Bardo">Bardo</option>
+                    <option value="Saggio">Saggio</option>
+                    <option value="Guaritore">Guaritore</option>
+                    <option value="Cavaliere errante">Cavaliere errante</option>
+                    <option value="Esploratore">Esploratore</option>
+                    <option value="Guardaboschi">Guardaboschi</option>
+                    <option value="Cacciatore di reliquie">Cacciatore di reliquie</option>
+                    <option value="Guardiano del tempio">Guardiano del tempio</option>
+                    <option value="Custode della biblioteca">Custode della biblioteca</option>
+                    <option value="Maestro di spada">Maestro di spada</option>
+                    <option value="Alchimista">Alchimista</option>
+                    <option value="Cartografo">Cartografo</option>
+                    <option value="Costruttore di armi">Costruttore di armi</option>
+                    <option value="Mercenario">Mercenario</option>
+                    <option value="Cavaliere errante">Cavaliere errante</option>
                   </select>
                 </div>
               </div>
