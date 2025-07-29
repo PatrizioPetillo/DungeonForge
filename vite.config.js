@@ -6,9 +6,14 @@ export default defineConfig({
   plugins: [react()],
   build: {
     sourcemap: true,
-manifest: true,
+    manifest: true,
+    minify: true,
     rollupOptions: {
-      external: ['uuid']
+      onwarn(warning, warn) {
+      console.warn(warning); // stampa tutti i warning di Rollup
+    },
+      external: ['uuid'],
+      treeshake: false, // Disabilita il tree-shaking per evitare problemi con le dipendenze
     }
   }
 })

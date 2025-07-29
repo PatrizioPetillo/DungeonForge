@@ -2,7 +2,7 @@ import { getClasseData } from "./classeUtils";
 
 export const generateEquipment = async (classe, livello) => {
   const tipoClasse = classe.toLowerCase();
-  const equipment = [];
+  let equipment = [];
 
   // 1. Fetch proficienze classe via API
   let profs = [];
@@ -43,7 +43,7 @@ if (haCompetenzaArmatura) {
       const res = await fetch(`https://www.dnd5eapi.co/api/equipment-categories/${armorCat}`);
       const data = await res.json();
       const armatura = data.equipment[Math.floor(Math.random() * data.equipment.length)];
-      equipment.push({ nome: armatura.name, tipo: "armatura", fonte: "api" });
+      equipment = [...equipment, { nome: armatura.name, tipo: "armatura", fonte: "api" }];
     } catch (err) {
       console.error("Errore armatura:", err);
     }
@@ -59,9 +59,9 @@ if (haCompetenzaArmatura) {
     "Gemma parlante"
   ];
   const oggettoUtili = utilityItems.sort(() => 0.5 - Math.random()).slice(0, 1);
-  oggettoUtili.forEach((n) =>
-    equipment.push({ nome: n, tipo: "oggetto", fonte: "custom" })
-  );
+  oggettoUtili.forEach((n) =>{
+    equipment.push({ nome: n, tipo: "oggetto", fonte: "custom" });
+  });
 
   // 5. Oggetto magico se livello alto
   if (livello >= 10) {
@@ -69,7 +69,7 @@ if (haCompetenzaArmatura) {
       const res = await fetch(`https://www.dnd5eapi.co/api/magic-items`);
       const data = await res.json();
       const oggettoMagico = data.results[Math.floor(Math.random() * data.results.length)];
-      equipment.push({ nome: oggettoMagico.name, tipo: "magico", fonte: "api" });
+      equipment = [...equipment, { nome: oggettoMagico.name, tipo: "magico", fonte: "api" }];
     } catch (err) {
       console.error("Errore oggetto magico:", err);
     }
@@ -101,21 +101,21 @@ export const generaInventarioCasuale = (classe) => {
 
   // Aggiungi oggetti generici
   for (let i = 0; i < 2 + Math.floor(Math.random() * 3); i++) {
-    inventario.push(oggettiGenerali[Math.floor(Math.random() * oggettiGenerali.length)]);
+    inventario = [...inventario, oggettiGenerali[Math.floor(Math.random() * oggettiGenerali.length)]];
   }
 
   const classeKey = getClasseData(classe)?.index;
   const specifici = oggettiClasse[classeKey] || [];
   if (specifici.length) {
-    inventario.push(specifici[Math.floor(Math.random() * specifici.length)]);
+    inventario = [...inventario, specifici[Math.floor(Math.random() * specifici.length)]];
   }
 
   // Aggiungi oro e possibilità di oggetto magico
   const monete = (Math.floor(Math.random() * 10) + 1) * 10;
-  inventario.push(`${monete} monete d'oro`);
+  inventario = [...inventario, `${monete} monete d'oro`];
 
   if (Math.random() < 0.25) {
-    inventario.push("oggetto magico comune (da generare)");
+    inventario = [...inventario, "oggetto magico comune (da generare)"];
   }
 
   return inventario;

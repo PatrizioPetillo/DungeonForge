@@ -717,7 +717,8 @@ useEffect(() => {
           ...livello,
           lista: [...(livello.lista || [])]
         }));
-        newLivelli[idx].lista.push(nuovoInc);
+        const nuovaLista = [...(newLivelli[idx].lista || []), nuovoInc];
+        newLivelli[idx] = { ...newLivelli[idx], lista: nuovaLista };
         setvillain({
           ...villain,
           incantesimi: {
