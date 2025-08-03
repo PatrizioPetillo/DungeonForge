@@ -51,13 +51,13 @@ function AuthPage() {
   const location = useLocation();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user && location.pathname === '/login') {
-        navigate('/dashboard');
-      }
-    });
-    return () => unsubscribe();
-  }, [location, navigate]);
+  const unsubscribe = onAuthStateChanged(auth, (user) => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  });
+  return () => unsubscribe();
+}, [location, navigate]);
 
   const toggleMode = () => {
     setIsLogin(!isLogin);
@@ -65,21 +65,23 @@ function AuthPage() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      if (isLogin) {
-        await signInWithEmailAndPassword(auth, email, password);
-      } else {
-        const cred = await createUserWithEmailAndPassword(auth, email, password);
-        setNewUserId(cred.user.uid);
-        const codiceUnico = await generaCodiceArcanoUnico();
-        setProfilo((prev) => ({ ...prev, codiceArcano: codiceUnico }));
-        setShowProfileModal(true);
-      }
-    } catch (err) {
-      setError(err.message);
+  e.preventDefault();
+  console.log("Form inviato");
+  try {
+    if (isLogin) {
+      console.log("Tentativo di login...");
+      await signInWithEmailAndPassword(auth, email, password);
+      console.log("✅ Login riuscito!");
+    } else {
+      console.log("Tentativo di registrazione...");
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      console.log("✅ Registrazione riuscita!", cred);
     }
-  };
+  } catch (err) {
+    console.error("Errore login:", err.message);
+    setError(err.message);
+  }
+};
 
   useEffect(() => {
   const delayDebounce = setTimeout(() => {
@@ -108,7 +110,7 @@ function AuthPage() {
       setError("Errore salvataggio profilo: " + err.message);
     }
   };
-
+console.log("🧪 AuthPage montato");
   return (
     <AuthLayout>
       <form className="auth-form" onSubmit={handleSubmit}>

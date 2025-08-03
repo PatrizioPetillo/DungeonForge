@@ -1,245 +1,140 @@
-// src/pages/LiveSessionDM.jsx
-
-import React, {useState, useEffect} from "react";
-import { useParams } from "react-router-dom";
-import { doc, getDoc, getDocs, collection } from "firebase/firestore";
-import { firestore } from "../firebase/firebaseConfig";
-import SidebarSessione from "../components/liveSession/sidebarSession";
-import SceneViewer from "../components/liveSession/sceneViewer";
-import MostriAttivi from "../components/liveSession/mostriAttivi";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PNGAttivi from "../components/liveSession/pngAttivi";
-import LogSessione from "../components/liveSession/logSession";
+import VillainAttivi from "../components/liveSession/villainAttivi";
+import MostriAttivi from "../components/liveSession/mostriAttivi";
+import EnigmiAttivi from "../components/liveSession/enigmiAttivi";
+import SidebarSession from "../components/liveSession/sidebarSession";
+import StatoEntita from "../components/liveSession/statoEntita";
+import AttaccoRapido from "../components/liveSession/attaccoRapido";
 import ProveRapide from "../components/liveSession/proveRapide";
 import Combattimento from "../components/liveSession/combattimento";
-import AttaccoRapido from "../components/liveSession/attaccoRapido";
-import EnigmiAttivi from "../components/liveSession/enigmiAttivi";
-import VillainAttivi from "../components/liveSession/villainAttivi";
-import ModaleDettaglioFRD from "../components/modali/modaleFiveRoomDungeon";
 import LootSessione from "../components/liveSession/lootSessione";
+import LogSession from "../components/liveSession/logSession";
+import AttoViewer from "../components/attoViewer";
+import { fetchSessioneById } from "../utils/fetchSessioneById";
 import "../styles/liveSessionDM.css";
 
-const LiveSessionDM = () => {
-  const { id } = useParams();
-  const [campagna, setCampagna] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [eventiLog, setEventiLog] = useState([]);
-  const [scenaIndex, setScenaIndex] = useState(0);
-  const [mostraModaleAvventura, setMostraModaleAvventura] = useState(false);
-  const [mostraAttaccoLibero, setMostraAttaccoLibero] = useState(false);
-  const [ignoraIniziativa, setIgnoraIniziativa] = useState(false);
-  const [ignoraTurni, setIgnoraTurni] = useState(false);
-  const [sidebarVisibile, setSidebarVisibile] = useState(false);
-
-  // Recupera la scena attiva dal primo capitolo (per ora)
-  const scenaAttiva = campagna?.capitoli?.[0]?.scene?.[scenaIndex] || null;
-if (loading || !campagna) return <p>Caricamento sessione...</p>;
-
-const onLog = (descrizione) => {
-  setEventiLog((prev) => [
-    ...prev,
-    { descrizione, timestamp: new Date().toLocaleTimeString() }
-  ]);
-};
+export default function LiveSessionDM({ campagna }) {
+  const [attoCorrente, setAttoCorrente] = useState(0);
+  const idSessione = campagna?.id || null; // recuperato da useParams() in un contesto reale
+  const isOneShot = campagna?.tipo === "predefinita";
+  const navigate = useNavigate();
 
 
-  const nextScene = () => {
-    const scene = campagna.capitoli[0].scene;
-    setScenaIndex((prev) => Math.min(prev + 1, scene.length - 1));
+  const handleProssimoAtto = () => {
+    if (attoCorrente < campagna.atti.length - 1) {
+      setAttoCorrente(attoCorrente + 1);
+    }
   };
 
-  const prevScene = () => {
-    setScenaIndex((prev) => Math.max(prev - 1, 0));
-  };
-
-  const aggiungiEventoLog = (evento) => {
-    setEventiLog((prev) => [...prev, evento]);
+  const handleAttoPrecedente = () => {
+    if (attoCorrente > 0) {
+      setAttoCorrente(attoCorrente - 1);
+    }
   };
 
   useEffect(() => {
-    const fetchCampagna = async () => {
-      try {
-        const campagnaRef = doc(firestore, "campagne", id);
-        const campagnaSnap = await getDoc(campagnaRef);
-        const meta = campagnaSnap.data();
+    document.title = campagna?.titolo || "Sessione";
+    const caricaSessione = async () => {
+    const dati = await fetchSessioneById(idSessione); // ← recuperato da useParams()
+    if (dati) setCampagna(dati.campagna || dati);
+  };
+  caricaSessione();
 
-        const [villainSnap, pngSnap, mostriSnap, enigmiSnap] =
-          await Promise.all([
-            getDocs(collection(campagnaRef, "villain")),
-            getDocs(collection(campagnaRef, "png")),
-            getDocs(collection(campagnaRef, "mostri")),
-            getDocs(collection(campagnaRef, "enigmi")),
-          ]);
-
-        setCampagna({
-          ...meta,
-          villain: villainSnap.docs.map((d) => ({ id: d.id, ...d.data() })),
-          png: pngSnap.docs.map((d) => ({ id: d.id, ...d.data() })),
-          mostri: mostriSnap.docs.map((d) => ({ id: d.id, ...d.data() })),
-          enigmi: enigmiSnap.docs.map((d) => ({ id: d.id, ...d.data() })),
-        });
-        setLoading(false);
-      } catch (err) {
-        console.error("Errore nel caricamento:", err);
-      }
-    };
-
-    fetchCampagna();
-  }, [id]);
-
-  if (loading || !campagna) return <p>Caricamento sessione...</p>;
-  const mostriInScena = campagna.mostri?.filter(m => m.sceneId === scenaAttiva.id);
-  const pngInScena = campagna.png?.filter(p => p.sceneCollegate?.includes(scenaAttiva.id));
-  const villainInScena = campagna.villain?.filter(v => v.sceneCollegate?.includes(scenaAttiva.id));
-  const enigmiInScena = campagna.enigmi?.filter(e => e.sceneCollegate?.includes(scenaAttiva.id));
-
-  const assegnaLoot = (item, entitaOrigine) => {
-  const target = prompt("Inserisci nome PNG destinatario:");
-  if (!target) return;
-  onLog(` Assegnato "${item.nome}" (${item.rarita}) da ${entitaOrigine.nome} a ${target}`);
-};
-
+  }, [campagna]);
 
   return (
-    <div className="live-session">
-      <h1>Sessione DM - {campagna.nome}</h1>
-      <p className="descrizione-campagna">{campagna.descrizione}</p>
-      <hr className="divider" />
-      <button
-        className="hamburger"
-        onClick={() => setSidebarVisibile(!sidebarVisibile)}
-      >
-        ☰
-      </button>
-      <div className={`sidebar-session ${sidebarVisibile ? "visibile" : ""}`}>
-        <SidebarSessione campagna={campagna} />
-        {sidebarVisibile && (
-          <div className="overlay" onClick={() => setSidebarVisibile(false)} />
-        )}
-      </div>
-      <div className="main-session">
-        <button onClick={() => setMostraAttaccoLibero(true)}>
-          ⚔️ Attacco Libero
-        </button>
-        <hr />
-        {campagna.avventure && campagna.avventure.length > 0 && (
-  <>
-    <button
-      className="btn-avventura"
-      onClick={() => setMostraModaleAvventura(true)}
-    >
-      📖 Apri Avventura
-    </button>
+    <div className="sessione-container">
+      <SidebarSession campagna={campagna} />
+<button onClick={() => navigate("/dashboard")} className="torna-dashboard">
+  ⬅️ Torna alla Dashboard
+</button>
 
-    {mostraModaleAvventura && (
-      <ModaleDettaglioFRD
-        avventura={campagna.avventure[0]}
-        onClose={() => setMostraModaleAvventura(false)}
-        onSetScena={(stanza) => {
-          const index = campagna.capitoli[0].scene.findIndex(s => s.titolo === stanza.titolo);
-          if (index >= 0) {
-            setScenaIndex(index);
-            onLog(`✅ Scena attiva impostata su: ${stanza.titolo}`);
-          } else {
-            onLog(`⚠️ Scena non trovata: ${stanza.titolo}`);
-          }
-          setMostraModaleAvventura(false);
-        }}
-      />
-    )}
-  </>
-)}
+      <main className="sessione-main">
+        <h2>{campagna.titolo}</h2>
+        <p>
+          <em>{campagna.tagline}</em>
+        </p>
+        <p>
+          <strong>Ambientazione:</strong> {campagna.ambientazione}
+        </p>
 
-
-        <SceneViewer scena={scenaAttiva} />
-        <div className="nav-scene">
-          <button onClick={prevScene}>⬅️ Scena precedente</button>
-          <button onClick={nextScene}>➡️ Prossima scena</button>
-        </div>
-        <div className="widgets-row">
-          <VillainAttivi villain={villainInScena} />
-          <EnigmiAttivi enigmi={enigmiInScena} />
-          <MostriAttivi mostri={mostriInScena} />
-          <PNGAttivi png={pngInScena} />
-          <ProveRapide
-            scena={{ ...scenaAttiva, enigmi: enigmiInScena }}
-            png={[...pngInScena, ...villainInScena, ...mostriInScena]} // merge PNG + Villain + Mostri
-            onLog={onLog}
-          />
-          <Combattimento
-            png={pngInScena.filter((p) => p.tipo === "non_comune")}
-            villain={villainInScena}
-            mostri={mostriInScena}
-            onLog={onLog}
-            onUpdate={(ordine) => {
-              setEventiLog((prev) => [
-                ...prev,
-                {
-                  tipo: "combattimento",
-                  descrizione: "Ordine di iniziativa aggiornato",
-                },
-              ]);
-            }}
-          />
-          <LootSessione
-            campagnaId={id}
-            destinatari={[...pngInScena, ...villainInScena, ...mostriInScena]}
-            onLog={onLog}
-          />
-
-        </div>
-        <LogSessione eventi={eventiLog} />
-      </div>
-      {mostraAttaccoLibero && (
-        <div className="modale-attacco-libero">
-          <div className="modale-contenuto">
-            <h2>⚔️ Attacco Libero</h2>
-            <p className="descrizione-evocativa">
-              In un momento fuori dagli schemi, un personaggio decide di
-              colpire...
-            </p>
-
-            <div className="opzioni-speciali">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={ignoraIniziativa}
-                  onChange={(e) => setIgnoraIniziativa(e.target.checked)}
-                />
-                Ignora l’iniziativa (attacco improvviso)
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={ignoraTurni}
-                  onChange={(e) => setIgnoraTurni(e.target.checked)}
-                />
-                Attacco fuori dal proprio turno
-              </label>
+        {campagna.atti && (
+          <div className="atti-narrativi">
+            <h3>
+              📖 {campagna.tipo === "predefinita" ? "One-Shot" : "Campagna"} –
+              Atti Narrativi
+            </h3>
+            <div className="navigazione-atti">
+              <button
+                onClick={handleAttoPrecedente}
+                disabled={attoCorrente === 0}
+              >
+                ⬅️ Atto precedente
+              </button>
+              <span>
+                Atto {attoCorrente + 1} di {campagna.atti.length}
+              </span>
+              <button
+                onClick={handleProssimoAtto}
+                disabled={attoCorrente === campagna.atti.length - 1}
+              >
+                ➡️ Prossimo atto
+              </button>
             </div>
 
-            <AttaccoRapido
-              png={pngInScena}
-              villain={villainInScena}
-              mostri={mostriInScena}
-              onLog={onLog}
-              opzioni={{
-                ignoraIniziativa,
-                ignoraTurni,
-              }}
-            />
-
-            <button onClick={() => setMostraAttaccoLibero(false)}>
-              ❌ Chiudi
-            </button>
+            <div className="atto-box">
+              <h4>{campagna.atti[attoCorrente].titolo}</h4>
+              <p>
+                <strong>Obiettivo:</strong>{" "}
+                {campagna.atti[attoCorrente].obiettivo}
+              </p>
+              <ul>
+                {campagna.atti[attoCorrente].contenuto.map((c, i) => (
+                  <li key={i}>– {c}</li>
+                ))}
+              </ul>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <div className="footer-session">
-        <p>Sessione DM - Campagna: {campagna.nome}</p>
-      </div>
+        <VillainAttivi villain={[campagna.villain]} />
+        <PNGAttivi png={campagna.png} />
+        <MostriAttivi mostri={campagna.mostri} />
+        <EnigmiAttivi enigmi={campagna.enigmi} />
+        <StatoEntita
+          png={campagna.png}
+          villain={[campagna.villain]}
+          mostri={campagna.mostri}
+        />
+        <AttoViewer
+          atti={campagna.atti}
+          attoCorrente={attoCorrente}
+          setAttoCorrente={setAttoCorrente}
+          readonly={campagna.tipo === "predefinita"}
+        />
+
+        {/* Moduli interattivi visibili solo nelle campagne personalizzabili */}
+        {campagna.tipo !== "predefinita" && (
+          <>
+            <Combattimento
+              png={campagna.png}
+              villain={[campagna.villain]}
+              mostri={campagna.mostri}
+            />
+            <AttaccoRapido
+              png={campagna.png}
+              villain={[campagna.villain]}
+              mostri={campagna.mostri}
+            />
+            <ProveRapide png={campagna.png} />
+            <LootSessione campagnaId={campagna.id} />
+          </>
+        )}
+
+        <LogSession campagnaId={campagna.id} />
+      </main>
     </div>
   );
-};
-
-export default LiveSessionDM;
+}

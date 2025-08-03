@@ -1,0 +1,82 @@
+/* Sfondo semitrasparente */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: auto;
+  background-color: rgba(10, 10, 10, 0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Box modale */
+.modale-compendio {
+  background-color: #1a1f2b;
+  color: #f2f2f0;
+  padding: 2rem;
+  width: 90%;
+  max-width: 700px;
+  max-height: 85vh;
+  overflow-y: auto;
+  border-radius: 12px;
+  box-shadow: 0 0 20px #000;
+  position: relative;
+}
+
+/* Bottone chiudi */
+.modale-compendio .chiudi {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  color: #d4af37;
+  font-size: 1.2rem;
+  border: none;
+  cursor: pointer;
+}
+
+/* Card delle one-shot */
+.card-avventura {
+  background-color: #2c3142;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.card-avventura h3 {
+  margin: 0 0 0.5rem;
+}
+
+.card-avventura p {
+  margin: 0.3rem 0;
+}
+
+.bottoni {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+
+.bottoni button {
+  background-color: #6e4f9e;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.bottoni button:hover {
+  background-color: #8a6cc2;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .modale-compendio {
+    padding: 1rem;
+    max-width: 95%;
+  }
+}

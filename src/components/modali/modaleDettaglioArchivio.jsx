@@ -13,7 +13,6 @@ export default function ModaleDettaglioArchivio({ id, tipo, collegamentoInfo, on
   const [selectedScena, setSelectedScena] = useState("");
   const [showCollegaForm, setShowCollegaForm] = useState(false);
 
-
   useEffect(() => {
     const fetchDettaglio = async () => {
       const ref = doc(firestore, tipo, id);
@@ -69,7 +68,6 @@ export default function ModaleDettaglioArchivio({ id, tipo, collegamentoInfo, on
   }
 };
 
-
   const handleCollega = () => {
     if (onCollega) {
       onCollega(dettaglio);
@@ -100,9 +98,11 @@ export default function ModaleDettaglioArchivio({ id, tipo, collegamentoInfo, on
 
           {/* Dettagli principali */}
           <div className="details-container">
-            <p><strong>Tipo:</strong> {tipo}</p>
+            
             {dettaglio.classe && <p><strong>Classe:</strong> {dettaglio.classe}</p>}
             {dettaglio.razza && <p><strong>Razza:</strong> {dettaglio.razza}</p>}
+            {dettaglio.mestiere && <p><strong>Mestiere:</strong> {dettaglio.mestiere}</p>}
+            {dettaglio.descrizione && <p><strong>Descrizione:</strong> {dettaglio.descrizione}</p>}
             {dettaglio.livello && <p><strong>Livello:</strong> {dettaglio.livello}</p>}
             {dettaglio.allineamento && <p><strong>Allineamento:</strong> {dettaglio.allineamento}</p>}
 

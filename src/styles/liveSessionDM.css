@@ -45,6 +45,16 @@
   z-index: 1000;
 }
 
+.torna-dashboard {
+  margin: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #6e4f9e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
 .modale-contenuto {
   background: #1A1F2B;
   color: white;

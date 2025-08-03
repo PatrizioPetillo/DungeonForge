@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useRef } from "react";
+import Lottie from "lottie-react";
+import loadingAnim from "../../assets/lottie/Animation-Calderone.json";
 import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import { generaPNGNonComuneCompleto } from "../../utils/generatorePNGNonComune";
 import { armi } from "../../utils/armi";
@@ -7,9 +10,9 @@ import {
   generaHookPNG,
   generaDialogoPNG,
   genera3HookPNG,
-  genera3DialoghiPNG
+  genera3DialoghiPNG,
 } from "../../utils/narrativeGenerators";
-import { toast } from "react-toastify";
+import { collegaElementoACampagna } from "../../utils/campagneUtils";
 import ModaleCollegamento from "../modali/modaleCollegamento";
 import "../../styles/modalePNG.css";
 
@@ -18,12 +21,22 @@ const abilitaPerStat = {
   destrezza: ["Acrobazia", "Furtività", "Rapidità di mano"],
   costituzione: [],
   intelligenza: ["Arcano", "Indagare", "Storia", "Natura", "Religione"],
-  saggezza: ["Percezione", "Intuizione", "Medicina", "Sopravvivenza", "Addestrare Animali"],
-  carisma: ["Persuasione", "Inganno", "Intrattenere", "Intimidire"]
+  saggezza: [
+    "Percezione",
+    "Intuizione",
+    "Medicina",
+    "Sopravvivenza",
+    "Addestrare Animali",
+  ],
+  carisma: ["Persuasione", "Inganno", "Intrattenere", "Intimidire"],
 };
 
-export default function ModalePNGNonComune({ onClose }) {
+export default function ModalePNGNonComune({ onClose, onSave }) {
   const [png, setPng] = useState({});
+  const [immagine, setImmagine] = useState("");
+  const [collegamenti, setCollegamenti] = useState({});
+  const [collegaElementoACampagna, setCollegaElementoACampagna] = useState(false);
+  const [modificaElemento, setModificaElemento] = useState(null);
   const [pngNonComune, setPNGNonComune] = useState({
     nome: "",
     descrizione: "",
@@ -34,20 +47,26 @@ export default function ModalePNGNonComune({ onClose }) {
       costituzione: 0,
       intelligenza: 0,
       saggezza: 0,
-      carisma: 0
+      carisma: 0,
     },
     abilita: [],
-    incantesimi: []
+    incantesimi: [],
+    razza: "",
+    classe: "",
+    livello: [],
+    linguaggi: [],
   });
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState("Generali");
   const [spellSuggeriti, setSpellSuggeriti] = useState([]);
   const [opzioniHook, setOpzioniHook] = useState([]);
-const [opzioniDialogo, setOpzioniDialogo] = useState([]);
-const [showCollegamento, setShowCollegamento] = useState(false);
-const [elementoId, setElementoId] = useState(null);
-const [modalePNGNonComuneAperta, setModalePNGNonComuneAperta] = useState(false);
-
+  const [opzioniDialogo, setOpzioniDialogo] = useState([]);
+  const [showCollegamento, setShowCollegamento] = useState(false);
+  const [elementoId, setElementoId] = useState(null);
+  const [modalePNGNonComuneAperta, setModalePNGNonComuneAperta] =
+    useState(false);
+  const [loadingAnim, setLoadingAnim] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const tabs = [
     "Generali",
@@ -56,79 +75,81 @@ const [modalePNGNonComuneAperta, setModalePNGNonComuneAperta] = useState(false);
     "Combattimento",
     ...(png.magia ? ["Magia"] : []),
     "Equipaggiamento",
-    "Narrativa"
+    "Narrativa",
   ];
 
   // Funzione per filtrare gli incantesimi in base alla query
   const filtraIncantesimi = (query) => {
-  if (!query) {
-    setSpellSuggeriti([]);
-    return;
-  }
-  const classeKey = png.classe?.toLowerCase();
-  if (!classeKey || !spells[classeKey]) return;
+    if (!query) {
+      setSpellSuggeriti([]);
+      return;
+    }
+    const classeKey = png.classe?.toLowerCase();
+    if (!classeKey || !spells[classeKey]) return;
 
-  const listaIncantesimi = [
-    ...spells[classeKey].cantrips || [],
-    ...Object.values(spells[classeKey]).flat().filter(sp => sp.level > 0)
-  ];
+    const listaIncantesimi = [
+      ...(spells[classeKey].cantrips || []),
+      ...Object.values(spells[classeKey])
+        .flat()
+        .filter((sp) => sp.level > 0),
+    ];
 
-  const risultati = listaIncantesimi.filter(sp =>
-    sp.name.toLowerCase().includes(query.toLowerCase())
-  );
+    const risultati = listaIncantesimi.filter((sp) =>
+      sp.name.toLowerCase().includes(query.toLowerCase())
+    );
 
-  setSpellSuggeriti(risultati.slice(0, 6)); // max 6 suggerimenti
-};
+    setSpellSuggeriti(risultati.slice(0, 6)); // max 6 suggerimenti
+  };
 
   // Funzione per calcolare la CA dinamica
-const calcolaCA = (stats, armature) => {
-  let baseCA = 10 + Math.floor((stats.destrezza - 10) / 2);
-  armature.forEach(a => {
-    if (a.armor_category === "Shield") {
-      baseCA += a.armor_class.base;
-    } else {
-      baseCA = a.armor_class.base;
-      if (a.armor_class.dex_bonus) {
-        const modDex = Math.floor((stats.destrezza - 10) / 2);
-        baseCA += a.armor_class.max_bonus
-          ? Math.min(modDex, a.armor_class.max_bonus)
-          : modDex;
+  const calcolaCA = (stats, armature) => {
+    let baseCA = 10 + Math.floor((stats.destrezza - 10) / 2);
+    armature.forEach((a) => {
+      if (a.armor_category === "Shield") {
+        baseCA += a.armor_class.base;
+      } else {
+        baseCA = a.armor_class.base;
+        if (a.armor_class.dex_bonus) {
+          const modDex = Math.floor((stats.destrezza - 10) / 2);
+          baseCA += a.armor_class.max_bonus
+            ? Math.min(modDex, a.armor_class.max_bonus)
+            : modDex;
+        }
       }
-    }
-  });
-  return baseCA;
-};
-
-// Funzione per calcolare tiro per colpire e danno per un'arma
-const calcolaAttacco = (arma, stats, livello) => {
-  const modFor = Math.floor((stats.forza - 10) / 2);
-  const modDes = Math.floor((stats.destrezza - 10) / 2);
-  const profBonus = Math.ceil(livello / 4) + 2;
-
-  let modCaratteristica = modFor;
-  if (arma.properties.some(p => p.name === "Finesse") && modDes > modFor) {
-    modCaratteristica = modDes;
-  }
-  if (arma.weapon_range === "Ranged") {
-    modCaratteristica = modDes;
-  }
-
-  return {
-    bonusAttacco: modCaratteristica + profBonus,
-    danno: `${arma.damage.damage_dice} + ${modCaratteristica}`
+    });
+    return baseCA;
   };
-};
 
-const updateSpell = (index, field, value) => {
-  const updated = [...png.incantesimi];
-  updated[index][field] = value;
-  setPng({ ...png, incantesimi: updated });
-};
+  // Funzione per calcolare tiro per colpire e danno per un'arma
+  const calcolaAttacco = (arma, stats, livello) => {
+    const modFor = Math.floor((stats.forza - 10) / 2);
+    const modDes = Math.floor((stats.destrezza - 10) / 2);
+    const profBonus = Math.ceil(livello / 4) + 2;
 
-const removeSpell = (index) => {
-  const updated = png.incantesimi.filter((_, i) => i !== index);
-  setPng({ ...png, incantesimi: updated });
-};
+    let modCaratteristica = modFor;
+    if (arma.properties.some((p) => p.name === "Finesse") && modDes > modFor) {
+      modCaratteristica = modDes;
+    }
+    if (arma.weapon_range === "Ranged") {
+      modCaratteristica = modDes;
+    }
+
+    return {
+      bonusAttacco: modCaratteristica + profBonus,
+      danno: `${arma.damage.damage_dice} + ${modCaratteristica}`,
+    };
+  };
+
+  const updateSpell = (index, field, value) => {
+    const updated = [...png.incantesimi];
+    updated[index][field] = value;
+    setPng({ ...png, incantesimi: updated });
+  };
+
+  const removeSpell = (index) => {
+    const updated = png.incantesimi.filter((_, i) => i !== index);
+    setPng({ ...png, incantesimi: updated });
+  };
 
   const handleGenera = async () => {
     setLoading(true);
@@ -138,47 +159,98 @@ const removeSpell = (index) => {
   };
 
   const handleSalva = async () => {
-  const data = { ...png, tipo: "non-comune" };
-  const result = await salvaInArchivio("png", data);
+    const data = { ...png, tipo: "non-comune" };
+    const result = await salvaInArchivio("png", {
+      id: png.id,
+      immagine: png.immagine,
+      nome: png.nome,
+      razza: png.razza,
+      tipo: "Non Comune",
+      mestiere: png.mestiere,
+      descrizione: png.descrizione,
+      classe: png.classe,
+      livello: png.livello,
+      allineamento: png.allineamento,
+      velocita: png.velocita,
+      ca: calcolaCA(png.stats, armature),
+      pf: png.pf,
+      dadoVita: png.dadoVita,
+      bonusRazziali: png.bonusRazziali,
+      abilitaClasse: png.abilitaClasse,
+      tiriSalvezza: png.tiriSalvezza,
+      abilita: png.abilita,
+      armi: png.armi,
+      armature: png.armature,
+      incantesimi: png.incantesimi,
+      linguaggi: png.linguaggi,
+      narrativa: {
+        obiettivo: png.obiettivo,
+        motivazione: png.motivazione,
+        origine: png.origine,
+        hook: png.hook,
+        dialogo: png.dialogo,
+      },
+    });
 
-  if (result.success) {
-    data.id = result.id; // aggiungi ID Firestore
-    toast.success("✅ PNG Non Comune salvato in Archivio!");
+    if (result.success) {
+      data.id = result.id; // 🔥 Aggiungi ID al PNG
+      toast.success("✅ PNG Non Comune salvato in Archivio!");
 
-    if (collegaAllaCampagna && onSave) {
-      onSave(data);
+      if (collegaElementoACampagna && onSave) {
+        onSave(data);
+      }
+      setTimeout(() => {
+        setIsSaving(false);
+        onClose(); // chiude la modale
+      }, 1000);
+    } else {
+      toast.error("❌ Errore nel salvataggio!");
     }
-  } else {
-    toast.error("❌ Errore nel salvataggio!");
+  };
+
+  const imageInputRef = useRef(null);
+
+  const handleImageUploadClick = () => {
+  imageInputRef.current?.click();
+};
+
+const handleImageChange = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImmagine(reader.result);
+    };
+    reader.readAsDataURL(file);
   }
 };
 
+const ordineClassico = ["forza", "destrezza", "costituzione", "intelligenza", "saggezza", "carisma"];
 
-const initialData = {
-  nome: "",
-  cognome: "",
-  razza: "",
-  origine: "",
-  classe: "",
-  sottoclasse: "",
-  livello: "",
-  velocita: "",
-  pf: "",
-  ca: "",
-  dadoVita: "",
-  bonusRazziali: "",
-  bonusCompetenza: "",
-  abilitaClasse: [],
-  tiriSalvezza: {},
-  descrizione: "",
-  note: "",
-};
+  const initialData = {
+    nome: "",
+    cognome: "",
+    razza: "",
+    origine: "",
+    classe: "",
+    sottoclasse: "",
+    livello: "",
+    velocita: "",
+    pf: "",
+    ca: "",
+    dadoVita: "",
+    bonusRazziali: "",
+    bonusCompetenza: "",
+    abilitaClasse: [],
+    tiriSalvezza: {},
+    descrizione: "",
+    note: "",
+  };
   useEffect(() => {
-  if (pngNonComune) {
-    setPNGNonComune(pngNonComune); // o setPNG(...)
-  }
-}, [pngNonComune]);
-
+    if (pngNonComune) {
+      setPNGNonComune(pngNonComune); // o setPNG(...)
+    }
+  }, [pngNonComune]);
 
   return (
     <div className="modale-overlay">
@@ -187,18 +259,33 @@ const initialData = {
           <h3>Generatore PNG Non Comune</h3>
           <div className="actions">
             <button onClick={handleGenera}>🎲 Genera</button>
-            <button onClick={handleSalva} disabled={!png.nome}>💾 Salva</button>
-            {loading && <p className="loading-text">⏳ Salvataggio in corso...</p>}
+            <button onClick={handleSalva} disabled={!png.nome}>
+              💾 Salva
+            </button>
             <button onClick={onClose}>❌ Chiudi</button>
           </div>
         </div>
 
         {loading && <p>Generazione in corso...</p>}
+        {isSaving && (
+          <div className="saving-overlay">
+            <Lottie
+              animationData={loadingAnim}
+              style={{ height: 360, width: 360 }}
+              loop
+            />
+            <p>Salvataggio in corso...</p>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="tabs-noncomune">
           {tabs.map((t) => (
-            <button key={t} className={tab === t ? "active" : ""} onClick={() => setTab(t)}>
+            <button
+              key={t}
+              className={tab === t ? "active" : ""}
+              onClick={() => setTab(t)}
+            >
               {t}
             </button>
           ))}
@@ -208,87 +295,92 @@ const initialData = {
           {/* TAB GENERALI */}
           {tab === "Generali" && (
             <div className="info-section">
-              <div className="form-fields">
-                <div className="form-group">
-                  <label>Nome</label>
-                  <input
-                    type="text"
-                    value={png.nome || ""}
-                    onChange={(e) => setPng({ ...png, nome: e.target.value })}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Razza</label>
-                  <input type="text" value={png.razza || ""} readOnly />
-                </div>
-
-                <div className="form-group">
-                  <label>Classe</label>
-                  <input type="text" value={png.classe || ""} readOnly />
-                </div>
-
-                <div className="form-group">
-                  <label>Velocità</label>
-                  <input type="number" value={png.velocita || ""} readOnly />
-                </div>
-
-                <div className="form-group">
-                  <label>Livello</label>
-                  <input type="number" value={png.livello || ""} readOnly />
-                </div>
-
-                {/* Dettagli razza */}
-                {png.dettagliRazza && (
-                  <div className="background-info">
-                    <p><strong>Razza:</strong> {png.razza}</p>
-                    {png.linguaggi && png.linguaggi.length > 0 && (
+              <div className="png-header-layout">
+                <div className="png-header-info">
                   <div className="form-group">
-                    <label>Linguaggi</label>
-                    <input type="text" value={png.linguaggi.join(", ")} readOnly />
+                    <label>Nome</label>
+                    <input
+                      type="text"
+                      value={png.nome || ""}
+                      onChange={(e) => setPng({ ...png, nome: e.target.value })}
+                    />
                   </div>
-                )}
-                    <p><strong>Tratti:</strong> {png.dettagliRazza.traits.map(t => t.name).join(", ")}</p>
+                  <div className="form-group">
+                    <label>Razza</label>
+                    <input type="text" value={png.razza || ""} readOnly />
                   </div>
-                )}
-              </div>
 
-              <div className="image-section">
-                <label>Immagine PNG</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onloadend = () => setPng({ ...png, immagine: reader.result });
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                />
-                {png.immagine && <img src={png.immagine} alt="Anteprima PNG" />}
-              </div>
-              <hr />
-              {png.privilegiRazza && png.privilegiRazza.length > 0 && (
-  <div className="privilegi-razza">
-    <h5>Privilegi Razza</h5>
-    <ul>
-      {png.privilegiRazza.map((priv, i) => (
-        <li key={i} className="tooltip-container">
-          <span className="privilegio-nome">{priv.nome}</span>
-          {priv.descrizione && <span className="tooltip">{priv.descrizione}</span>}
-        </li>
-      ))}
-    </ul>
-  </div>
-)}
+                  
+                    <div className="form-group">
+                      <label>Classe</label>
+                      <input type="text" value={png.classe || ""} readOnly />
+                    </div>
+                    <div className="form-group">
+                      <label>Livello</label>
+                      <input type="number" value={png.livello || ""} readOnly />
+                    </div>
+                  
 
+                  <div className="form-group">
+                    <label>Velocità</label>
+                    <input type="number" value={png.velocita || ""} readOnly />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Allineamento</label>
+                    <input
+                      type="text"
+                      value={png.allineamento || ""}
+                      readOnly
+                    />
+                  </div>
+                </div>
+
+<div className="png-header-image-container">
+                <div
+                  className="png-header-image"
+                  onClick={handleImageUploadClick}
+                >
+                  {immagine ? (
+                    <img src={immagine} alt="PNG" />
+                  ) : (
+                    <div className="upload-placeholder">+</div>
+                  )}
+                  <input
+                    type="file"
+                    onChange={handleImageChange}
+                    hidden
+                    ref={imageInputRef}
+                  />
+                
+                </div>
+                <hr />
+                <div className="privilegi-razza">
+                {png.privilegiRazza && png.privilegiRazza.length > 0 && (
+                  <>
+                    <h4>Privilegi Razza</h4>
+                    <ul>
+                      {png.privilegiRazza.map((priv, i) => (
+                        <li key={i} className="tooltip-container">
+                        <span className="privilegio-nome">{priv.nome}</span>
+                        {priv.descrizione && (
+                          <span className="tooltip">{priv.descrizione}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                  </>
+              )}
+              </div>
+              </div>
+                
+              </div>
             </div>
           )}
 
           {/* TAB STATISTICHE */}
           {tab === "Statistiche" && (
+            
             <div className="tab-statistiche">
               <h4>Punteggi Caratteristica</h4>
               {png.bonusRazziali && (
@@ -298,10 +390,13 @@ const initialData = {
               )}
 
               <div className="stat-grid">
-                {Object.entries(png.stats || {}).map(([stat, val]) => {
+                {ordineClassico.map((stat) => {
+                  const val = png.stats[stat] || 0;
                   const mod = Math.floor((val - 10) / 2);
                   const isSavingThrow = png.savingThrowsClasse.includes(stat);
-                  const tiroSalvezza = isSavingThrow ? `+${png.tiriSalvezza[stat]}` : null;
+                  const tiroSalvezza = isSavingThrow
+                    ? `+${png.tiriSalvezza[stat]}`
+                    : null;
 
                   // Abilità collegate a questa caratteristica
                   const abilita = abilitaPerStat[stat] || [];
@@ -310,7 +405,9 @@ const initialData = {
                     <div key={stat} className="stat-box">
                       <h5>{stat.toUpperCase()}</h5>
                       <div className="stat-score">{val}</div>
-                      <div className="stat-mod">{mod >= 0 ? `+${mod}` : mod}</div>
+                      <div className="stat-mod">
+                        {mod >= 0 ? `+${mod}` : mod}
+                      </div>
                       {isSavingThrow && (
                         <div className="saving-throw">
                           <strong>Tiro Salvezza:</strong> {tiroSalvezza}
@@ -346,112 +443,134 @@ const initialData = {
 
           {/* TAB CLASSE */}
           {tab === "Classe" && (
-          <div className="tab-classe">
-            <h4>Dettagli Classe</h4>
+            <div className="tab-classe">
+              <h4>Dettagli Classe</h4>
 
-            {/* Sezione Classe e Sottoclasse */}
-            <div className="classe-info">
-              <div className="form-group">
-                <label>Classe</label>
-                <input
-                  type="text"
-                  value={png.classe || ""}
-                  onChange={(e) => setPng({ ...png, classe: e.target.value })}
-                />
+              {/* Sezione Classe e Sottoclasse */}
+              <div className="classe-info">
+                <div className="form-group">
+                  <label>Classe</label>
+                  <input
+                    type="text"
+                    value={png.classe || ""}
+                    onChange={(e) => setPng({ ...png, classe: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Sottoclasse o Archetipo</label>
+                  <input
+                    type="text"
+                    value={png.sottoclasse || ""}
+                    onChange={(e) =>
+                      setPng({ ...png, sottoclasse: e.target.value })
+                    }
+                  />
+                </div>
               </div>
-              <div className="form-group">
-                <label>Sottoclasse o Archetipo</label>
-                <input
-                  type="text"
-                  value={png.sottoclasse || ""}
-                  onChange={(e) => setPng({ ...png, sottoclasse: e.target.value })}
-                />
-              </div>
-            </div>
 
-            {/* PF e CA */}
-            <div className="pf-ca">
-              <div className="form-group">
-                <label>PF</label>
-                <input
-                  type="number"
-                  value={png.pf || ""}
-                  onChange={(e) => setPng({ ...png, pf: parseInt(e.target.value) })}
-                />
+              {/* PF e CA */}
+              <div className="pf-ca">
+                <div className="form-group">
+                  <label>PF</label>
+                  <input
+                    type="number"
+                    value={png.pf || ""}
+                    onChange={(e) =>
+                      setPng({ ...png, pf: parseInt(e.target.value) })
+                    }
+                  />
+                </div>
+                <div className="form-group">
+                  <label>CA</label>
+                  <input
+                    type="number"
+                    value={png.ca || ""}
+                    onChange={(e) =>
+                      setPng({ ...png, ca: parseInt(e.target.value) })
+                    }
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Bonus Competenza</label>
+                  <input
+                    type="text"
+                    value={`+${Math.ceil((png.livello || 1) / 4) + 2}`}
+                    readOnly
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Dado Vita</label>
+                  <input
+                    type="text"
+                    value={`d${png.dadoVita || ""}`}
+                    readOnly
+                  />
+                </div>
+                <div className="form-group">
+                  {png.linguaggi && png.linguaggi.length > 0 && (
+                    <div className="form-group">
+                      <label>Linguaggi</label>
+                      <input
+                        type="text"
+                        value={png.linguaggi.join(", ") || ""}
+                        readOnly
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="form-group">
-                <label>CA</label>
-                <input
-                  type="number"
-                  value={png.ca || ""}
-                  onChange={(e) => setPng({ ...png, ca: parseInt(e.target.value) })}
-                />
-              </div>
-              <div className="form-group">
-                <label>Bonus Competenza</label>
-                <input type="text" value={`+${Math.ceil((png.livello || 1) / 4) + 2}`} readOnly />
-              </div>
-              <div className="form-group">
-                <label>Dado Vita</label>
-                <input
-                  type="text"
-                  value={`d${png.dadoVita || ""}`}
-                  readOnly
-                />
-              </div>
-            </div>
 
-            {/* Competenze base */}
-            <div className="classe-section">
-              <h5>Competenze Base</h5>
-              <ul>
-                {png.privilegiClasse?.length > 0 ? (
-                  png.privilegiClasse.map((p, i) => <li key={i}>{p}</li>)
-                ) : (
-                  <li>Nessuna competenza definita</li>
-                )}
-              </ul>
-            </div>
-
-            {/* Abilità a scelta */}
-            <div className="classe-section">
-              <h5>Abilità della Classe</h5>
-              <div className="abilita-grid">
-                {png.competenzeScelte?.map((abilita, i) => (
-                  <label key={i} className="abilita-checkbox">
-                    <input
-                      type="checkbox"
-                      checked={png.abilitaClasse?.includes(abilita)}
-                      onChange={(e) => {
-                        const updated = e.target.checked
-                          ? [...png.abilitaClasse, abilita]
-                          : png.abilitaClasse.filter((a) => a !== abilita);
-                        setPng({ ...png, abilitaClasse: updated });
-                      }}
-                    />
-                    {abilita}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Privilegi di Classe */}
-            <div className="classe-section">
-              <h5>Privilegi di Classe (fino al livello {png.livello})</h5>
-              {png.privilegiDettagliati?.length > 0 ? (
-                <ul className="privilegi-list">
-                  {png.privilegiDettagliati.map((priv, i) => (
-                    <li key={i} className="tooltip-container">
-                      <span className="privilegio-nome">{priv.name}</span>
-                      <span className="tooltip">{priv.desc}</span>
-                    </li>
-                  ))}
+              {/* Competenze base */}
+              <div className="classe-section">
+                <h5>Competenze Base</h5>
+                <ul>
+                  {png.privilegiClasse?.length > 0 ? (
+                    png.privilegiClasse.map((p, i) => <li key={i}>{p}</li>)
+                  ) : (
+                    <li>Nessuna competenza definita</li>
+                  )}
                 </ul>
-              ) : (
-                <p>Nessun privilegio disponibile</p>
-              )}
+              </div>
+
+              {/* Abilità a scelta */}
+              <div className="classe-section">
+                <h5>Abilità della Classe</h5>
+                <div className="abilita-grid">
+                  {png.competenzeScelte?.map((abilita, i) => (
+                    <label key={i} className="abilita-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={png.abilitaClasse?.includes(abilita)}
+                        onChange={(e) => {
+                          const updated = e.target.checked
+                            ? [...png.abilitaClasse, abilita]
+                            : png.abilitaClasse.filter((a) => a !== abilita);
+                          setPng({ ...png, abilitaClasse: updated });
+                        }}
+                      />
+                      {abilita}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Privilegi di Classe */}
+              <div className="classe-section">
+                <h5>Privilegi di Classe (fino al livello {png.livello})</h5>
+                {png.privilegiDettagliati?.length > 0 ? (
+                  <ul className="privilegi-list">
+                    {png.privilegiDettagliati.map((priv, i) => (
+                      <li key={i} className="tooltip-container">
+                        <span className="privilegio-nome">{priv.name}</span>
+                        <span className="tooltip">{priv.desc}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>Nessun privilegio disponibile</p>
+                )}
+              </div>
             </div>
-          </div>
           )}
 
           {/* TAB MAGIA */}
@@ -463,7 +582,11 @@ const initialData = {
               <div className="magia-info-grid">
                 <div className="form-group">
                   <label>Stat Magica</label>
-                  <input type="text" value={png.magia.caratteristica} readOnly />
+                  <input
+                    type="text"
+                    value={png.magia.caratteristica}
+                    readOnly
+                  />
                 </div>
                 <div className="form-group">
                   <label>CD Incantesimi</label>
@@ -471,14 +594,23 @@ const initialData = {
                 </div>
                 <div className="form-group">
                   <label>Bonus Attacco</label>
-                  <input type="text" value={`+${png.magia.bonusAttacco}`} readOnly />
+                  <input
+                    type="text"
+                    value={`+${png.magia.bonusAttacco}`}
+                    readOnly
+                  />
                 </div>
                 <div className="form-group">
                   <label>Focus Arcano</label>
                   <input
                     type="text"
                     value={png.magia.focus || ""}
-                    onChange={(e) => setPng({ ...png, magia: { ...png.magia, focus: e.target.value } })}
+                    onChange={(e) =>
+                      setPng({
+                        ...png,
+                        magia: { ...png.magia, focus: e.target.value },
+                      })
+                    }
                   />
                 </div>
               </div>
@@ -505,22 +637,75 @@ const initialData = {
                     {png.incantesimi?.map((spell, i) => (
                       <tr key={i}>
                         <td className="tooltip-spell">
-                          <span title={spell.descrizione || "Nessuna descrizione"}>{spell.nome}</span>
+                          <span
+                            title={spell.descrizione || "Nessuna descrizione"}
+                          >
+                            {spell.nome}
+                          </span>
                         </td>
-                        <td><input type="number" value={spell.livello} onChange={(e) => updateSpell(i, "livello", e.target.value)} /></td>
-                        <td><input type="text" value={spell.scuola} onChange={(e) => updateSpell(i, "scuola", e.target.value)} /></td>
-                        <td><input type="text" value={spell.gittata} onChange={(e) => updateSpell(i, "gittata", e.target.value)} /></td>
-                        <td><input type="text" value={spell.componenti} onChange={(e) => updateSpell(i, "componenti", e.target.value)} /></td>
-                        <td><input type="text" value={spell.durata} onChange={(e) => updateSpell(i, "durata", e.target.value)} /></td>
                         <td>
-                          <textarea value={spell.descrizione} onChange={(e) => updateSpell(i, "descrizione", e.target.value)} />
+                          <input
+                            type="number"
+                            value={spell.livello}
+                            onChange={(e) =>
+                              updateSpell(i, "livello", e.target.value)
+                            }
+                          />
                         </td>
-                        <td><button onClick={() => removeSpell(i)}>❌</button></td>
+                        <td>
+                          <input
+                            type="text"
+                            value={spell.scuola}
+                            onChange={(e) =>
+                              updateSpell(i, "scuola", e.target.value)
+                            }
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            value={spell.gittata}
+                            onChange={(e) =>
+                              updateSpell(i, "gittata", e.target.value)
+                            }
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            value={spell.componenti}
+                            onChange={(e) =>
+                              updateSpell(i, "componenti", e.target.value)
+                            }
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            value={spell.durata}
+                            onChange={(e) =>
+                              updateSpell(i, "durata", e.target.value)
+                            }
+                          />
+                        </td>
+                        <td>
+                          <textarea
+                            value={spell.descrizione}
+                            onChange={(e) =>
+                              updateSpell(i, "descrizione", e.target.value)
+                            }
+                          />
+                        </td>
+                        <td>
+                          <button onClick={() => removeSpell(i)}>❌</button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              ) : <p>Nessuno slot disponibile</p>}
+              ) : (
+                <p>Nessuno slot disponibile</p>
+              )}
 
               <hr />
 
@@ -584,15 +769,23 @@ const initialData = {
                           />
                         </td>
                         <td>
-                          <button onClick={() => {
-                            const updated = png.incantesimi.filter((_, idx) => idx !== i);
-                            setPng({ ...png, incantesimi: updated });
-                          }}>❌</button>
+                          <button
+                            onClick={() => {
+                              const updated = png.incantesimi.filter(
+                                (_, idx) => idx !== i
+                              );
+                              setPng({ ...png, incantesimi: updated });
+                            }}
+                          >
+                            ❌
+                          </button>
                         </td>
                       </tr>
                     ))
                   ) : (
-                    <tr><td colSpan="5">Nessun incantesimo inserito</td></tr>
+                    <tr>
+                      <td colSpan="5">Nessun incantesimo inserito</td>
+                    </tr>
                   )}
                 </tbody>
               </table>
@@ -607,19 +800,25 @@ const initialData = {
                 {spellSuggeriti.length > 0 && (
                   <ul className="suggestions">
                     {spellSuggeriti.map((sp, idx) => (
-                      <li key={idx} onClick={() => {
-                        const nuovoInc = {
-                          nome: sp.name,
-                          livello: sp.level,
-                          scuola: sp.school,
-                          gittata: sp.range,
-                          componenti: sp.components,
-                          durata: sp.duration,
-                          descrizione: sp.desc
-                        };
-                        setPng({ ...png, incantesimi: [...(png.incantesimi || []), nuovoInc] });
-                        setSpellSuggeriti([]);
-                      }}>
+                      <li
+                        key={idx}
+                        onClick={() => {
+                          const nuovoInc = {
+                            nome: sp.name,
+                            livello: sp.level,
+                            scuola: sp.school,
+                            gittata: sp.range,
+                            componenti: sp.components,
+                            durata: sp.duration,
+                            descrizione: sp.desc,
+                          };
+                          setPng({
+                            ...png,
+                            incantesimi: [...(png.incantesimi || []), nuovoInc],
+                          });
+                          setSpellSuggeriti([]);
+                        }}
+                      >
                         {sp.name} (Liv. {sp.level})
                       </li>
                     ))}
@@ -627,26 +826,35 @@ const initialData = {
                 )}
               </div>
               <div className="quick-add">
-                {[0, 1, 2, 3].map(lv => (
-                  <button key={lv} onClick={() => {
-                    const classeKey = png.classe?.toLowerCase();
-                    if (!classeKey || !spells[classeKey]) return;
+                {[0, 1, 2, 3].map((lv) => (
+                  <button
+                    key={lv}
+                    onClick={() => {
+                      const classeKey = png.classe?.toLowerCase();
+                      if (!classeKey || !spells[classeKey]) return;
 
-                    const disponibili = lv === 0 ? spells[classeKey].cantrips : spells[classeKey][`level${lv}`];
-                    if (!disponibili || disponibili.length === 0) return;
+                      const disponibili =
+                        lv === 0
+                          ? spells[classeKey].cantrips
+                          : spells[classeKey][`level${lv}`];
+                      if (!disponibili || disponibili.length === 0) return;
 
-                    const scelto = casuale(disponibili);
-                    const nuovoInc = {
-                      nome: scelto.name,
-                      livello: scelto.level,
-                      scuola: scelto.school,
-                      gittata: scelto.range,
-                      componenti: scelto.components,
-                      durata: scelto.duration,
-                      descrizione: scelto.desc
-                    };
-                    setPng({ ...png, incantesimi: [...(png.incantesimi || []), nuovoInc] });
-                  }}>
+                      const scelto = casuale(disponibili);
+                      const nuovoInc = {
+                        nome: scelto.name,
+                        livello: scelto.level,
+                        scuola: scelto.school,
+                        gittata: scelto.range,
+                        componenti: scelto.components,
+                        durata: scelto.duration,
+                        descrizione: scelto.desc,
+                      };
+                      setPng({
+                        ...png,
+                        incantesimi: [...(png.incantesimi || []), nuovoInc],
+                      });
+                    }}
+                  >
                     + Liv {lv === 0 ? "Trucchetto" : lv}
                   </button>
                 ))}
@@ -662,15 +870,24 @@ const initialData = {
                 {png.armiEquippate?.length > 0 ? (
                   png.armiEquippate.map((arma, i) => (
                     <li key={i} className="equip-item">
-                      <strong>{arma.name}</strong> – {arma.damage.damage_dice} {arma.damage.damage_type.name}
+                      <strong>{arma.name}</strong> – {arma.damage.damage_dice}{" "}
+                      {arma.damage.damage_type.name}
                       <br />
                       <small>
-                        Proprietà: {arma.properties.map(p => p.name).join(", ")} • Peso: {arma.weight || 0} lb
+                        Proprietà:{" "}
+                        {arma.properties.map((p) => p.name).join(", ")} • Peso:{" "}
+                        {arma.weight || 0} lb
                       </small>
-                      <button onClick={() => {
-                        const updated = png.armiEquippate.filter((_, idx) => idx !== i);
-                        setPng({ ...png, armiEquippate: updated });
-                      }}>❌</button>
+                      <button
+                        onClick={() => {
+                          const updated = png.armiEquippate.filter(
+                            (_, idx) => idx !== i
+                          );
+                          setPng({ ...png, armiEquippate: updated });
+                        }}
+                      >
+                        ❌
+                      </button>
                     </li>
                   ))
                 ) : (
@@ -680,16 +897,26 @@ const initialData = {
 
               <select
                 onChange={(e) => {
-                  const armaSelezionata = armi.find(a => a.index === e.target.value);
+                  const armaSelezionata = armi.find(
+                    (a) => a.index === e.target.value
+                  );
                   if (armaSelezionata) {
-                    setPng({ ...png, armiEquippate: [...(png.armiEquippate || []), armaSelezionata] });
+                    setPng({
+                      ...png,
+                      armiEquippate: [
+                        ...(png.armiEquippate || []),
+                        armaSelezionata,
+                      ],
+                    });
                   }
                   e.target.value = "";
                 }}
               >
                 <option value="">+ Aggiungi arma</option>
                 {armi.map((a) => (
-                  <option key={a.index} value={a.index}>{a.name}</option>
+                  <option key={a.index} value={a.index}>
+                    {a.name}
+                  </option>
                 ))}
               </select>
 
@@ -699,15 +926,23 @@ const initialData = {
                 {png.armatureIndossate?.length > 0 ? (
                   png.armatureIndossate.map((armor, i) => (
                     <li key={i} className="equip-item">
-                      <strong>{armor.name}</strong> – CA base: {armor.armor_class.base}
+                      <strong>{armor.name}</strong> – CA base:{" "}
+                      {armor.armor_class.base}
                       <br />
                       <small>
-                        Tipo: {armor.armor_category} • Peso: {armor.weight || 0} lb
+                        Tipo: {armor.armor_category} • Peso: {armor.weight || 0}{" "}
+                        lb
                       </small>
-                      <button onClick={() => {
-                        const updated = png.armatureIndossate.filter((_, idx) => idx !== i);
-                        setPng({ ...png, armatureIndossate: updated });
-                      }}>❌</button>
+                      <button
+                        onClick={() => {
+                          const updated = png.armatureIndossate.filter(
+                            (_, idx) => idx !== i
+                          );
+                          setPng({ ...png, armatureIndossate: updated });
+                        }}
+                      >
+                        ❌
+                      </button>
                     </li>
                   ))
                 ) : (
@@ -717,14 +952,19 @@ const initialData = {
 
               <select
                 onChange={(e) => {
-                  const armorSelezionata = armature.find(a => a.index === e.target.value);
+                  const armorSelezionata = armature.find(
+                    (a) => a.index === e.target.value
+                  );
                   if (armorSelezionata) {
-                    const updated = [...(png.armatureIndossate || []), armorSelezionata];
+                    const updated = [
+                      ...(png.armatureIndossate || []),
+                      armorSelezionata,
+                    ];
 
                     // Ricalcolo CA dinamicamente
                     const modDex = Math.floor((png.stats.destrezza - 10) / 2);
                     let nuovaCA = 10 + modDex;
-                    updated.forEach(a => {
+                    updated.forEach((a) => {
                       if (a.armor_category === "Shield") {
                         nuovaCA += a.armor_class.base;
                       } else {
@@ -744,7 +984,9 @@ const initialData = {
               >
                 <option value="">+ Aggiungi armatura</option>
                 {armature.map((a) => (
-                  <option key={a.index} value={a.index}>{a.name}</option>
+                  <option key={a.index} value={a.index}>
+                    {a.name}
+                  </option>
                 ))}
               </select>
 
@@ -758,10 +1000,16 @@ const initialData = {
                   png.equipVari.map((obj, i) => (
                     <li key={i} className="equip-item">
                       {obj}
-                      <button onClick={() => {
-                        const updated = png.equipVari.filter((_, idx) => idx !== i);
-                        setPng({ ...png, equipVari: updated });
-                      }}>❌</button>
+                      <button
+                        onClick={() => {
+                          const updated = png.equipVari.filter(
+                            (_, idx) => idx !== i
+                          );
+                          setPng({ ...png, equipVari: updated });
+                        }}
+                      >
+                        ❌
+                      </button>
                     </li>
                   ))
                 ) : (
@@ -775,23 +1023,33 @@ const initialData = {
                   placeholder="Aggiungi oggetto"
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && e.target.value.trim() !== "") {
-                      setPng({ ...png, equipVari: [...(png.equipVari || []), e.target.value.trim()] });
+                      setPng({
+                        ...png,
+                        equipVari: [
+                          ...(png.equipVari || []),
+                          e.target.value.trim(),
+                        ],
+                      });
                       e.target.value = "";
                     }
                   }}
                 />
-                
               </div>
               <hr />
-                <h4>Focus Arcano</h4>
-                <div className="form-group">
-                  <input
-                    type="text"
-                    value={png.magia?.focus || ""}
-                    onChange={(e) => setPng({ ...png, magia: { ...png.magia, focus: e.target.value } })}
-                    placeholder="Inserisci o modifica il focus arcano"
-                  />
-                </div>
+              <h4>Focus Arcano</h4>
+              <div className="form-group">
+                <input
+                  type="text"
+                  value={png.magia?.focus || ""}
+                  onChange={(e) =>
+                    setPng({
+                      ...png,
+                      magia: { ...png.magia, focus: e.target.value },
+                    })
+                  }
+                  placeholder="Inserisci o modifica il focus arcano"
+                />
+              </div>
             </div>
           )}
 
@@ -805,26 +1063,39 @@ const initialData = {
                 <div className="form-group">
                   <label>PF Attuali</label>
                   <input
+                  className="combat-input"
                     type="number"
                     value={png.pf || 0}
-                    onChange={(e) => setPng({ ...png, pf: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      setPng({ ...png, pf: parseInt(e.target.value) })
+                    }
                   />
                 </div>
                 <div className="form-group">
                   <label>PF Massimi</label>
-                  <input type="number" value={png.pf || 0} readOnly />
+                  <input className="combat-input" type="number" value={png.pf || 0} readOnly />
                 </div>
                 <div className="form-group">
                   <label>Classe Armatura</label>
-                  <input type="number" value={png.ca || 10} readOnly />
+                  <input className="combat-input" type="number" value={png.ca || 10} readOnly />
                 </div>
                 <div className="form-group">
                   <label>Velocità</label>
-                  <input type="text" value={`${png.velocita || 9} m`} readOnly />
+                  <input
+                    className="combat-input"
+                    type="text"
+                    value={`${png.velocita || 9} m`}
+                    readOnly
+                  />
                 </div>
                 <div className="form-group">
                   <label>Bonus Competenza</label>
-                  <input type="text" value={`+${Math.ceil((png.livello || 1) / 4) + 2}`} readOnly />
+                  <input
+                    className="combat-input"
+                    type="text"
+                    value={`+${Math.ceil((png.livello || 1) / 4) + 2}`}
+                    readOnly
+                  />
                 </div>
               </div>
 
@@ -844,7 +1115,7 @@ const initialData = {
                 </thead>
                 <tbody>
                   {png.armiEquippate
-                    ?.filter(a => a.weapon_range === "Melee")
+                    ?.filter((a) => a.weapon_range === "Melee")
                     .map((arma, i) => {
                       const modFor = Math.floor((png.stats.forza - 10) / 2);
                       const modDes = Math.floor((png.stats.destrezza - 10) / 2);
@@ -852,7 +1123,7 @@ const initialData = {
 
                       let modCaratteristica = modFor;
                       if (
-                        arma.properties.some(p => p.name === "Finesse") &&
+                        arma.properties.some((p) => p.name === "Finesse") &&
                         modDes > modFor
                       ) {
                         modCaratteristica = modDes;
@@ -881,7 +1152,7 @@ const initialData = {
                             <small>{arma.damage.damage_type.name}</small>
                           </td>
                           <td>
-                            {arma.properties.map(p => (
+                            {arma.properties.map((p) => (
                               <span
                                 key={p.name}
                                 className="tooltip-prop"
@@ -894,7 +1165,9 @@ const initialData = {
                           <td>
                             <button
                               onClick={() => {
-                                const updated = png.armiEquippate.filter((_, idx) => idx !== i);
+                                const updated = png.armiEquippate.filter(
+                                  (_, idx) => idx !== i
+                                );
                                 setPng({ ...png, armiEquippate: updated });
                               }}
                             >
@@ -923,13 +1196,15 @@ const initialData = {
                 </thead>
                 <tbody>
                   {png.armiEquippate
-                    ?.filter(a => a.weapon_range === "Ranged")
+                    ?.filter((a) => a.weapon_range === "Ranged")
                     .map((arma, i) => {
                       const modDes = Math.floor((png.stats.destrezza - 10) / 2);
                       const profBonus = Math.ceil(png.livello / 4) + 2;
                       const bonusAttacco = modDes + profBonus;
                       const danno = `${arma.damage.damage_dice} + ${modDes}`;
-                      const gittata = arma.properties.find(p => p.name === "Lancio")?.desc || "—";
+                      const gittata =
+                        arma.properties.find((p) => p.name === "Lancio")
+                          ?.desc || "—";
 
                       return (
                         <tr key={i}>
@@ -951,7 +1226,7 @@ const initialData = {
                             <small>{arma.damage.damage_type.name}</small>
                           </td>
                           <td>
-                            {arma.properties.map(p => (
+                            {arma.properties.map((p) => (
                               <span
                                 key={p.name}
                                 className="tooltip-prop"
@@ -976,7 +1251,9 @@ const initialData = {
                           <td>
                             <button
                               onClick={() => {
-                                const updated = png.armiEquippate.filter((_, idx) => idx !== i);
+                                const updated = png.armiEquippate.filter(
+                                  (_, idx) => idx !== i
+                                );
                                 setPng({ ...png, armiEquippate: updated });
                               }}
                             >
@@ -1013,10 +1290,16 @@ const initialData = {
                       <td>
                         <button
                           onClick={() => {
-                            const updated = png.armatureIndossate.filter((_, idx) => idx !== i);
+                            const updated = png.armatureIndossate.filter(
+                              (_, idx) => idx !== i
+                            );
                             const nuovaCA = calcolaCA(png.stats, updated);
 
-                            setPng({ ...png, armatureIndossate: updated, ca: nuovaCA });
+                            setPng({
+                              ...png,
+                              armatureIndossate: updated,
+                              ca: nuovaCA,
+                            });
                           }}
                         >
                           ❌
@@ -1031,38 +1314,63 @@ const initialData = {
               <div className="add-equip-section">
                 <select
                   onChange={(e) => {
-                    const armaSelezionata = armi.find(a => a.index === e.target.value);
+                    const armaSelezionata = armi.find(
+                      (a) => a.index === e.target.value
+                    );
                     if (armaSelezionata) {
-                      const { bonusAttacco, danno } = calcolaAttacco(armaSelezionata, png.stats, png.livello);
+                      const { bonusAttacco, danno } = calcolaAttacco(
+                        armaSelezionata,
+                        png.stats,
+                        png.livello
+                      );
                       armaSelezionata.bonusAttacco = `+${bonusAttacco}`;
                       armaSelezionata.dannoCalcolato = danno;
 
-                      setPng({ ...png, armiEquippate: [...(png.armiEquippate || []), armaSelezionata] });
+                      setPng({
+                        ...png,
+                        armiEquippate: [
+                          ...(png.armiEquippate || []),
+                          armaSelezionata,
+                        ],
+                      });
                     }
                     e.target.value = "";
                   }}
                 >
                   <option value="">+ Aggiungi arma</option>
                   {armi.map((a) => (
-                    <option key={a.index} value={a.index}>{a.name}</option>
+                    <option key={a.index} value={a.index}>
+                      {a.name}
+                    </option>
                   ))}
                 </select>
 
                 <select
                   onChange={(e) => {
-                    const armorSelezionata = armature.find(a => a.index === e.target.value);
+                    const armorSelezionata = armature.find(
+                      (a) => a.index === e.target.value
+                    );
                     if (armorSelezionata) {
-                      const updated = [...(png.armatureIndossate || []), armorSelezionata];
+                      const updated = [
+                        ...(png.armatureIndossate || []),
+                        armorSelezionata,
+                      ];
                       const nuovaCA = calcolaCA(png.stats, updated);
 
-                      setPng({ ...png, armatureIndossate: updated, ca: nuovaCA });
+                      setPng({
+                        ...png,
+                        armatureIndossate: updated,
+                        ca: nuovaCA,
+                      });
                     }
                     e.target.value = "";
                   }}
                 >
                   <option value="">+ Aggiungi armatura</option>
                   {armature.map((a) => (
-                    <option key={a.index} value={a.index}>{a.name}</option>
+                    <option key={a.index} value={a.index}>
+                      {a.name}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -1077,7 +1385,9 @@ const initialData = {
                 <textarea
                   placeholder="Descrizione del PNG"
                   value={png.descrizione || ""}
-                  onChange={(e) => setPng({ ...png, descrizione: e.target.value })}
+                  onChange={(e) =>
+                    setPng({ ...png, descrizione: e.target.value })
+                  }
                 />
               </div>
               <div className="form-group">
@@ -1087,7 +1397,7 @@ const initialData = {
                   placeholder="Origine"
                   value={png.origine || ""}
                   onChange={(e) => setPng({ ...png, origine: e.target.value })}
-                />  
+                />
               </div>
               <div className="form-group">
                 <label>Ruolo</label>
@@ -1099,66 +1409,98 @@ const initialData = {
                 />
               </div>
               <hr />
-  <div className="narrative-tools">
-  <button
-    onClick={() => setPng({ ...png, narrativa: { ...png.narrativa, hook: generaHookPNG() } })}
-  >
-    🎭 Genera Hook
-  </button>
-  <button
-    onClick={() => setPng({ ...png, narrativa: { ...png.narrativa, dialogo: generaDialogoPNG() } })}
-  >
-    💬 Genera Dialogo
-  </button>
-  <button onClick={() => setOpzioniHook(genera3HookPNG())}>🎲 3 Hook</button>
-  <button onClick={() => setOpzioniDialogo(genera3DialoghiPNG())}>🎲 3 Dialoghi</button>
-</div>
+              <div className="narrative-tools">
+                <button
+                  onClick={() =>
+                    setPng({
+                      ...png,
+                      narrativa: { ...png.narrativa, hook: generaHookPNG() },
+                    })
+                  }
+                >
+                  🎭 Genera Hook
+                </button>
+                <button
+                  onClick={() =>
+                    setPng({
+                      ...png,
+                      narrativa: {
+                        ...png.narrativa,
+                        dialogo: generaDialogoPNG(),
+                      },
+                    })
+                  }
+                >
+                  💬 Genera Dialogo
+                </button>
+                <button onClick={() => setOpzioniHook(genera3HookPNG())}>
+                  🎲 3 Hook
+                </button>
+                <button onClick={() => setOpzioniDialogo(genera3DialoghiPNG())}>
+                  🎲 3 Dialoghi
+                </button>
+              </div>
 
+              {opzioniHook.length > 0 && (
+                <div className="varianti-container">
+                  <h4>Scegli un Hook:</h4>
+                  {opzioniHook.map((h, i) => (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        setPng({
+                          ...png,
+                          narrativa: { ...png.narrativa, hook: h },
+                        });
+                        setOpzioniHook([]);
+                      }}
+                    >
+                      {h}
+                    </button>
+                  ))}
+                </div>
+              )}
 
-{opzioniHook.length > 0 && (
-  <div className="varianti-container">
-    <h4>Scegli un Hook:</h4>
-    {opzioniHook.map((h, i) => (
-      <button key={i} onClick={() => {
-        setPng({ ...png, narrativa: { ...png.narrativa, hook: h } });
-        setOpzioniHook([]);
-      }}>
-        {h}
-      </button>
-    ))}
-  </div>
-)}
+              {opzioniDialogo.length > 0 && (
+                <div className="varianti-container">
+                  <h4>Scegli un Dialogo:</h4>
+                  {opzioniDialogo.map((d, i) => (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        setPng({
+                          ...png,
+                          narrativa: { ...png.narrativa, dialogo: d },
+                        });
+                        setOpzioniDialogo([]);
+                      }}
+                    >
+                      {d}
+                    </button>
+                  ))}
+                </div>
+              )}
 
-{opzioniDialogo.length > 0 && (
-  <div className="varianti-container">
-    <h4>Scegli un Dialogo:</h4>
-    {opzioniDialogo.map((d, i) => (
-      <button key={i} onClick={() => {
-        setPng({ ...png, narrativa: { ...png.narrativa, dialogo: d } });
-        setOpzioniDialogo([]);
-      }}>
-        {d}
-      </button>
-    ))}
-  </div>
-)}
-
-
-<div className="narrative-results">
-  <p><strong>Hook:</strong> {png.narrativa?.hook || "Nessun hook generato"}</p>
-  <p><strong>Dialogo:</strong> {png.narrativa?.dialogo || "Nessun dialogo generato"}</p>
-</div>
-
+              <div className="narrative-results">
+                <p>
+                  <strong>Hook:</strong>{" "}
+                  {png.narrativa?.hook || "Nessun hook generato"}
+                </p>
+                <p>
+                  <strong>Dialogo:</strong>{" "}
+                  {png.narrativa?.dialogo || "Nessun dialogo generato"}
+                </p>
+              </div>
             </div>
           )}
         </div>
         {showCollegamento && (
-  <ModaleCollegamento
-    idElemento={elementoId}
-    tipoElemento="png"
-    onClose={() => setShowCollegamento(false)}
-  />
-)}
+          <ModaleCollegamento
+            idElemento={elementoId}
+            tipoElemento="png"
+            onClose={() => setShowCollegamento(false)}
+          />
+        )}
       </div>
     </div>
   );

@@ -62,7 +62,9 @@ export const classes = [
     ],
     features: [
       { level: 1, name: "Incantesimi", desc: "Accedi alla magia divina" },
-      { level: 2, name: "Canale Divino", desc: "Evoca poteri divini" }
+      { level: 2, name: "Canale Divino", desc: "Evoca poteri divini" },
+      { level: 3, name: "Guarigione", desc: "Cura ferite e malattie" },
+      { level: 4, name: "Aumento Punteggio Caratteristica", desc: "Al 4° livello, poi all'8°, al 12°, al 16° ed al 19°, un chierico può aumentare uno dei suoi punteggi di caratteristica di 2, o due punteggi di caratteristica di 1. Non è possibile aumentare un punteggio di caratteristica oltre 20 in questo modo." }
     ]
   },
   {

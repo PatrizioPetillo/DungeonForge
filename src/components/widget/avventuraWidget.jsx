@@ -1,15 +1,19 @@
 // src/components/widget/AvventuraWidget.jsx
-
 import React from "react";
 import '../../styles/avventuraWidget.css';
 
-const AvventuraWidget = ({ onClick }) => {
+function AvventuraWidget({ onApri }) {
   return (
-    <div className="widget-avventura" onClick={onClick}>
-      <h3>🧭 Avventure Modulari</h3>
-      <p>Crea rapidamente una mini avventura con il metodo Five Room Dungeon.</p>
+    <div className="widget-avventura" onClick={onApri}>
+      <h3>🧭 Compendio One-Shot</h3>
+      <p>
+        La creatività è esaurita?
+        <span className="link-clickabile"> Clicca QUI</span> per avventure già pronte.
+      </p>
     </div>
   );
-};
+}
+
+
 
 export default AvventuraWidget;

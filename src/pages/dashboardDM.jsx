@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { collection, addDoc } from "firebase/firestore";
 import PngWidget from "../components/widget/pngWidget";
+import { salvaSessioneOneShot } from "../utils/salvaSessioneOneShot";
 import VillainWidget from "../components/widget/villainWidget";
 import ModaleVillain from "../components/modali/modaleVillain";
 import MostroWidget from "../components/widget/mostroWidget";
@@ -10,15 +11,16 @@ import LuogoWidget from "../components/widget/luogoWidget";
 import ModaleLuogo from "../components/modali/modaleLuogo";
 import ModaleEnigma from "../components/modali/modaleEnigma";
 import EnigmaWidget from "../components/widget/enigmaWidget";
-import ModaleAvventura from "../components/modali/modaleFiveRoomDungeon";
 import AvventuraWidget from "../components/widget/avventuraWidget";
 import AvventuraArchivio from "../components/widget/avventuraArchivio";
+import ModaleCompendioOneShot from "../components/modali/modaleCompendioOneShot";
 import ModaleCreaCampagna from "../components/modaleCreaCampagna";
 import ModaleDettagliCampagna from "../components/modaleDettagliCampagna";
 import CampagnaCard from "../components/campagnaCard";
 import ModaleOggetti from "../components/gestioneOggetti";
 import SuggerimentoDelGiorno from "../components/suggerimentoDelGiorno";
 import DiarioNarratore from "../components/diarioNarratore";
+import { oneshotPredefinite } from "../data/oneShots/oneShotData";
 import { firestore } from "../firebase/firebaseConfig";
 import { useDM } from "../context/DMContext";
 import "../styles/dashboardDM.css";
@@ -40,13 +42,24 @@ function DashboardDM() {
     const [villain, setVillain] = useState(null);
   const [showMostroModal, setShowMostroModal] = useState(false);
   const [showLuogoModal, setShowLuogoModal] = useState(false);
+  const [showCompendio, setShowCompendio] = useState(false);
+const [oneShotSelezionata, setOneShotSelezionata] = useState(null);
   const [mostraModaleEnigma, setMostraModaleEnigma] = useState(false);
-  const [mostraModaleAvventura, setMostraModaleAvventura] = useState(false);
+  const [selezionata, setSelezionata] = useState(null);
   const [mostraModaleOggetti, setMostraModaleOggetti] = useState(false);
 
   const salvaOggettoInCampagna = async (oggetto) => {
   await addDoc(collection(firestore, `campagne/${campagnaId}/oggetti`), oggetto);
   alert(`Oggetto "${oggetto.name}" aggiunto alla campagna`);
+};
+
+const avviaSessione = async (oneShot) => {
+  const id = await salvaSessioneOneShot(oneShot);
+  if (id) navigate(`/live-session/${id}`);
+};
+
+const collegaACampagna = (oneShot) => {
+  alert(`Collega "${oneShot.titolo}" a una campagna... (in sviluppo)`);
 };
 
   return (
@@ -98,8 +111,7 @@ function DashboardDM() {
         <div className="dashboard-generatori-header">
         <h2>Forgia delle Maschere</h2>
         <p className="section-desc">
-          Strumenti per creare PNG, Villain, Mostri, Enigmi o Avventure
-          modulari.
+          Strumenti per creare PNG, Villain, Mostri, Enigmi o One-Shot lampo.
         </p>
         </div>
         <div className="dashboard-generatori">
@@ -108,7 +120,9 @@ function DashboardDM() {
   <MostroWidget onClick={() => setShowMostroModal(true)} />
   <LuogoWidget onClick={() => setShowLuogoModal(true)} />
   <EnigmaWidget onClick={() => setMostraModaleEnigma(true)} />
-  <AvventuraWidget onClick={() => setMostraModaleAvventura(true)} />
+  <AvventuraWidget onApri={() => setShowCompendio(true)} />
+
+
 </div>
 <hr />
 {isVillainModalOpen && (
@@ -124,7 +138,15 @@ function DashboardDM() {
 {showMostroModal && <ModaleMostro onClose={() => setShowMostroModal(false)} />}
 {showLuogoModal && <ModaleLuogo onClose={() => setShowLuogoModal(false)} />}
 {mostraModaleEnigma && <ModaleEnigma onClose={() => setMostraModaleEnigma(false)} />}
-{mostraModaleAvventura && <ModaleAvventura onClose={() => setMostraModaleAvventura(false)} />}
+{showCompendio && (
+  <ModaleCompendioOneShot
+    setShowCompendio={setShowCompendio}
+    setOneShotSelezionata={setOneShotSelezionata}
+    avviaSessione={avviaSessione}
+    oneshotPredefinite={oneshotPredefinite}
+    collegaACampagna={collegaACampagna}
+  />
+)}
       </section>
 
       {/* Recap Sessione */}
@@ -172,6 +194,8 @@ function DashboardDM() {
           Apri Archivio
         </button>
       </section>
+
+      <hr />
 
       {/* FUTURE: Mappa delle Connessioni */}
       {/* <section className="dashboard-section">

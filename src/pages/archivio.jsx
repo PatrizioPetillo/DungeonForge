@@ -96,7 +96,11 @@ const apriModaleCollegamento = (id, tipo) => {
         getDocs(collection(firestore, "enigmi")),
       ]);
 
-      setPng(pngSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setPng(pngSnap.docs.map(d => ({
+  id: d.id,
+  ...d.data(),
+  tipo: d.data().tipo || (d.data().classe ? "Non Comune" : "Comune")
+})));
       setVillain(villainSnap.docs.map(d => ({ id: d.id, ...d.data() })));
       setMostri(mostriSnap.docs.map(d => ({ id: d.id, ...d.data() })));
       setLuoghi(luoghiSnap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -186,6 +190,10 @@ const apriModaleCollegamento = (id, tipo) => {
   <ModalePNG
     initialData={modificaElemento}
     onClose={() => setModificaElemento(null)}
+    onSave={(data) => {
+      setPng((prev) => prev.map((item) => (item.id === data.id ? data : item)));
+      setModificaElemento(null);
+    }}
   />
 )}
 {modificaElemento && modificaElemento.tipo === "mostri" && (

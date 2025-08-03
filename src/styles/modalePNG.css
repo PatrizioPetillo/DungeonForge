@@ -96,14 +96,73 @@
 
 /* === BODY === */
 .modale-png .modale-body {
+  /* display: flex; */
   overflow-y: auto;
   padding-right: 8px;
 }
 
+.info-section {
+  margin: 0 1rem 0 0;
+  position: relative;
+  z-index: 2;
+}
+
+/* === FORM FIELDS === */
+.modale-png .form-fields {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+  margin-top: 0.6rem;
+}
+
 /* === FORM GROUPS === */
-.modale-png .tab-content {
+/* .modale-png .tab-content {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+} */
+.double-form-group {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.double-form-group label {
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+  color: #d4af37;
+  width: auto;
+  min-width: 100px;
+  font-size: 1rem;
+  display: inline-block;
+}
+.modale-png .double-form-group input,
+.modale-png .double-form-group select,
+.modale-png .double-form-group textarea {
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #2d2d2d;
+  color: #fff;
+  white-space: pre-wrap; /* mantiene il wrapping del testo */
+  word-wrap: break-word; /* evita overflow del testo */
+  width: auto;
+  min-width: 100px;
+  font-size: 1rem;
+  display: inline-block;
+}
+
+.modale-png .form-group .combat-input {
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #2d2d2d;
+  color: #fff;
+  white-space: pre-wrap; /* mantiene il wrapping del testo */
+  word-wrap: break-word; /* evita overflow del testo */
+  width: 42px;
+  min-width: 100px;
+  font-size: 1rem;
+  display: inline-block;
 }
 
 .modale-png .form-group {
@@ -112,12 +171,67 @@
   white-space: pre-wrap; /* mantiene il wrapping del testo */
   word-wrap: break-word;
   margin-bottom: 1rem;
+} 
+
+.modale-png .alone-form-group {
+  display: flex;
+  flex-direction: column;
+  white-space: pre-wrap; /* mantiene il wrapping del testo */
+  word-wrap: break-word;
+  margin-bottom: 1rem;
+}
+
+.modale-png .alone-form-group label {
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+  margin-top: 1.5rem;
+  color: #d4af37;
+}
+.modale-png .alone-form-group input {
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #2d2d2d;
+  color: #fff;
+  white-space: pre-wrap; /* mantiene il wrapping del testo */
+  word-wrap: break-word; /* evita overflow del testo */
+  width: auto;
+  min-width: 100px;
+  font-size: 1rem;
+  display: inline-block;
 }
 
 .modale-png .form-group label {
   font-weight: bold;
   margin-bottom: 0.3rem;
   color: #d4af37;
+  width: auto;
+  min-width: 100px;
+  font-size: 1rem;
+  display: inline-block;
+}
+
+.privilegi-razza {
+  margin-top: 2rem;
+  font-size: 0.88rem;
+  color: #ddd;
+  text-align: center;
+}
+
+.tooltip-container .tooltip {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  position: absolute;
+  background: rgba(26, 26, 26, 0.95);
+  color: #d4af37;
+  padding: 0.6rem;
+  border-radius: 4px;
+  width: auto;
+  top: 100%;
+  left: 0;
+  font-size: 0.7rem;
+  z-index: 10;
 }
 
 .modale-png .form-group input,
@@ -130,7 +244,10 @@
   color: #fff;
   white-space: pre-wrap; /* mantiene il wrapping del testo */
   word-wrap: break-word; /* evita overflow del testo */
-
+  width: auto;
+  min-width: 100px;
+  font-size: 1rem;
+  display: inline-block;
 }
 
 .modale-png textarea {
@@ -148,12 +265,6 @@
 }
 
 /* === INFO SECTION (GRID) === */
-.modale-png .info-section {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 1.5rem;
-  align-items: start;
-}
 
 .modale-png .image-section {
   display: flex;
@@ -279,6 +390,10 @@
   border: 1px solid #444;
   background: #2d2d2d;
   color: #fff;
+  width: auto;
+  min-width: 100px;
+  font-size: 1rem;
+  display: inline-block;
 }
 
 textarea {
@@ -305,7 +420,9 @@ textarea {
 
 .tooltip-container {
   position: relative;
-  margin-bottom: 0.4rem;
+  margin-bottom: 1.6rem;
+  margin-right: 1rem;
+  text-align: left;
   cursor: help;
 }
 
@@ -384,7 +501,7 @@ textarea {
 
 .combat-stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
 
@@ -492,6 +609,10 @@ textarea {
   border: 1px solid #666;
   background: #1a1f2b;
   color: #fff;
+  width: auto;
+  min-width: 100px;
+  font-size: 1rem;
+  display: inline-block;
 }
 
 .spell-list {
@@ -512,6 +633,10 @@ textarea {
 .spell-card input[type="text"] {
   font-weight: bold;
   color: #f2f2f0;
+  width: auto;
+  min-width: 100px;
+  font-size: 1rem;
+  display: inline-block;
 }
 
 .spell-card textarea {
@@ -538,6 +663,10 @@ textarea {
 
 .spell-table input, .spell-table textarea {
   width: 95%;
+  width: auto;
+  min-width: 100px;
+  font-size: 1rem;
+  display: inline-block;
 }
 
 .suggestions {
@@ -672,6 +801,9 @@ textarea {
   font-family: "Cinzel", serif;
   color: #D4AF37;
   text-shadow: 1px 1px 4px #000;
+  margin-bottom: 0.3rem;
+  text-decoration-line: underline;
+  margin-top: 0.3rem;
 }
 
 /* === TABELLE MIGLIORATE === */
@@ -699,6 +831,10 @@ textarea {
   border: 1px solid #444;
   border-radius: 4px;
   padding: 4px;
+  width: auto;
+  min-width: 100px;
+  font-size: 1rem;
+  display: inline-block;
 }
 
 /* === TOOLTIP MIGLIORATI === */
@@ -782,30 +918,32 @@ textarea {
 .form-group input[placeholder*="focus"] {
   border: 1px solid #6E4F9E;
   box-shadow: 0 0 8px rgba(110, 79, 158, 0.4);
+  width: auto;
+  min-width: 100px;
+  font-size: 1rem;
+  display: inline-block;
 }
 
 .privilegi-razza {
-  margin-top: 1rem;
-  background: #2d2d2d;
-  padding: 0.8rem;
-  border-radius: 6px;
-  border: 1px solid #3d3d3d;
-}
-
-.privilegi-razza h5 {
-  color: #d4af37;
-  margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #ddd;
+  text-align: center;
 }
 
 .privilegi-razza ul {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 1.4rem 0 0;
 }
 
 .privilegi-razza li {
-  margin-bottom: 0.4rem;
-  cursor: help;
+  line-height: 1.2;
+}
+
+.privilegi-razza h5 {
+  color: #d4af37;
+  margin-bottom: 0.5rem;
 }
 
 .privilegio-nome {
@@ -835,6 +973,56 @@ textarea {
   visibility: visible;
   opacity: 1;
 }
+
+/* === LAYOUT PNGNONCOMUNE === */
+.png-header-layout {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 6rem;
+  margin-bottom: 1rem;
+}
+
+.png-header-info {
+  flex: 1;
+  width: 310px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.png-header-image {
+  margin-top: 1.6rem;
+  width: 330px;
+  height: 300px;
+  /* mantiene il bordo tratteggiato e lo stile */
+  border: 2px dashed #d4af37;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  border-radius: 8px;
+  z-index: 1;
+}
+
+.png-header-image.hidden {
+  display: none;
+}
+
+
+.png-header-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.upload-placeholder {
+  font-size: 2.5rem;
+  color: #d4af37;
+  user-select: none;
+}
+
 
 /* === MEDIA QUERIES === */
 @media (max-width: 768px) {

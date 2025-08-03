@@ -17,6 +17,31 @@ const statMagicaPerClasse = {
   ranger: "saggezza",
   monaco: "saggezza"
 };
+
+const allineamenti = [
+  "Legale Buono",
+  "Neutrale Buono",
+  "Caotico Buono",
+  "Legale Neutrale",
+  "Neutrale Puro",
+  "Caotico Neutrale",
+  "Legale Malvagio",
+  "Neutrale Malvagio",
+  "Caotico Malvagio"
+];
+
+const descrizioneAllineamento = {
+  "Legale Buono": "Segue un codice morale e cerca di fare del bene. Crede nell'ordine e nella giustizia.",
+  "Neutrale Buono": "Agisce per il bene senza preoccuparsi delle leggi o del caos. Cerca di aiutare gli altri.",
+  "Caotico Buono": "Agisce per il bene, ma senza seguire regole o leggi. Valuta le situazioni caso per caso.",
+  "Legale Neutrale": "Segue le leggi e l'ordine, ma non si preoccupa del bene o del male.",
+  "Neutrale Puro": "Non si schiera né con il bene né con il male. Agisce secondo il proprio interesse.",
+  "Caotico Neutrale": "Agisce secondo il proprio impulso, senza preoccuparsi delle leggi o delle conseguenze.",
+  "Legale Malvagio": "Segue un codice morale distorto e cerca di fare del male. Crede nell'ordine attraverso la forza.",
+  "Neutrale Malvagio": "Agisce per il male senza preoccuparsi delle leggi o del caos. Cerca di ottenere potere.",
+  "Caotico Malvagio": "Agisce per il male, ma senza seguire regole o leggi. Valuta le situazioni caso per caso."
+};
+
 const abilitaPerStat = {
   forza: ["Atletica"],
   destrezza: ["Acrobazia", "Furtività", "Rapidità di mano"],
@@ -92,8 +117,11 @@ export function generaPNGNonComuneCompleto(opzioni = {}) {
   const razzaData = razze[razzaKey];
   const classeData = classes.find(c => c.index === classeKey);
 
+  const allineamentoKey = casuale(allineamenti);
+
   png.razza = razzaData.name;
   png.linguaggi = razzaData.languages || [];
+  png.allineamento = allineamentoKey;
   // Privilegi e talenti razziali
   png.privilegiRazza = (razzaData.traits || []).map(trait => ({
     nome: trait.name,
@@ -151,6 +179,10 @@ razzaData.ability_bonuses.forEach((bonus) => {
     png.stats[bonus.ability_score] += bonus.bonus;
   }
 });
+
+// 5A. Linguaggi
+const linguaggi = razzaData.languages || [];
+png.linguaggi = linguaggi;
 
   // 6. Bonus razziali
   png.bonusRazziali = razzaData.ability_bonuses.map(b => `${b.ability_score}: +${b.bonus}`).join(", ") || "Nessuno";
@@ -268,7 +300,7 @@ const classiHalfCaster = ["paladin", "ranger"];
     const maxCantrips = Math.min(3 + Math.floor(png.livello / 4), spellData.cantrips?.length || 0);
     png.incantesimi = [
   ...png.incantesimi,
-  ...spellData.cantrips.slice(0, maxCantrips).map(sp => ({
+  (spellData.cantrips || []).slice(0, maxCantrips).map(sp => ({
         nome: sp.name,
         livello: sp.level,
         scuola: sp.school,

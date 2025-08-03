@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import ModaleDettaglioArchivio from "../components/modali/modaleDettaglioArchivio";
 import "../styles/cardElemento.css";
 
-const CardElemento = ({ item, categoria, collegamenti  }) => {
+const CardElemento = ({ item, categoria, collegamenti, onEdit  }) => {
   const [showModal, setShowModal] = useState(false);
 
   return (

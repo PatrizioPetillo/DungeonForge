@@ -15,5 +15,8 @@ export default defineConfig({
       external: ['uuid'],
       treeshake: false, // Disabilita il tree-shaking per evitare problemi con le dipendenze
     }
-  }
+  },
+  headers: {
+      'Cache-Control': 'no-cache'
+    }
 })

@@ -20,10 +20,20 @@ const abilitaPerStat = {
   carisma: ["Persuasione", "Inganno", "Intrattenere", "Intimidire"]
 };
 
-export default function ModaleVillain({ onClose, onSave }) {
+const allineamentiDescrizioni = {
+  "Caotico Malvagio": "Un agente del caos, spinto dal desiderio di distruggere, dominare o liberare impulsi oscuri.",
+  "Neutrale Malvagio": "Agisce per interesse personale, senza remore morali, ma senza distruzioni gratuite.",
+  "Legale Malvagio": "Obbedisce a un codice o gerarchia, ma i suoi scopi sono crudeli, oppressivi o tirannici.",
+  "Caotico Neutrale": "Imprevedibile, instabile, può sembrare alleato ma tradisce con disinvoltura.",
+  "Legale Neutrale": "Agisce per un ordine superiore, disinteressato al bene, ma non apertamente crudele."
+};
+
+
+export default function ModaleVillain({ onClose, onSave, collegamentoCampagna }) {
   const [villain, setvillain] = useState({});
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState("Generali");
+  const [campagnaCollegata, setCampagnaCollegata] = useState("");
   const [spellSuggeriti, setSpellSuggeriti] = useState([]);
   const [opzioniHook, setOpzioniHook] = useState([]);
 const [opzioniDialogo, setOpzioniDialogo] = useState([]);
@@ -112,7 +122,7 @@ const removeSpell = (index) => {
   };
   
 const handleSalva = async () => {
-  const data = { ...villain, tipo: "villain" };
+  const data = { ...villain, tipo: "villain", campagnaCollegata: campagnaCollegata || null };
   const result = await salvaInArchivio("villain", data);
 
   if (result.success) {
@@ -126,6 +136,13 @@ const handleSalva = async () => {
     toast.error("❌ Errore nel salvataggio!");
   }
 };
+
+useEffect(() => {
+    if (collegamentoCampagna) {
+    console.log("Collegamento campagna ricevuto:", collegamentoCampagna);
+    setCampagnaCollegata(collegamentoCampagna);
+  }
+  }, [collegamentoCampagna]);
 
 useEffect(() => {
   if (villain) {
@@ -179,7 +196,7 @@ useEffect(() => {
 
                 <div className="form-group">
                   <label>Classe</label>
-                  <input type="text" value={villain.classe || ""} 
+                  <input type="text" value={villain.nomeClasseEvocativo || ""} 
                   onChange={(e) => {
   const nuovaClasse = e.target.value.toLowerCase();
   const newVillain = { ...villain, classe: nuovaClasse };
@@ -203,9 +220,29 @@ useEffect(() => {
                 </div>
 
                 <div className="form-group">
-                  <label>Allineamento</label>
-                  <input type="text" value={villain.allineamento || ""} 
-                  onChange={(e) => setvillain({ ...villain, allineamento: e.target.value })} />
+                  {villain.allineamento && (
+                    <label>
+  Allineamento:
+  <select
+    value={villain.allineamento}
+    onChange={(e) =>
+      setVillain((prev) => ({
+        ...prev,
+        allineamento: e.target.value,
+        tooltipAllineamento: allineamentiDescrizioni[e.target.value] || ""
+      }))
+    }
+  >
+    <option value="">-- Seleziona --</option>
+    <option value="Caotico Malvagio">Caotico Malvagio</option>
+    <option value="Neutrale Malvagio">Neutrale Malvagio</option>
+    <option value="Legale Malvagio">Legale Malvagio</option>
+    <option value="Caotico Neutrale">Caotico Neutrale</option>
+    <option value="Legale Neutrale">Legale Neutrale</option>
+  </select>
+</label>
+
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -219,21 +256,15 @@ useEffect(() => {
                   <input type="number" value={villain.velocita || ""} 
                   onChange={(e) => setvillain({ ...villain, velocita: e.target.value })} />
                 </div>
-
-                {/* Dettagli razza */}
-                {villain.dettagliRazza && (
-                  <div className="background-info">
-                    <p><strong>Razza:</strong> {villain.razza}</p>
-                    {villain.linguaggi && villain.linguaggi.length > 0 && (
-                  <div className="form-group">
-                    <label>Linguaggi</label>
-                    <input type="text" value={villain.linguaggi.join(", ")} 
-                    onChange={(e) => setvillain({ ...villain, linguaggi: e.target.value.split(", ") })} />
-                  </div>
-                )}
-                    <p><strong>Tratti:</strong> {villain.dettagliRazza.traits.map(t => t.name).join(", ")}</p>
-                  </div>
-                )}
+                <div className="form-group">
+                  {villain.linguaggi && villain.linguaggi.length > 0 && (
+                    <div className="form-group">
+                      <label>Linguaggi</label>
+                      <input type="text" value={villain.linguaggi.join(", ")} 
+                      onChange={(e) => setvillain({ ...villain, linguaggi: e.target.value.split(", ") })} />
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="image-section">

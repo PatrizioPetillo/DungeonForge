@@ -1,0 +1,20 @@
+/* styles/modaleAvventura.css */
+.modale-avventura {
+  background-color: #1a1f2b;
+  color: #f2f2f0;
+  padding: 2rem;
+  border: 2px solid #d4af37;
+  border-radius: 10px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.modale-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modale-body {
+  margin-top: 1rem;
+}

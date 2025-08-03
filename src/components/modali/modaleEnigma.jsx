@@ -9,14 +9,52 @@ import {
 } from "../../utils/narrativeGenerators";
 
 import "../../styles/enigmaWidget.css";
+import { casuale } from "../../utils/generators";
+
+const descrizioneScena = [
+  "Una stanza buia con tre statue che indicano tre porte.",
+  "Un pavimento con piastre bianche e nere, alcune sicure, altre pericolose.",
+  "Una parete con cinque leve, solo una apre la porta.",
+  "Un labirinto di corridoi con specchi magici che riflettono le parole.",
+  "Un enigma scritto su un antico libro, con simboli misteriosi.",
+  "Un tavolo con un puzzle tridimensionale che deve essere risolto.",
+  "Un antico orologio con ingranaggi che devono essere allineati.",
+  "Una mappa con percorsi nascosti che devono essere seguiti.",
+  "Un portale magico che richiede una parola chiave per essere attivato."
+];
+const indovinelli = [
+  "Quale mostro cammina con quattro zampe al mattino, due a mezzogiorno e tre alla sera?",
+  "Sono leggero più di una piuma, ma anche il più forte degli uomini non può tenermi per molto tempo. Cosa sono?",
+  "Più avanzi, più ne lasci. Cosa sono?",
+  "Sono sempre davanti a te, ma non puoi mai vedermi. Cosa sono?",
+  "Non ho bocca, ma parlo. Non ho orecchie, ma ascolto. Non ho corpo, ma posso essere sentito. Cosa sono?",
+  "Sono un numero che, se lo moltiplichi per se stesso, ottieni 1. Cosa sono?",
+  "Sono un enigma che può essere risolto solo con la mente. Cosa sono?",
+  "Sono un luogo dove puoi trovare tutto ciò che desideri, ma non puoi portarlo via. Cosa sono?",
+  "Sono un pensiero che può essere condiviso, ma non puoi toccarlo. Cosa sono?",
+  "Sono un sogno che può diventare realtà, ma solo se credi in me. Cosa sono?"
+];
+
+const soluzioniIndovinelli = [
+  "L'essere umano (quattro zampe da neonato, due da adulto, con il bastone da anziano).",
+  "Il respiro (leggero come una piuma, ma non puoi tenerlo a lungo).",
+  "Le impronte (più cammini, più ne lasci dietro di te).",
+  "Il futuro (sempre davanti a te, ma non puoi vederlo).",
+  "Il suono (parla senza bocca, ascolta senza orecchie).",
+  "Il numero 1 (moltiplicato per se stesso dà sempre 1).",
+  "Un pensiero (può essere condiviso, ma non puoi toccarlo).",
+  "Un sogno (può diventare realtà, ma solo se credi in me).",
+  "Un'idea (può cambiare il mondo, ma deve essere realizzata).",
+  "Un'illusione (può sembrare reale, ma è solo nella tua mente)."
+];
 
 const modelliEnigma = [
   {
     titolo: "Statue che parlano",
     tipo: "Indovinello",
-    descrizione: "Tre statue indicano tre porte: una conduce alla salvezza, le altre alla morte. Rispondere correttamente all'indovinello rivelerà la via sicura.",
-    indovinello: "Qual è la cosa che cammina con quattro zampe al mattino, due a mezzogiorno e tre alla sera?",
-    soluzioni: "L'essere umano (quattro zampe da neonato, due da adulto, con il bastone da anziano).",
+    descrizione: "Tre statue indicano tre porte. Sul soffitto, vi è un'iscrizione quasi sbiadita. Dare la risposta corretta, illuminerà gli occhi della statua giusta.",
+    indovinello: casuale(indovinelli),
+    soluzioni: casuale(soluzioniIndovinelli),
   },
   {
     titolo: "Piastre a pressione",
@@ -44,6 +82,7 @@ const ModaleEnigma = ({ onClose }) => {
     tab: "Dettagli",
     titolo: "",
     tipo: "",
+    indovinello: "",
     descrizione: "",
     soluzioni: "",
     prova: "",
@@ -71,7 +110,7 @@ const effetti = [
   "Perdita temporanea della vista per 1 minuto",
   "Allarme attivato: un basso vibrare sembra provenire dalle pareti. In lontananza, ruggiti e versi si avvicinano",
   "Trappola esplosiva (2d8 danni da forza)",
-  "Caduta in una fossa (CD 15 Destrezza per evitarla)",
+  "Caduta in una fossa profonda 10 metri (CD 15 Destrezza per evitarla)",
   "Inizio di un combattimento con un mostro nascosto",
   "Rallentamento del gruppo (movimento dimezzato per 1 minuto)",
   "Inversione del movimento per 1 minuto (destra diventa sinistra e viceversa)",
@@ -155,6 +194,15 @@ const effetti = [
                   onChange={(e) => setEnigma((prev) => ({ ...prev, tipo: e.target.value }))}
                 />
               </div>
+              {enigma.tipo === "Indovinello" && (
+              <div className="field-group">
+                <label>Indovinello:</label>
+                <input
+                  value={enigma.indovinello}
+                  onChange={(e) => setEnigma((prev) => ({ ...prev, indovinello: e.target.value }))}
+                />
+              </div>
+              )}
               <div className="field-group">
                 <label>Descrizione:</label>
                 <textarea

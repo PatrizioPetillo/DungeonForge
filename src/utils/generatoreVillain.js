@@ -1,6 +1,7 @@
 import { casuale, rand, tiraStats, generaNomeCasuale, generaCognomeCasuale, generaDescrizioneEvocativa } from "./generators";
 import { classes } from "./classes"; // API locale
 import { razze } from "./races";     // API locale 
+import { evilRaces } from "./evilRaces";
 import { spells } from "./spells";
 import { armi } from "./armi";
 import { armature } from "./armature";
@@ -18,6 +19,15 @@ const statMagicaPerClasse = {
   ranger: "saggezza",
   monaco: "saggezza"
 };
+
+const allineamentiMalvagi = [
+  { nome: "Caotico Malvagio", descrizione: "Un agente del caos, spinto dal desiderio di distruggere, dominare o liberare impulsi oscuri." },
+  { nome: "Neutrale Malvagio", descrizione: "Agisce per interesse personale, senza remore morali, ma senza distruzioni gratuite." },
+  { nome: "Legale Malvagio", descrizione: "Obbedisce a un codice o gerarchia, ma i suoi scopi sono crudeli, oppressivi o tirannici." },
+  { nome: "Caotico Neutrale", descrizione: "Imprevedibile, instabile, può sembrare alleato ma tradisce con disinvoltura." },
+  { nome: "Legale Neutrale", descrizione: "Agisce per un ordine superiore, disinteressato al bene, ma non apertamente crudele." }
+];
+
 const abilitaPerStat = {
   forza: ["Atletica"],
   destrezza: ["Acrobazia", "Furtività", "Rapidità di mano"],
@@ -25,6 +35,21 @@ const abilitaPerStat = {
   intelligenza: ["Arcano", "Indagare", "Storia", "Natura", "Religione"],
   saggezza: ["Percezione", "Intuizione", "Medicina", "Sopravvivenza", "Addestrare Animali"],
   carisma: ["Persuasione", "Inganno", "Intrattenere", "Intimidire"]
+};
+
+const nomiEvocativiClasse = {
+  barbarian: "Bruto Insanguinato",
+  bard: "Cantore delle Ombre",
+  cleric: "Profeta della Morte",
+  druid: "Corrotto delle Radici",
+  fighter: "Guerriero del Sangue",
+  monk: "Asceta del Vuoto",
+  paladin: "Paladino Corrotto",
+  ranger: "Predatore Notturno",
+  rogue: "Assassino Senz’Anima",
+  sorcerer: "Figlio del Caos",
+  warlock: "Schiavo dell’Abisso",
+  wizard: "Evocatore Oscuro"
 };
 
   const equipBasePerClasse = {
@@ -125,10 +150,10 @@ export function generaVillain(opzioni = {}) {
   const proficienza = Math.ceil(villain.livello / 4) + 2;
 
   // 2. Razza e Classe (da API locali)
-  const razzaKey = casuale(Object.keys(razze));
+  const razzaKey = casuale(Object.keys(razze).concat(Object.keys(evilRaces)));
   const classeKey = casuale(classes.map(c => c.index));
 
-  const razzaData = razze[razzaKey];
+  const razzaData = razze[razzaKey] || evilRaces[razzaKey];
   const classeData = classes.find(c => c.index === classeKey);
 
   villain.razza = razzaData.name;
@@ -140,6 +165,7 @@ export function generaVillain(opzioni = {}) {
   }));
   villain.velocita = razzaData.speed || 9; // in metri
   villain.classe = classeData.name;
+  villain.nomeClasseEvocativo = nomiEvocativiClasse[villain.classe] || villain.classe;
   villain.dadoVita = classeData.hit_die || 8;
 
   // 3. Sottoclasse
@@ -147,6 +173,10 @@ export function generaVillain(opzioni = {}) {
 
   // 4. Nome villain
   villain.nome = `${generaNomeCasuale()} ${generaCognomeCasuale()}`;
+  const allineamento = allineamentiMalvagi[Math.floor(Math.random() * allineamentiMalvagi.length)];
+villain.allineamento = allineamento.nome;
+villain.tooltipAllineamento = allineamento.descrizione;
+
 
   // 5. Stats
 const prioritaStat = {
@@ -163,6 +193,7 @@ const prioritaStat = {
   sorcerer: ["carisma", "costituzione"],
   warlock: ["carisma", "costituzione"]
 };
+
 
 // Tiro delle stats e ordinamento
 const rolls = tiraStats().sort((a, b) => b - a); // valori decrescenti

@@ -111,6 +111,7 @@ export async function collegaElementoACampagna(
   idCampagna,
   idCapitolo,
   idScena,
+  tipo,
   elemento
 ) {
   try {

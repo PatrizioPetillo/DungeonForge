@@ -1,5 +1,6 @@
 // src/utils/generators.js
 import { backgrounds } from "./backgrounds";
+import { razze } from "../utils/races";
 
 // ==============================
 // UTILS
@@ -95,6 +96,152 @@ export const generaCognomeCasuale = () => {
   const parti2 = ["blade", "fang", "heart", "song", "claw", "fire", "shadow", "storm", "wind", "stone", "light", "night", "dawn", "dusk", "flame", "spark", "wave", "thorn", "branch", "leaf"];
   return parti[Math.floor(Math.random() * parti.length)] + parti2[Math.floor(Math.random() * parti2.length)];
 };
+
+export function generaAffiliazione(mestiere) {
+  const mappa = {
+    "Ladro": "Gilda dei Ladri",
+    "Mercenario": "Compagnia del Dente",
+    "Cultista": "Culto del Drago Rosso",
+    "Sacerdote": "Ordine di Lathander",
+    "Artista": "Accademia di Mirabar",
+    "Cacciatore di Taglie": "Società dei Segugi",
+    "Studioso": "Collegio di Candlekeep",
+    "Mago": "Circolo dei Maghi di Waterdeep",
+    "Guerriero": "Legione di Ferro",
+    "Barbaro": "Clan delle Montagne Selvagge",
+    "Chierico": "Chiesa di Tyr",
+    "Druido": "Circolo della Luna",
+    "Bardo": "Gilda dei Cantastorie",
+    "Paladino": "Ordine dei Cavalieri di Helm",
+    "Ranger": "Compagnia dei Guardaboschi",
+    "Stregone": "Congrega degli Incantatori",
+    "Stregone": "Circolo degli Stregoni",
+    "Alchimista": "Società degli Alchimisti",
+    "Cartografo": "Associazione dei Cartografi",
+    "Fabbro": "Gilda dei Fabbri",
+    "Maestro di spada": "Accademia dei Maestri di Spada",
+    "Costruttore di armi": "Gilda dei Fabbricanti d'Armi",
+    "Cavaliere errante": "Ordine dei Cavalieri Erranti",
+    "Esploratore": "Associazione degli Esploratori",
+    "Guardia": "Guardia Cittadina",
+    "Mercante": "Gilda dei Mercanti",
+    "Ingegnere": "Collegio degli Ingegneri",
+    "Inventore": "Società degli Inventori",
+    "Artigiano": "Gilda degli Artigiani",
+  };
+  return mappa[mestiere] || "—";
+}
+
+export function generaComportamento() {
+  const opzioni = [
+    "Diffidente ma gentile con chi si dimostra leale e onesto",
+    "Genuinamente curioso, tende a fare troppe domande e a non prestare attenzione alle risposte",
+    "Scontroso e burbero, ma ha un cuore d'oro quando si tratta di aiutare gli altri",
+    "Sempre ottimista anche nelle situazioni più critiche",
+    "Misterioso, parla solo per frasi enigmatiche e criptiche",
+    "Protettivo verso gli abitanti del villaggio e i suoi amici",
+    "Impulsivo e difficile da controllare quando si arrabbia",
+    "Ha un forte senso dell'onore, non infrange mai una promessa e rispetta le tradizioni",
+    "Sospettoso verso gli stranieri e diffidente nei loro confronti",
+    "Ama parlare in proverbi e metafore per esprimere i suoi pensieri",
+    "Scherzoso e ironico, usa l'umorismo per alleggerire le situazioni",
+  ];
+  return opzioni[Math.floor(Math.random() * opzioni.length)];
+}
+
+export function generaLegame(mestiere) {
+  const legamiPerMestiere = {
+    "Ladro": [
+      "È un ladro che ha rubato qualcosa di molto prezioso e ora deve nascondersi",
+      "È un membro di una gilda segreta che opera nell'ombra",
+      "Ha un nemico giurato che lo perseguita da anni",
+      "È in debito con un vecchio amico che lo ha salvato in passato",
+    ],
+    "Guaritore": [
+      "Guaritore dal cuore gentile che usa le sue abilità per curare i malati e i feriti",
+      "Si sente in colpa per qualcosa che ha fatto in passato e cerca di redimersi",
+      "È in debito con un vecchio amico che lo ha salvato in passato",
+      "Ha un segreto che lo tormenta e che condivide solo con pochi eletti"
+    ],
+    "Mercante": [
+      "Un mercante che ha perso tutto in un affare sbagliato e ora cerca di ricostruire la sua fortuna",
+      "È in debito con un vecchio amico che lo ha salvato in passato",
+      "Ha un segreto che lo tormenta e che condivide solo con pochi eletti",
+    ],
+    "Soldato": [
+      "È un ex soldato che ha combattuto in molte battaglie e ha visto cose che nessuno dovrebbe vedere",
+      "Guardia cittadina che ha giurato di proteggere la sua città a tutti i costi",
+      "Scappato da un conflitto, ora cerca di ricostruire la sua vita",
+    ],
+    "Cacciatore": [
+      "È un esploratore che ha viaggiato in terre lontane e ha visto cose incredibili",
+      "Ha un animale domestico che considera un compagno fidato",
+      "È un cacciatore che ha perso un familiare in un attacco di mostri e ora cerca vendetta",
+    ],
+    "Artista": [
+      "È un artista che cerca ispirazione per la sua prossima opera",
+      "Ha un amore perduto che non riesce a dimenticare",
+      "È un artista che ha dedicato la sua vita a creare opere d'arte straordinarie",
+    ],
+    "Inventore": [
+      "È un inventore che ha creato una macchina straordinaria ma pericolosa",
+      "È il custode di un antico segreto che potrebbe cambiare il corso della storia",
+      "Ha un assistente robotico che lo aiuta nelle sue invenzioni",
+    ],
+    "Sacerdote": [
+      "Sacerdote che ha dedicato la sua vita a servire gli dei e aiutare gli altri",
+      "È il discendente di un eroe leggendario e porta il suo nome con orgoglio",
+      "È in cerca di un antico artefatto sacro che potrebbe salvare il suo popolo",
+    ],
+    "Mago": [
+      "È un mago che ha studiato antichi tomi e ha appreso segreti dimenticati",
+      "È legato a un antico artefatto che gli conferisce poteri speciali",
+      "Ha un mentore misterioso che gli ha insegnato le arti arcane",
+    ],
+    "Artista": [
+      "Ama parlare in proverbi e metafore per esprimere i suoi pensieri",
+      "È in cerca della storia perfetta da tramandare ai posteri",
+      "Ha un amore perduto che non riesce a dimenticare",
+    ],
+    "Guardaboschi": [
+      "È un druido che ha un legame speciale con la natura e gli animali",
+      "Ha un animale domestico che considera un compagno fidato",
+      "È in cerca di un antico artefatto naturale che potrebbe salvare il suo popolo",
+    ],
+    "Cavaliere errante": [
+      "È un cavaliere errante che ha giurato di proteggere i deboli e combattere l'ingiustizia",
+      "Ha un passato misterioso che lo perseguita",
+      "È in cerca di un antico artefatto che potrebbe aiutarlo nella sua missione",
+    ],
+    "Alchimista": [
+      "È un alchimista che ha scoperto una formula segreta per creare una sostanza potente",
+      "Ha un laboratorio segreto dove conduce esperimenti pericolosi",
+      "È in cerca di un ingrediente raro per completare una pozione speciale",
+    ],
+    "Fabbro": [
+      "È un fabbro che ha forgiato armi leggendarie e ora cerca di creare la sua opera maestra",
+      "Ha un laboratorio segreto dove crea oggetti magici",
+      "È in cerca di un metallo raro per completare la sua ultima creazione",
+    ]
+  };
+
+  const legamiGenerici = [
+    "Ha un fratello scomparso che cerca da anni. Unico indizio, una pergamena con un simbolo misterioso",
+    "Ha un sogno di viaggiare per il mondo e scoprire nuove terre e culture",
+    "Ha un amore perduto che non riesce a dimenticare e che spera di ritrovare",
+    "Si sente in colpa per qualcosa che ha fatto in passato e cerca di redimersi",
+    "È il discendente di un eroe leggendario e porta il suo nome con orgoglio",
+    "Ha un segreto che lo tormenta e che condivide solo con pochi eletti",
+    "È in cerca di un antico artefatto che potrebbe cambiare il corso della storia",
+    "Ha un animale domestico che considera un compagno fidato",
+    "È in debito con un vecchio amico che lo ha salvato in passato",
+  ];
+
+  const lista = legamiPerMestiere[mestiere] || legamiGenerici;
+  return lista[Math.floor(Math.random() * lista.length)];
+}
+
+// =========================
 
 const nomiPerRazza = {
   elf: {
@@ -239,6 +386,12 @@ const collegamenti = [
   
   const equip = equipPerMestiere[mestiere] || { indossa: "Abiti semplici", porta: "Niente di particolare" };
 
+  // Ottieni i linguaggi dalla razza
+const razzaData = razze[razzaKey.toLowerCase()] || {};
+const linguaggiRazza = razzaData.languages || [];
+const linguaggi = ["Comune", ...linguaggiRazza.filter(l => l !== "Comune")];
+png.linguaggi = linguaggi;
+
   return {
      ...png,
     nome: `${generaNomePerRazza(png.razza)} ${generaCognomeCasuale()}`,
@@ -251,6 +404,12 @@ const collegamenti = [
     collegamento: casuale(collegamenti),
     equipIndossato: equipPerMestiere[mestiere]?.indossa || "Abiti semplici",
     equipPortato: equipPerMestiere[mestiere]?.porta || "Niente di particolare",
+    affiliazione: generaAffiliazione(mestiere),
+    comportamento: generaComportamento(),
+    linguaggi: linguaggi,
+    legame: generaLegame(mestiere),
+    allineamento: casuale(["Legale Buono", "Neutrale Buono", "Caotico Buono", "Legale Neutrale", "Neutrale Puro", "Caotico Neutrale", "Legale Malvagio", "Neutrale Malvagio", "Caotico Malvagio"]),
+
   };
 }
 
@@ -400,8 +559,6 @@ export function generaTesoroCampagna() {
   ];
 }
 
-
-
 // ==============================
 // GENERA LOOT CASUALE PER PNG
 // ==============================
@@ -469,7 +626,6 @@ export function generaContenutoCasuale(indice) {
 
   return pool[indice] ? casuale(pool[indice]) : "Un evento inaspettato si manifesta";
 }
-
 
 // ==============================
 // ORCHESTRATORE

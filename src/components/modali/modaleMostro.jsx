@@ -8,7 +8,7 @@ import { firestore } from "../../firebase/firebaseConfig";
 import LootBox from "../generatori/lootBox";
 import CompendioMostri from "../compendioMostri";
 
-const ModaleMostro = ({ onClose }) => {
+const ModaleMostro = ({ onClose, initialData, onSave, collegaAllaCampagna }) => {
   const [tab, setTab] = useState("Generale");
   const [sceneDisponibili, setSceneDisponibili] = useState([]);
   const [sceneCollegate, setSceneCollegate] = useState([]);

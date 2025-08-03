@@ -1,0 +1,38 @@
+.villain-card {
+  border: 1px solid #6E4F9E;
+  padding: 1rem;
+  border-radius: 10px;
+  background: #1A1F2B;
+  color: #F2F2F0;
+  margin-bottom: 1rem;
+}
+
+.villain-img {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  object-fit: cover;
+  max-height: 200px;
+}
+
+.villain-card p {
+  margin: 0.3rem 0;
+}
+
+.villain-magic {
+  margin-top: 0.5rem;
+  background-color: rgba(110, 79, 158, 0.15);
+  padding: 0.5rem;
+  border-radius: 6px;
+}
+
+.villain-tag-campagna {
+  background-color: rgba(212, 175, 55, 0.15); /* Mystic Gold trasparente */
+  border: 1px solid #D4AF37;
+  border-radius: 6px;
+  padding: 4px 8px;
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: #D4AF37;
+  display: inline-block;
+}
