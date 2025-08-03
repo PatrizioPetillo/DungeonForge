@@ -12,6 +12,7 @@ import Combattimento from "../components/liveSession/combattimento";
 import LootSessione from "../components/liveSession/lootSessione";
 import LogSession from "../components/liveSession/logSession";
 import AttoViewer from "../components/attoViewer";
+import VisualizzaMappa from "../components/visualizzaMappa";
 import { fetchSessioneById } from "../utils/fetchSessioneById";
 import "../styles/liveSessionDM.css";
 
@@ -98,6 +99,29 @@ export default function LiveSessionDM({ campagna }) {
             </div>
           </div>
         )}
+        {campagna.mappe && campagna.mappe.length > 0 && (
+  <div className="mappe-sessione">
+    <h3>🗺️ Mappe collegate alla campagna</h3>
+    {campagna.mappe.map((mappa, i) => (
+      <div key={i} className="mappa-box">
+        <h4>{mappa.titolo}</h4>
+        <p>{mappa.descrizione}</p>
+        <VisualizzaMappa mappa={mappa} />
+        <div className="legend-pin">
+  <strong>Legenda:</strong>
+  <span>🧛‍♂️ = Villain</span>
+  <span>🧑‍🌾 = PNG</span>
+  <span>💀 = Mostro</span>
+  <span>📖 = Capitolo</span>
+  <span>🧩 = Enigma</span>
+  <span>📍 = Luogo</span>
+  <span>❓ = Altro</span>
+</div>
+      </div>
+    ))}
+  </div>
+)}
+
 
         <VillainAttivi villain={[campagna.villain]} />
         <PNGAttivi png={campagna.png} />

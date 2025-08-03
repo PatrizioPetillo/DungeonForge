@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { collection, addDoc } from "firebase/firestore";
 import PngWidget from "../components/widget/pngWidget";
 import { salvaSessioneOneShot } from "../utils/salvaSessioneOneShot";
+import WidgetMappe from "../components/widget/mappeWidget";
 import VillainWidget from "../components/widget/villainWidget";
 import ModaleVillain from "../components/modali/modaleVillain";
 import MostroWidget from "../components/widget/mostroWidget";
@@ -172,6 +173,11 @@ const collegaACampagna = (oneShot) => {
 
       <hr />
 
+      {/* Widget Mappe */}
+      <div className="dashboard-generatori">
+      <WidgetMappe campagnaAttiva={campagnaAttiva} />
+      </div>
+
       <section className="dashboard-section">
   <h2>Gestione Oggetti</h2>
   <p className="section-desc">
@@ -196,6 +202,8 @@ const collegaACampagna = (oneShot) => {
       </section>
 
       <hr />
+
+
 
       {/* FUTURE: Mappa delle Connessioni */}
       {/* <section className="dashboard-section">

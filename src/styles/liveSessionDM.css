@@ -127,6 +127,63 @@
   color: #fff;
 }
 
+.mappe-sessione {
+  margin-top: 40px;
+  border-top: 1px solid #444;
+  padding-top: 20px;
+}
+
+.mappa-box {
+  margin-bottom: 40px;
+}
+
+.mappa-box h4 {
+  margin-bottom: 5px;
+}
+
+.mappa-pin-container {
+  position: relative;
+  width: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.mappa-pin-container img {
+  width: 100%;
+  display: block;
+  border-radius: 6px;
+}
+
+.pin {
+  position: absolute;
+  font-size: 20px;
+  z-index: 10;
+  color: gold;
+  pointer-events: auto;
+  transition: transform 0.2s ease;
+}
+
+.pin:hover {
+  transform: scale(1.3);
+}
+
+.legend-pin {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #ccc;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.legend-pin span {
+  background: #1e1e1e;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #444;
+}
+
+
 /* Responsive per tablet */
 @media (max-width: 1024px) {
   .widgets-row {
@@ -138,6 +195,10 @@
 @media (max-width: 768px) {
   .widgets-row {
     grid-template-columns: 1fr;
+  }
+
+  .pin {
+    font-size: 16px;
   }
 
   .sidebar-session {

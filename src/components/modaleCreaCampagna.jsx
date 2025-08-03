@@ -47,9 +47,12 @@ function ModaleCreaCampagna({
   const [villainCollegato, setVillainCollegato] = useState("");
   const [mostroCollegato, setMostroCollegato] = useState("");
   const [villainGenerato, setVillainGenerato] = useState(false);
-const [villainCreato, setVillainCreato] = useState(null);
+  const [villainCreato, setVillainCreato] = useState(null);
   const [pngSelezionato, setPngSelezionato] = useState(null);
   const [pngGenerati, setPngGenerati] = useState(false);
+  const [mostraModaleMappa, setMostraModaleMappa] = useState(false);
+  const [mappaSelezionata, setMappaSelezionata] = useState(null);
+  const [mappaIndexCorrente, setMappaIndexCorrente] = useState(-1);
 
   const [pngIndexCorrente, setPngIndexCorrente] = useState(-1);
   const [showPng, setShowPng] = useState(false);
@@ -60,8 +63,8 @@ const [villainCreato, setVillainCreato] = useState(null);
   const [modaleArchivioAperta, setModaleArchivioAperta] = useState(false);
   const [villainArchivio, setVillainArchivio] = useState([]);
   const [enigmaSelezionato, setEnigmaSelezionato] = useState(null);
-const [enigmaIndex, setEnigmaIndex] = useState(-1);
-const [showModaleEnigma, setShowModaleEnigma] = useState(false);
+  const [enigmaIndex, setEnigmaIndex] = useState(-1);
+  const [showModaleEnigma, setShowModaleEnigma] = useState(false);
   const [modalePNGAperta, setModalePNGAperta] = useState(false);
   const [modalePNGNonComuneAperta, setModalePNGNonComuneAperta] =
     useState(false);
@@ -1603,7 +1606,76 @@ const generaPNGPredefiniti = async (listaPng) => {
               />
             )}
           </div>
-        );      
+        );
+        
+      case "Mappe":
+  return (
+    <div className="tab-content tab-mappe">
+      <h3>📍 Mappe collegate alla campagna</h3>
+
+      {campagna.mappe?.length > 0 ? (
+        campagna.mappe.map((mappa, i) => (
+          <div key={i} className="card mappa-card">
+            <h4>{mappa.titolo}</h4>
+            <p>{mappa.descrizione}</p>
+            {mappa.immagine && (
+              <div className="mappa-img-container">
+                <img
+                  src={mappa.immagine}
+                  alt={mappa.titolo}
+                  className="mappa-thumbnail"
+                />
+              </div>
+            )}
+            <p><strong>Collegamento:</strong> Atto {mappa.collegamento?.atto || "—"} → Capitolo {mappa.collegamento?.capitolo || "—"}</p>
+            <p><strong>Luogo:</strong> {mappa.collegamento?.luogo || "—"}</p>
+
+            <button onClick={() => {
+              setMappaIndexCorrente(i);
+              setMappaSelezionata(mappa);
+              setMostraModaleMappa(true);
+            }}>✏️ Modifica</button>
+
+            <button onClick={() => {
+              const nuove = [...campagna.mappe];
+              nuove.splice(i, 1);
+              setCampagna(prev => ({ ...prev, mappe: nuove }));
+            }}>🗑️ Rimuovi</button>
+          </div>
+        ))
+      ) : (
+        <p>Nessuna mappa aggiunta ancora.</p>
+      )}
+
+      <button onClick={() => {
+        setMappaSelezionata(null);
+        setMappaIndexCorrente(-1);
+        setMostraModaleMappa(true);
+      }}>➕ Aggiungi mappa</button>
+
+      {mostraModaleMappa && (
+        <ModaleMappa
+          initialData={mappaSelezionata}
+          onSave={(nuovaMappa) => {
+            if (mappaIndexCorrente === -1) {
+              setCampagna(prev => ({
+                ...prev,
+                mappe: [...(prev.mappe || []), nuovaMappa],
+              }));
+            } else {
+              const nuove = [...campagna.mappe];
+              nuove[mappaIndexCorrente] = nuovaMappa;
+              setCampagna(prev => ({ ...prev, mappe: nuove }));
+            }
+            setMostraModaleMappa(false);
+          }}
+          onClose={() => setMostraModaleMappa(false)}
+          idCampagna={campagna.id}
+          campagnaAttiva={campagna.titolo || ""}
+        />
+      )}
+    </div>
+  );
 
       case "Luoghi":
         return (
