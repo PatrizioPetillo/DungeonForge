@@ -46,7 +46,11 @@ function ModaleCreaCampagna({
   const [campagnaSelezionata, setCampagnaSelezionata] = useState(null);
   const [villainCollegato, setVillainCollegato] = useState("");
   const [mostroCollegato, setMostroCollegato] = useState("");
+  const [villainGenerato, setVillainGenerato] = useState(false);
+const [villainCreato, setVillainCreato] = useState(null);
   const [pngSelezionato, setPngSelezionato] = useState(null);
+  const [pngGenerati, setPngGenerati] = useState(false);
+
   const [pngIndexCorrente, setPngIndexCorrente] = useState(-1);
   const [showPng, setShowPng] = useState(false);
   const [modaleVillainAperta, setModaleVillainAperta] = useState(false);
@@ -334,6 +338,7 @@ const [mostraModaleVillain, setMostraModaleVillain] = useState(false);
         capitoli: campagna.capitoli || [],
         createdAt: campagna.createdAt || serverTimestamp(),
         updatedAt: serverTimestamp(),
+        
       };
 
       await setDoc(docRef, datiBase);
@@ -342,6 +347,7 @@ const [mostraModaleVillain, setMostraModaleVillain] = useState(false);
       const villainColl = collection(docRef, "villain");
       for (const v of campagna.villain || []) {
         await addDoc(villainColl, { ...v, createdAt: serverTimestamp() });
+        nuovoVillain.campagnaCollegata = campagnaSelezionata.id || campagnaSelezionata.nome;
       }
 
       // 3. Salva PNG
@@ -943,11 +949,88 @@ if (campagnaPredefinita.mostri) {
   }
 }, [campagnaPredefinita]);
 
+useEffect(() => {
+  if (
+    campagnaSelezionata &&
+    campagnaSelezionata.villainPredefinito &&
+    !villainGenerato
+  ) {
+    generaVillainConDati(campagnaSelezionata.villainPredefinito);
+  }
+}, [campagnaSelezionata]);
+
 const aggiornaMostri = (index, updatedMostro) => {
   const nuovi = [...campagna.mostri];
   nuovi[index] = updatedMostro;
   setCampagna(prev => ({ ...prev, mostri: nuovi }));
 };
+
+const generaVillainConDati = async (datiNarrativi) => {
+  const nuovoVillain = await generaVillain();
+
+  // Aggiunta narrativa dalla campagna predefinita
+  nuovoVillain.narrativa = {
+    hook: datiNarrativi.hook || "",
+    dialogo: datiNarrativi.dialogo || "",
+    scopo: datiNarrativi.scopo || "",
+    piano: datiNarrativi.piano || "",
+    motivazione: datiNarrativi.motivazione || "",
+    scenaApparizione: datiNarrativi.scenaApparizione || "",
+  };
+
+  // Collegamento automatico alla campagna
+  nuovoVillain.campagnaCollegata = campagnaSelezionata?.id || campagnaSelezionata?.nome;
+
+  // Salva in archivio
+  await salvaInArchivio("villain", nuovoVillain);
+
+  // Salva nella campagna attuale
+  setCampagna(prev => ({
+    ...prev,
+    villain: nuovoVillain,
+  }));
+
+  // Stato locale
+  setVillainCreato(nuovoVillain);
+  setVillainGenerato(true);
+};
+
+useEffect(() => {
+  if (
+    campagnaSelezionata &&
+    campagnaSelezionata.pngPredefiniti &&
+    !pngGenerati
+  ) {
+    generaPNGPredefiniti(campagnaSelezionata.pngPredefiniti);
+  }
+}, [campagnaSelezionata]);
+
+
+const generaPNGPredefiniti = async (listaPng) => {
+  const pngCreati = [];
+
+  for (const dati of listaPng) {
+    const nuovoPNG = await generaPNG(dati.tipo || "comune");
+
+    nuovoPNG.nome = dati.nome;
+    nuovoPNG.razza = dati.razza || "Umano";
+    nuovoPNG.mestiere = dati.mestiere || "";
+    nuovoPNG.relazioneConPG = dati.relazione || "";
+    nuovoPNG.collegamentoNarrativo = dati.collegamentoNarrativo || "";
+    nuovoPNG.campagnaCollegata = campagnaSelezionata?.id || campagnaSelezionata?.nome;
+
+    await salvaInArchivio("png", nuovoPNG);
+    pngCreati.push(nuovoPNG);
+  }
+
+  setCampagna(prev => ({
+    ...prev,
+    png: pngCreati,
+  }));
+
+  setPngGenerati(true);
+};
+
 
   const renderTab = () => {
     switch (tab) {

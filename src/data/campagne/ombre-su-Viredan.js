@@ -56,13 +56,23 @@ export const ombresuViredan =
         ]
       }
     ],
-    villain: {
+    villainPredefinito: {
       nome: "Arhiman del Terzo Sigillo",
       razza: "Mezzelfo",
       classe: "Chierico corrotto",
       livello: 7,
       obiettivo: "Risvegliare il Dormiente sotto Viredan per ottenere potere assoluto",
+      hook: "Un antico manoscritto parla di un rituale che può risvegliare il Dormiente. Arhiman è convinto che questo rituale gli garantirà il dominio su Viredan e oltre.",
+      storia: "Arhiman era un promettente studioso della Biblioteca delle Lame Silenti, ma la sua sete di conoscenza lo ha portato a scoprire segreti proibiti. Dopo aver perso la sua famiglia in un incendio misterioso, ha giurato vendetta contro la città che lo ha abbandonato. Ora, guida un culto oscuro che cerca di risvegliare un antico demone noto come il Dormiente.",
       motivazione: "Era un orfano cresciuto nella biblioteca; la conoscenza lo ha spezzato e ora cerca di riscrivere il destino della città.",
+      piano: "Arhiman ha pianificato un rituale complesso che richiede tre sigilli magici, nascosti in luoghi chiave della città. I PG dovranno trovare e distruggere questi sigilli prima che il rituale sia completato.",
+      alleati: "I membri del culto del Terzo Sigillo, tra cui evocatori e segugi demoniaci, sono pronti a sacrificare tutto per il loro capo. Arhiman ha anche alcuni nobili corrotti tra i suoi alleati, che lo sostengono in cambio di potere e ricchezze.",
+      nemici: "Le guardie della città, che sono state corrotte dal culto, e i membri delle gilde rivali che cercano di fermare Arhiman per i loro scopi personali. I PG dovranno affrontare anche i seguaci del culto, tra cui evocatori e segugi demoniaci, che sono pronti a tutto pur di proteggere i segreti del loro capo.",
+      abilità: ["Arcano", "Storia", "Inganno"],
+      abilitàSpeciali: ["Illusione oscura", "Evocazione di ombre", "Controllo mentale"],
+      affiliazione: "Arhiman è un maestro della magia oscura e delle illusioni. Può evocare ombre per confondere i suoi nemici e usare la sua conoscenza arcana per manipolare gli eventi a suo favore. La sua abilità nel controllo mentale gli consente di influenzare le menti deboli, trasformandole in alleati o schiavi.",
+      scenaApparizione: "Arhiman appare in una scena drammatica, circondato da ombre danzanti e con un'aura di potere oscuro. I suoi occhi brillano di una luce sinistra mentre recita incantesimi antichi, evocando creature oscure per proteggere i suoi segreti. La sua voce è calma e ipnotica, ma i suoi occhi tradiscono una follia crescente.",
+      obiettivo: "Risvegliare il Dormiente per ottenere potere assoluto e vendetta contro coloro che lo hanno abbandonato.",
       comportamento: "Colto, pacato, ossessionato dalle profezie e dalla conoscenza proibita. Usa la magia per manipolare e intimidire.",
       equipaggiamento: "Bastone del Terzo Sigillo, mantello delle ombre, pergamene di evocazione",
       abilitàSpeciali: ["Illusione oscura", "Evocazione di ombre", "Controllo mentale"],
