@@ -1,8 +1,8 @@
 // src/components/modaleMappa.jsx
 import React, { useState, useEffect } from "react";
-import { salvaInArchivio } from "../firebase/firestoreArchivio";
+import { salvaInArchivio } from "../../utils/firestoreArchivio";
 import Marker from 'react-image-marker';
-import "../../styles/modaleMappa.css";
+import "../../styles/modaleMappe.css";
 
 const ModaleMappa = ({ initialData = null, onSave, onClose, campagnaAttiva = null }) => {
   const [titolo, setTitolo] = useState(initialData?.titolo || "");

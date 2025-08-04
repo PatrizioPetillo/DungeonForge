@@ -51,3 +51,14 @@ export const eliminaDaArchivio = async (tipo, id) => {
     return { success: false, error: err };
   }
 };
+
+export const getMappeArchivio = async () => {
+  try {
+    const colRef = collection(firestore, "mappe");
+    const snapshot = await getDocs(colRef);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error("Errore recupero mappe archivio:", error);
+    return [];
+  }
+};

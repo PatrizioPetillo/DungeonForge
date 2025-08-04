@@ -877,6 +877,14 @@ const [mostraModaleVillain, setMostraModaleVillain] = useState(false);
     return incontri;
   };
 
+  useEffect(() => {
+  if (mostraModaleMappa) {
+    document.body.style.overflow = "hidden";
+  } else {
+    document.body.style.overflow = "";
+  }
+}, [mostraModaleMappa]);
+
   function autoriempiCampagna(campagna) {
   setCampagna({
   titolo: campagna.titolo || "",

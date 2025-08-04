@@ -1,7 +1,8 @@
 // src/components/widgetMappe.jsx
 import React, { useState, useEffect } from "react";
-import ModaleMappa from "./modaleMappa";
-import { getMappeArchivio } from "../firebase/firestoreArchivio";
+import ModaleMappa from "../modali/modaleMappe";
+import { getMappeArchivio } from "../../utils/firestoreArchivio";
+import "../../styles/mappeWidget.css";
 
 const WidgetMappe = () => {
   const [mappe, setMappe] = useState([]);
@@ -27,7 +28,7 @@ const WidgetMappe = () => {
   };
 
   return (
-    <div className="widget-box">
+    <div className="widget-mappe">
       <h3>Mappe e Cartografia</h3>
       <p>Gestisci le mappe della tua campagna e dai vita a nuovi luoghi da esplorare.</p>
 

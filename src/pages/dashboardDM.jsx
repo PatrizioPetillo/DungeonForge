@@ -63,6 +63,14 @@ const collegaACampagna = (oneShot) => {
   alert(`Collega "${oneShot.titolo}" a una campagna... (in sviluppo)`);
 };
 
+useEffect(() => {
+  if (mostraModaleMappa) {
+    document.body.style.overflow = "hidden";
+  } else {
+    document.body.style.overflow = "";
+  }
+}, [mostraModaleMappa]);
+
   return (
     <div className="dashboard-container">
       {showModal && <ModaleCreaCampagna onClose={() => setShowModal(false)} />}
