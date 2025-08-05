@@ -104,6 +104,19 @@
   background: #6e4f9e;
   color: #fff;
 }
+
+.create-map-button {
+  background: #453b54;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 1rem;
+  transition: background-color 0.3s ease;
+}
+
 @media (max-width: 768px) {
   .widget-mappe {
     width: 95%;

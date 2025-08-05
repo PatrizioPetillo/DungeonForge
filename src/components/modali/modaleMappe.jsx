@@ -135,21 +135,6 @@ const rimuoviPin = (index) => {
                     </div>
                 )}
                 />
-                markerComponent={({ top, left }, index) => (
-                    <div
-                        className="pin"
-                        style={{
-                        position: "absolute",
-                        top: `${top * 100}%`,
-                        left: `${left * 100}%`,
-                        transform: "translate(-50%, -100%)",
-                        cursor: "pointer"
-                        }}
-                        onClick={() => setPinSelezionatoIndex(index)}
-                    >
-                        📍
-                    </div>
-                    )}
             </div>
             )}
 

@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, deleteDoc } from "firebase/firestore";
+import { collection, doc, setDoc, deleteDoc, getDocs } from "firebase/firestore";
 import { firestore } from "../firebase/firebaseConfig";
 
 function rimuoviUndefined(obj) {

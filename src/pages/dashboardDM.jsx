@@ -35,18 +35,20 @@ function DashboardDM() {
   const [campagna, setCampagna] = useState({
     titolo: "",
     descrizione: "",
+    immagine: "",
+    idMaster: dmId,
     stato: "bozza",
   });
   const [campagnaSelezionata, setCampagnaSelezionata] = useState(null);
   const [campagnaAttiva, setCampagnaAttiva] = useState(null);
   const [isVillainModalOpen, setIsVillainModalOpen] = useState(false);
-    const [villain, setVillain] = useState(null);
+  const [villain, setVillain] = useState(null);
   const [showMostroModal, setShowMostroModal] = useState(false);
   const [showLuogoModal, setShowLuogoModal] = useState(false);
   const [showCompendio, setShowCompendio] = useState(false);
-const [oneShotSelezionata, setOneShotSelezionata] = useState(null);
+  const [oneShotSelezionata, setOneShotSelezionata] = useState(null);
   const [mostraModaleEnigma, setMostraModaleEnigma] = useState(false);
-  const [selezionata, setSelezionata] = useState(null);
+  const [mostraModaleMappa, setMostraModaleMappa] = useState(false);
   const [mostraModaleOggetti, setMostraModaleOggetti] = useState(false);
 
   const salvaOggettoInCampagna = async (oggetto) => {
@@ -182,10 +184,11 @@ useEffect(() => {
       <hr />
 
       {/* Widget Mappe */}
-      <div className="dashboard-generatori">
-      <WidgetMappe campagnaAttiva={campagnaAttiva} />
-      </div>
-
+      <div className="recap-FRD-section">
+        
+          <WidgetMappe campagnaAttiva={campagnaAttiva} />
+       
+        <br />
       <section className="dashboard-section">
   <h2>Gestione Oggetti</h2>
   <p className="section-desc">
@@ -194,7 +197,7 @@ useEffect(() => {
   </p>
       <button onClick={() => setMostraModaleOggetti(true)}>📜 Gestisci Oggetti</button>
 </section>
-
+</div>
 <hr />
 
       {/* Archivio Narrativo */}

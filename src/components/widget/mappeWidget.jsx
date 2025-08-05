@@ -52,7 +52,7 @@ const WidgetMappe = () => {
         </div>
       ))}
 
-      <button onClick={() => setMostraModale(true)}>➕ Crea nuova mappa</button>
+      <button className="create-map-button" onClick={() => setMostraModale(true)}>➕ Crea nuova mappa</button>
 
       {mostraModale && (
         <ModaleMappa
